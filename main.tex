@@ -1,0 +1,651 @@
+% ============================================================
+% Plantilla de Documento Técnico - Trabajo Terminal
+% Escuela Superior de Cómputo (ESCOM) - IPN
+% ============================================================
+\documentclass[12pt,letterpaper]{report}
+
+% ---------------------- IMPORTS / PAQUETES ----------------------
+\usepackage[utf8]{inputenc}        % Codificación de entrada UTF-8
+\usepackage[T1]{fontenc}           % Codificación de fuentes
+\usepackage[spanish,es-tabla]{babel} % Idioma español (títulos, fechas, "Tabla" en vez de "Cuadro")
+\usepackage{geometry}              % Márgenes de página
+\usepackage{graphicx}              % Inserción de imágenes
+\usepackage{xcolor}                % Colores
+\usepackage{booktabs}              % Tablas de calidad profesional
+\usepackage{longtable}             % Tablas que abarcan varias páginas
+\usepackage{array}                 % Control avanzado de columnas en tablas
+\usepackage{multirow}              % Celdas que abarcan varias filas
+\usepackage{tabularx}              % Tablas con columnas de ancho ajustable
+\usepackage{fancyhdr}              % Encabezados y pies de página personalizados
+\usepackage{titlesec}              % Formato personalizado de títulos de capítulo/sección
+\usepackage{tocloft}               % Personalización de índices (contenido, tablas, figuras)
+\usepackage{enumitem}              % Listas personalizadas (para requerimientos, objetivos, etc.)
+\usepackage{amsmath,amssymb}       % Símbolos y entornos matemáticos
+\usepackage{caption}               % Personalización de leyendas de figuras/tablas
+\usepackage{subcaption}            % Subfiguras
+\usepackage{float}                 % Control de posicionamiento de flotantes (H)
+\usepackage{pdfpages}              % Insertar páginas PDF completas (p. ej. carta responsiva escaneada)
+\usepackage{setspace}              % Control de interlineado
+\usepackage{indentfirst}           % Sangría en el primer párrafo de cada sección
+\usepackage[export]{adjustbox}     % Ajuste adicional de imágenes
+\usepackage{csquotes}              % Comillas contextuales para citas
+\usepackage[backend=biber,style=ieee,sorting=none]{biblatex} % Referencias en formato IEEE
+\usepackage{hyperref}              % Hipervínculos y marcadores en el PDF (cargar casi al final)
+\usepackage[capitalize]{cleveref}  % Referencias cruzadas inteligentes (después de hyperref)
+% ---------------------- CONFIGURACIÓN GENERAL ----------------------
+\geometry{left=3cm, right=2.5cm, top=2.5cm, bottom=2.5cm}
+\addbibresource{referencias.bib}   % Archivo .bib con las referencias (crear aparte)
+
+% Colores institucionales (opcional, tono guinda IPN)
+\definecolor{guindaipn}{RGB}{106,17,63}
+
+% Formato de títulos de capítulo
+\titleformat{\chapter}[display]
+  {\normalfont\bfseries\Large\color{guindaipn}}
+  {\chaptertitlename\ \thechapter}{20pt}{\Large}
+\titlespacing*{\chapter}{0pt}{-20pt}{20pt}
+
+% Encabezado y pie de página
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\fancyhead[L]{\small Instituto Politécnico Nacional -- ESCOM}
+\fancyhead[R]{\small\leftmark}
+\fancyfoot[C]{\thepage}
+
+% Interlineado 1.5 para el cuerpo del documento
+\onehalfspacing
+
+% Numeración de figuras/tablas por capítulo
+\counterwithin{figure}{chapter}
+\counterwithin{table}{chapter}
+
+% Hipervínculos sin bordes de color llamativos
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    citecolor=guindaipn,
+    urlcolor=blue,
+    pdftitle={Modelo de optimización de alineaciones mediante análisis de emparejamientos en la WNBA},
+    pdfauthor={Ulises Abdiel Cabello Cardenas, Fernanda Madariaga Villanueva}
+}
+
+% ---------------------- DATOS DEL DOCUMENTO ----------------------
+\newcommand{\tituloTT}{Modelo de optimización de alineaciones mediante análisis de emparejamientos en la WNBA}
+\newcommand{\numeroTT}{2027-A133}
+\newcommand{\autorUno}{Ulises Abdiel Cabello Cardenas}
+\newcommand{\autorDos}{Fernanda Madariaga Villanueva}
+\newcommand{\directorUno}{Dr. Benjamín Cruz Torres}
+\newcommand{\directorDos}{Grado y nombre completo}
+\newcommand{\mesAnio}{Mes y año}
+
+\begin{document}
+
+% ============================================================
+% PORTADA
+% ============================================================
+\begin{titlepage}
+\begin{center}
+
+\begin{minipage}{0.2\textwidth}
+    %\includegraphics[width=\linewidth]{} 
+\end{minipage}
+\begin{minipage}{0.75\textwidth}
+    \centering
+    {\Large \bfseries INSTITUTO POLITÉCNICO NACIONAL}\\[4pt]
+    {\large \bfseries ESCUELA SUPERIOR DE CÓMPUTO}
+\end{minipage}
+
+\vspace{1cm}
+{\Huge \bfseries ESCOM}
+
+\vspace{2cm}
+{\large \itshape Trabajo Terminal}
+
+\vspace{0.5cm}
+{\Large \bfseries ``\tituloTT''}
+
+\vspace{0.3cm}
+{\large \numeroTT}
+
+\vspace{2cm}
+{\itshape Presentan}\\[6pt]
+{\large \bfseries \autorUno}\\
+{\large \bfseries \autorDos}
+
+\vspace{2cm}
+{\itshape Directores}\\[6pt]
+{\bfseries \directorUno \quad \directorDos}
+
+\vfill
+
+\begin{minipage}{0.2\textwidth}
+    % \includegraphics[width=\linewidth]{logo_escom.png} % Reemplazar con el logo real
+\end{minipage}
+\hfill
+{\itshape \mesAnio}
+
+\end{center}
+\end{titlepage}
+
+% ============================================================
+% HOJA DE DOCUMENTO TÉCNICO / RESUMEN
+% ============================================================
+\begin{titlepage}
+\begin{center}
+{\bfseries INSTITUTO POLITÉCNICO NACIONAL}\\
+{\bfseries ESCUELA SUPERIOR DE CÓMPUTO}\\
+{\bfseries SUBDIRECCIÓN ACADÉMICA}
+\end{center}
+
+\vspace{0.5cm}
+\noindent
+\begin{minipage}[t]{0.5\textwidth}
+    No. de TT: \numeroTT
+\end{minipage}
+\begin{minipage}[t]{0.45\textwidth}
+    \raggedleft Fecha de presentación de TT: \underline{\hspace{4cm}}
+\end{minipage}
+
+\vspace{0.3cm}
+\begin{center}
+    Documento técnico
+
+    \vspace{0.5cm}
+    {\bfseries ``\tituloTT''}\\
+    \numeroTT
+
+    \vspace{0.5cm}
+    \textit{Presentan}\\
+    \textbf{\autorUno}\\
+    \textbf{\autorDos}\footnote{Correo electrónico de las y los participantes.}
+
+    \vspace{0.5cm}
+    \textit{Directores}\\
+    \textbf{\directorUno \quad \directorDos}
+\end{center}
+
+\vspace{0.5cm}
+\begin{center}
+    \textbf{RESUMEN}
+\end{center}
+\noindent
+% {Sustituir por el resumen del proyecto en máximo una cuartilla}
+En este proyecto\ldots
+
+\vspace{0.5cm}
+\noindent \textbf{Palabras clave:} , , ,
+
+\end{titlepage}
+
+% ============================================================
+% CARTA RESPONSIVA (solo para TT2)
+% ============================================================
+\chapter*{Advertencia}
+\addcontentsline{toc}{chapter}{Advertencia}
+\input{advertencia}
+
+% ============================================================
+% AGRADECIMIENTOS
+% ============================================================
+\chapter*{Agradecimientos}
+\addcontentsline{toc}{chapter}{Agradecimientos}
+\newpage
+% {Texto de agradecimientos aquí}
+
+% ============================================================
+% ÍNDICES (generados automáticamente)
+% ============================================================
+\tableofcontents
+\listoftables
+\listoffigures
+
+% ============================================================
+% GLOSARIO DE TÉRMINOS
+% ============================================================
+\chapter*{Glosario de términos}
+\addcontentsline{toc}{chapter}{Glosario de términos}
+
+\begin{longtable}{@{}p{4cm}p{10cm}@{}}
+\toprule
+\textbf{Término} & \textbf{Definición} \\
+\midrule
+\endhead
+Algoritmo & Conjunto ordenado y finito de operaciones que permite hallar la solución de un problema. \\
+Almacenamiento virtual & Técnica que simula más memoria que la que realmente existe y permite a la computadora ejecutar varios programas simultáneamente. \\
+\bottomrule
+\end{longtable}
+
+% ============================================================
+% ABREVIATURAS
+% ============================================================
+\chapter*{Abreviaturas}
+\input{abreviaturas}
+
+\chapter*{Introducción}
+\addcontentsline{toc}{chapter}{Introducción}
+\input{introduccion}
+
+\chapter{Antecedentes}
+
+\section{Planteamiento del problema}
+\input{planteamiento_problema}
+\section{Propuesta de solución}
+\input{propuesta_solucion}
+
+\section{Objetivo general}
+\input{objetivo}
+\subsection{Objetivos específicos}
+\input{objetivos_especificos}
+
+\section{Justificación}
+\input{justificaacion}
+
+
+\section{Organización del documento}
+En el capítulo 1, se describe la problemática junto con \ldots
+
+En el capítulo 2, se revisan los trabajos similares al proyecto \ldots
+
+En el capítulo 3, se describen los conceptos básicos que se \ldots
+
+En el capítulo 4, se analizan \ldots
+
+% ============================================================
+% CAPÍTULO 2. ESTADO DEL ARTE
+% ============================================================
+\chapter{Estado del arte}
+
+\section{Articulo: Modelling women’s team line-ups based on effectiveness and quality}
+% {Descripción, características, ventajas, desventajas, estadísticas.}
+% [Por cada trabajo: mínimo una cuartilla, máximo tres]
+\input{articluo_Modelling_womens}
+\section{Articulo: Network analysis and link prediction in competitive women´s basketball}
+\input{articulo_Network_analysis}
+
+% {Descripción del TT, características, ventajas, desventajas.}
+\section{Articulo: Hypergraph adjusted plus-minus}
+\input{articulo_Hypergraph_adjusted}
+\section{Articulo: Offensive Lineup Analysis in Basketball with Clustering Players Based on Shooting Style and Offensive Role}
+\input{atriculo_offensive_lineup.tex}
+\section{Articulo: Identifying group contributions in NBA lineups with spectral analysis}
+\input{articulo_identifying_group}
+\section{Tabla comparativa}
+
+\begin{table}[H]
+\centering
+\caption{Tabla comparativa entre las principales \ldots}
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+\textbf{Título del trabajo} & \textbf{Car. 1} & \textbf{Car. 2} & \textbf{Car. 3} & \textbf{Car. 4} & \textbf{Car. 5} \\
+\midrule
+Trabajo 1  & \checkmark & $\times$   & \checkmark & $\times$   & \checkmark \\
+Trabajo 2  & $\times$   & \checkmark & \checkmark & \checkmark & $\times$   \\
+Trabajo 3  & \checkmark & \checkmark & $\times$   & $\times$   & \checkmark \\
+Trabajo 4  & $\times$   & \checkmark & \checkmark & \checkmark & \checkmark \\
+\ldots     & &  &  &  &  \\
+\textbf{Propuesta} & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark \\
+\bottomrule
+\end{tabular}
+\end{table}
+% {Breve conclusión de la comparativa. Máximo un párrafo.}
+
+% ============================================================
+% CAPÍTULO 3. MARCO TEÓRICO
+% ============================================================
+\chapter{Marco Teórico}
+% {Este capítulo debe abarcar el 35\% del documento final. Solo definiciones,
+%  no análisis. Redactar con base en varias fuentes, referenciadas.}
+\section{Web Scraping}
+\input{web_scrapping}
+\section{Criptografía}
+De acuerdo con \cite{ejemploX} la palabra criptografía proviene del latín \ldots
+
+\subsection{Algoritmos criptográficos}
+Según \cite{ejemploZ} se pueden clasificar los algoritmos \ldots
+
+\subsubsection{DES}
+El primer algoritmo criptográfico, de acuerdo con \cite{ejemploY}, es \ldots
+
+\section{Lenguaje de programación}
+En \cite{ejemploW} se define a un lenguaje de programación como \ldots
+
+% ============================================================
+% CAPÍTULO 4. ANÁLISIS
+% ============================================================
+\chapter{Análisis}
+
+\section{Requerimientos}
+
+\subsection{Requerimientos funcionales}
+\begin{description}[leftmargin=2cm]
+    \item[RF01] El sistema permitirá \ldots
+    \item[RF02] El sistema permitirá \ldots
+\end{description}
+
+\subsection{Requerimientos no funcionales}
+\begin{description}[leftmargin=2.2cm]
+    \item[RNF01 -- La contraseña se debe guardar cifrada en la base de datos.] El sistema guardará las contraseñas de todos los usuarios de forma cifrada en la base de datos, de manera que no sea visible en caso de que se haga la petición correspondiente.
+    \item[RNF02] El sistema \ldots
+\end{description}
+
+\subsection{Reglas de negocio}
+\begin{description}[leftmargin=2.5cm]
+    \item[RN01 -- Datos obligatorios] Al registrar los datos de su perfil de usuario, los siguientes son obligatorios: Nombre, apellidos, teléfono y código postal.
+    \item[RN02 -- Número máximo de hijos registrados] Cada usuario puede registrar un máximo de 5 hijos al sistema.
+    \item[RN03] \ldots
+\end{description}
+
+\section{Análisis de las herramientas a utilizar}
+
+\subsection{Análisis de los sistemas operativos}
+
+\begin{table}[H]
+\centering
+\caption{Análisis de los sistemas operativos}
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+\textbf{Sistema operativo} & \textbf{Car. 1} & \textbf{Car. 2} & \textbf{Car. 3} & \textbf{Car. 4} & \textbf{Car. 5} \\
+\midrule
+Windows \cite{ejemploX} & \checkmark & $\times$   & \checkmark & $\times$   & \checkmark \\
+Linux \cite{ejemploY}   & \checkmark & \checkmark & \checkmark & \checkmark & $\times$   \\
+Solaris \cite{ejemploZ} & $\times$   & \checkmark & \checkmark & \checkmark & \checkmark \\
+OS-X \cite{ejemploW}    & \checkmark & \checkmark & $\times$   & \checkmark & $\times$   \\
+\ldots & & & & & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+De acuerdo con la Tabla 4.2, se optó por utilizar el sistema operativo Solaris; ya que ofrece \ldots
+
+\section{Análisis de riesgos}
+
+\begin{table}[H]
+\centering
+\caption{Matriz de riesgos}
+\begin{tabular}{@{}p{1cm}p{3.5cm}p{2.2cm}p{2cm}p{5.5cm}@{}}
+\toprule
+\textbf{Riesgo} & \textbf{Descripción} & \textbf{Categoría} & \textbf{Probabilidad} & \textbf{Gestión del riesgo} \\
+\midrule
+R01 & Pérdida del código & Técnico & Alta & Realizar un respaldo de todo el código cada viernes a las 8:00 pm \\
+R02 & Un integrante deja el equipo & Personal & Baja & Replantear los objetivos. No se realizarán los módulos menos importantes, como graficación y generación de reportes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Análisis de factibilidad}
+
+\subsection{Factibilidad técnica}
+% {Evaluar disponibilidad de equipo, software y personal con experiencia técnica.}
+
+\subsection{Factibilidad operativa}
+% {Determinar la posibilidad de que el sistema se utilice y que ese uso sea adecuado.
+%  Incluir instrumento de recolección de datos (encuesta/cuestionario/entrevista).}
+
+\subsubsection{Sobre si los adultos mayores conviven con animales de compañía}
+Del total de la muestra, se analizaron los adultos mayores (personas con 60 años o más) y se obtuvo que casi un 60\% de ellos cuentan con algún animal de compañía (ver \cref{fig:animales}).
+
+\begin{figure}[H]
+    \centering
+    %\includegraphics[width=0.55\textwidth]{figura_animales.png} % Reemplazar con la gráfica real
+    \caption{Porcentaje de adultos mayores que tienen animales de compañía en casa. Elaboración propia.}
+    \label{fig:animales}
+\end{figure}
+
+De esto se puede afirmar que un porcentaje muy alto de los adultos mayores encuestados podría utilizar la aplicación propuesta\ldots
+
+\subsection{Factibilidad económica}
+
+\subsubsection{Recursos humanos}
+
+\begin{table}[H]
+\centering
+\caption{Recursos humanos necesarios para realizar el proyecto. Elaboración propia}
+\begin{tabular}{@{}clrr@{}}
+\toprule
+\textbf{Núm.} & \textbf{Cargo} & \textbf{Costo individual} & \textbf{Costo total} \\
+\midrule
+1 & Ing. Sistemas (Líder del Proyecto) & \$ 24,000.00 & \$ 24,000.00 \\
+2 & Analista/Diseñador                 & \$ 19,200.00 & \$ 38,400.00 \\
+1 & Ingeniero del Software             & \$ 16,800.00 & \$ 16,800.00 \\
+1 & Programador                        & \$ 14,440.00 & \$ 14,440.00 \\
+\midrule
+\multicolumn{3}{r}{\textbf{Total}} & \textbf{\$ 93,640.00} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Recursos tecnológicos}
+
+\begin{table}[H]
+\centering
+\caption{Recursos tecnológicos necesarios para realizar el proyecto. Elaboración propia}
+\begin{tabular}{@{}clrr@{}}
+\toprule
+\textbf{Cantidad} & \textbf{Descripción} & \textbf{Costo/hora} & \textbf{Total} \\
+\midrule
+\multicolumn{4}{l}{\textit{Hardware}} \\
+2 & 140 horas Computadora HP Pavilion x360 & \$16.00 & \$2,240.00 \\
+1 & Impresora Lexmark X3350 (depreciación) & -- & \$3,000.00 \\
+\multicolumn{4}{l}{\textit{Software}} \\
+1 & Licencia Microsoft Office & -- & \$800.00 \\
+\midrule
+\multicolumn{3}{r}{\textbf{Total}} & \textbf{\$6,040.00} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Recursos materiales}
+
+\begin{table}[H]
+\centering
+\caption{Recursos materiales necesarios para realizar el proyecto. Elaboración propia}
+\begin{tabular}{@{}clrr@{}}
+\toprule
+\textbf{Cantidad} & \textbf{Descripción} & \textbf{Costo} & \textbf{Total} \\
+\midrule
+1  & Resma de Papel A4              & \$60.00  & \$60.00 \\
+2  & Cartuchos para Impresora       & \$300.00 & \$600.00 \\
+40 & Transporte a la empresa        & \$10.00  & \$400.00 \\
+20 & Viáticos                       & \$100.00 & \$2,000.00 \\
+\midrule
+\multicolumn{3}{r}{\textbf{Total}} & \textbf{\$3,060.00} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Flujo de pago}
+El total requerido para \ldots
+
+\begin{table}[H]
+\centering
+\caption{Flujo de pago. Elaboración propia}
+\begin{tabular}{@{}lr@{}}
+\toprule
+\textbf{Recursos} & \textbf{Costo} \\
+\midrule
+Recursos Humanos      & \$93,640.00 \\
+Recursos Tecnológicos & \$6,040.00 \\
+Recursos Materiales   & \$3,060.00 \\
+Imprevistos (10\%)    & \$10,274.00 \\
+\midrule
+\textbf{Total} & \textbf{\$113,014.00} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Factibilidad legal}
+% {Verificar que el proyecto no incumpla leyes municipales, estatales o mundiales. Incluir referencias.}
+
+\section{Análisis de sostenibilidad}
+% {Análisis fundamentado, incluyendo evaluación de impacto ambiental.}
+
+% ============================================================
+% CAPÍTULO 5. DISEÑO
+% ============================================================
+\chapter{Diseño}
+
+\section{Diagrama de arquitectura del software, sistema, aplicación}
+% {Seguir los primeros tres niveles del modelo C4: https://c4model.com/}
+
+\subsection{Diagrama de contexto}
+% {Sistema y sus interacciones con personas y otros sistemas.}
+
+\subsection{Diagrama de contenedores}
+% {Contenedores: aplicaciones, almacenamiento de datos, microservicios, etc.}
+
+\subsection{Diagrama de componentes}
+% {Expande un contenedor individual mostrando sus componentes.}
+
+\section{Casos de uso}
+
+\subsection{Diagrama de casos de uso}
+% {Notación UML: actores, casos de uso y relaciones.}
+
+\subsection{Actores}
+% {Ficha por cada actor del sistema}
+
+\begin{table}[H]
+\centering
+\caption{Ficha de Actor: [Nombre de Actor 1]}
+\begin{tabular}{@{}p{3.5cm}p{9.5cm}@{}}
+\toprule
+Actor & [Nombre del Actor] \quad Identificador: [Identificador único] \\
+\midrule
+Descripción  & [Breve descripción del Actor] \\
+Características & [Características que describen al actor] \\
+Relación & [Relación de este actor con otros actores del sistema] \\
+Referencias & [Casos de Uso, Diagramas de Secuencia, entre otros] \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Especificación de Casos de Uso}
+% {Ficha por cada caso de uso}
+
+\begin{table}[H]
+\centering
+\caption{Especificación: [Nombre de Caso de Uso Nro. 1]}
+\begin{tabular}{@{}p{3.5cm}p{9.5cm}@{}}
+\toprule
+Caso de Uso & [Nombre del Caso de Uso] \quad Identificador: [Del caso de uso] \\
+\midrule
+Actores       & [Actores que participan] \\
+Tipo          & [Primario, secundario, opcional] \\
+Referencias   & [Requerimientos/funcionalidades incluidas; casos relacionados] \\
+Precondición  & [Condiciones necesarias para iniciar] \\
+Postcondición & [Efectos sobre el estado del sistema] \\
+Descripción   & [Descripción del caso de uso] \\
+Resumen       & [Resumen de alto nivel del funcionamiento] \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Diagramas de secuencia}
+% {Interacción de objetos a lo largo del tiempo.}
+
+\section{Diagramas de código}
+
+\subsection{Diagramas de clases}
+% {Estructura: clases, atributos, operaciones y relaciones.}
+
+\subsection{Modelo de datos}
+% {Diagrama Entidad-Relación (BD relacional) o de árbol (BD jerárquica).}
+
+% ============================================================
+% CAPÍTULO 6. DESARROLLO E IMPLEMENTACIÓN
+% ============================================================
+\chapter{Desarrollo e Implementación}
+
+\section{Desarrollo del proyecto}
+% {Explicación detallada del procedimiento para cada módulo del proyecto.}
+
+\section{Implementación}
+% {Cómo y dónde se implementó el proyecto: plataforma, servidor, etc.}
+
+% ============================================================
+% CAPÍTULO 7. PRUEBAS
+% ============================================================
+\chapter{Pruebas}
+
+\section{Generación del plan de pruebas}
+
+\begin{table}[H]
+\centering
+\caption{Registro de revisiones}
+\begin{tabular}{@{}p{1.3cm}p{2.2cm}p{2.7cm}p{2.7cm}p{4.5cm}@{}}
+\toprule
+\textbf{Versión} & \textbf{Fecha} & \textbf{Autor} & \textbf{Revisor} & \textbf{Observaciones} \\
+\midrule
+1.0 & dd/mm/aaaa & Nombre (estudiante) & Nombre (director/a) & Desarrollo del módulo de inicio de sesión y conexión con la base de datos \\
+1.1 & dd/mm/aaaa & Nombre (estudiante) & Nombre (director/a) & Desarrollo del módulo de gestión de perfil del usuario \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Construcción y ejecución de pruebas}
+
+\begin{table}[H]
+\centering
+\caption{Componentes probados}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Componentes que se probaron} & \textbf{Tipo de prueba que se realizó} \\
+\midrule
+Módulo de registro de usuario         & Funcional \\
+Módulo de inicio de sesión            & Funcional, de seguridad \\
+Módulo de recuperación de contraseña  & Integral \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Creación de casos y escenarios de prueba al sistema}
+
+\begin{table}[H]
+\centering
+\caption{Nomenclatura de casos de prueba}
+\begin{tabular}{@{}p{6.5cm}p{6.5cm}@{}}
+\toprule
+\textbf{Nombre del documento} & \textbf{Nombre del caso de prueba} \\
+\midrule
+PR-01-Pruebas\_funcionales-Inicio de sesión & PR-M/01-CU/02-Inicio de sesión \\
+PR-02-Pruebas\_de\_seguridad-Inicio de sesión & PR-M/01-CU/02-Seguridad del Inicio de sesión \\
+PR-03-Pruebas\_funcionales-Registro de usuario & PR-M/01-CU/01-Registro de usuarios \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Ejecución de casos y escenarios de prueba al sistema}
+
+\begin{longtable}{@{}p{2.3cm}p{3.3cm}p{2.2cm}p{1.6cm}p{2.8cm}p{1.5cm}p{1.4cm}@{}}
+\toprule
+\textbf{ID} & \textbf{Acción} & \textbf{Datos de entrada} & \textbf{Tipo} & \textbf{Resultado esperado} & \textbf{Resultado} & \textbf{Corrección} \\
+\midrule
+\endhead
+PR-M/01-CU/01-ECP/01-C01 & Iniciar sesión con usuario registrado y contraseña correcta & Usuario: benji@ipn.mx / Contraseña: miPassword123 & Optimista & Mensaje de bienvenida & Correcto & NO APLICA \\
+PR-M/01-CU/01-ECP/01-C02 & Iniciar sesión con usuario registrado y contraseña incorrecta & Usuario: benji@ipn.mx / Contraseña: OtroPassword789 & No Optimista & Mensaje de error, sin acceso & Correcto & NO APLICA \\
+PR-M/01-CU/01-ECP/01-C03 & Iniciar sesión con usuario no registrado & Usuario: nadie@ipn.mx / Contraseña: miPassword567 & No Optimista & Mensaje de error, sin acceso & Correcto & NO APLICA \\
+\bottomrule
+\end{longtable}
+
+% ============================================================
+% CAPÍTULO 8. CONCLUSIONES Y TRABAJO A FUTURO
+% ============================================================
+\chapter{Conclusiones y trabajo a futuro}
+% {Revisión reflexiva de los resultados, no un resumen del proyecto.}
+
+% ============================================================
+% REFERENCIAS (formato IEEE)
+% ============================================================
+\printbibliography[title={Referencias}]
+\addcontentsline{toc}{chapter}{Referencias}
+
+% ============================================================
+% ANEXOS
+% ============================================================
+\appendix
+\chapter{Anexos}
+% {Contenidos complementarios que amplían la información, no imprescindibles
+%  para la comprensión del proyecto (p. ej. instrumento de encuesta completo).}
+
+\end{document}

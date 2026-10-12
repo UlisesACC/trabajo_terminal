@@ -1,0 +1,71 @@
+El articulo \textit{Modelling women’s team line-ups based
+on effectiveness and quality} plantea que el rendimiento de un equipo no depende solo de capacidades individuales (factor que dejan de lado y no se enfocan en perfiles individuales), tambien se enfoca en el posicionamiento de los jugadores a lo largo de la cancha.
+
+En el estudio que tomaron una muestra reducida de 3,387 posiciones de 23 partidos de selecciones femeninas de la seleccion nacional de China a lo largo de las competencias de los Juegos Olimpicos de Rio 2016 y Tokio 2020, como las copas mundiales femeninas de 2018 y 2020. Tomaron las alineaciones y se agruparon bajo 7 categorias posicionales entre ellas: 
+\begin{itemize}
+    \item base o point guard (PG)
+    \item escolta o shooting guard (SG)
+    \item guardia (G)
+    \item alero o small forward (SF)
+    \item ala-pivot o power forward (PF)
+    \item delantera o forward (F)
+    \item pivot o centre (C)
+\end{itemize}
+Para representar jugadoras con funciones híbridas; por ejemplo, una G puede encargarse tanto de la conducción del balón como de la anotación, mientras que una F puede desempeñar las funciones de alera y ala-pívot. Despues de hacer estas agrupaciones, analizan las estructuras como equipo (como ejemplo G-SG-SF-C-C) y evaluaron el rendimiento de las combinaciones como el rango de puntos anotados, el rango de puntos perimitdos y la diferencia entre estos. Como ventaja en este analisis es que separa el rendimento tanto ofensivo como el defensivo (observar la tabla \ref{tab:tabla_articulo_modeling}). 
+\begin{table}[H]
+\centering
+\caption{Tabla obtendia del articulo describe el rating de ofensivo (OFR), defensivo (DFR) y la diferencia de estos (NR)}
+\label{tab:tabla_articulo_modeling}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccrr}
+\toprule
+Line-ups & Year & Team & POSS & POSS (\textit{normalized}) & Mean OFR & Mean DFR & Mean NR \\
+\midrule
+G-SG-SF-C-C & 2018 & CHN & 355 & 10.48\% & 109.2 & 103.65 & 5.55 \\
+            & 2020 & & & & & & \\
+\addlinespace
+PG-G-SG-PF-C & 2018 & CHN & 351 & 10.36\% & 115.38 & 89.07 & 26.31 \\
+             & 2020 & & & & & & \\
+             & 2022 & & & & & & \\
+\addlinespace
+PG-G-F-PF-C & 2018 & CHN & 199 & 5.88\% & 110 & 108.08 & 1.92 \\
+            & 2020 & & & & & & \\
+            & 2022 & & & & & & \\
+\addlinespace
+G-SF-SF-C-C & 2016 & CHN & 170 & 5.02\% & 101.1 & 91.76 & 9.4 \\
+\addlinespace
+G-SG-SF-PF-C & 2018 & CHN & 169 & 4.99\% & 108.11 & 89.47 & 18.64 \\
+             & 2020 & & & & & & \\
+\addlinespace
+PG-G-SF-C-C & 2018 & CHN & 158 & 4.67\% & 117.5 & 84.62 & 32.88 \\
+            & 2020 & & & & & & \\
+\addlinespace
+PG-G-SF-PF-C & 2016 & CHN & 150 & 4.43\% & 133.93 & 76.6 & 57.33 \\
+             & 2018 & & & & & & \\
+             & 2020 & & & & & & \\
+\addlinespace
+G-G-F-PF-C & 2016 & CHN & 134 & 3.96\% & 117.64 & 77.27 & 40.37 \\
+           & 2022 & & & & & & \\
+\addlinespace
+PG-G-F-C-C & 2018 & CHN & 129 & 3.81\% & 100 & 116.67 & $-16.67$ \\
+           & 2022 & & & & & & \\
+\addlinespace
+PG-G-SG-F-C & 2020 & CHN & 113 & 3.34\% & 108.77 & 96.43 & 12.34 \\
+            & 2022 & & & & & & \\
+\addlinespace
+G-SG-SF-F-C & 2020 & CHN & 103 & 3.04\% & 127.45 & 101.92 & 25.53 \\
+G-SF-F-PF-C & 2016 & CHN & 100 & 2.98\% & 111.32 & 110.64 & 0.68 \\
+\bottomrule
+\end{tabular}%
+}       
+\end{table}
+
+Hacen uso del algoritmo kmeans donde clasifican los equipos en tres niveles de calidad alta, media y baja, donde identificaron si la alineacion es eficaz frente a oponentes de nivel diferente.
+
+Otro do los modelos que utilizaron fue DBSCAN, donde identificaron las combinaciones posicionales de mayor frecuencia a partir de los posesiones y puntos. Y cadenas de Marov para estudiar la eficacia ofensiva y estimar si la alineacion tiende a empeorar o conservar el poder ofensivo. El empleo de estas cadenas supone una gran ventaja ya que introducen una dimension temporal, en lugar de observar unicamente el rendimiento general de una alineacion, intentando describir la evolucion de este rendimiento. 
+
+Pero esta interpretacion limita a que en un partido de baloncesto, el rendimiento tambien esta afectado por las faltas, la fatiga, jugadoras rivales, como tambien el numero de sustitucuiones presentes, no son el numero real que debe efectuar un entrenador.
+
+Es decir este estudio evalua las alineaciones que deben efectuarse, considerando posesion, estabilidad o calidad del oponente, y el uso de cadenas de Marov proporciona una base metodologica para analizar las rotaciones. Sin embargo, la limitada cantidad de datos, como la combinacion de variables que representen de manera mas individualista del equipo, restringe el estudio a solo analizar las alineaciones completas del equipo.
+
+\cite{Chen17122023}

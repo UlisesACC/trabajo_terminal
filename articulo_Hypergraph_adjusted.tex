@@ -1,0 +1,39 @@
+El artículo \textit{Hypergraph adjusted plus-minus}, desarrollado por Josephs y Upton (2025), se centra en evaluar el rendimiento de los jugadores de baloncesto considerando tanto sus contribuciones individuales como las interacciones que existen entre diferentes combinaciones de jugadores. Los autores plantean que las estadísticas tradicionales no siempre permiten identificar el verdadero impacto de un jugador, debido a que su rendimiento puede depender de los compañeros con los que comparte la cancha.
+
+Uno de los problemas que aborda el estudio es que el indicador \textit{plus-minus} (PM), que representa la diferencia entre los puntos anotados y recibidos mientras un jugador se encuentra en cancha, puede verse afectado por las sustituciones y las alineaciones utilizadas durante los partidos. Por ejemplo, un jugador puede presentar un diferencial positivo debido a que comparte una gran cantidad de minutos con compañeros de alto rendimiento, sin que necesariamente su contribución individual sea igual de importante.
+
+Para reducir este problema, existen métodos como el \textit{Adjusted Plus-Minus} (APM), que utiliza regresión para estimar la contribución individual de cada jugador considerando a sus compañeros. Sin embargo, los autores señalan que este enfoque no representa directamente las interacciones que existen entre parejas, tríos o alineaciones completas.
+
+En el estudio utilizaron datos \textit{play-by-play} de la NBA correspondientes a las temporadas comprendidas entre 2012 y 2022. A partir de estos datos calcularon el diferencial de puntos de las alineaciones y el tiempo que permanecieron juntas durante los partidos. Para el análisis consideraron jugadores con al menos 10,000 segundos de participación durante una temporada, con el propósito de contar con información suficiente para evaluar sus contribuciones.
+
+Para representar las relaciones entre jugadores, los autores hacen uso de hipergrafos, una extensión de los grafos tradicionales donde una conexión puede relacionar a más de dos nodos. En este caso, los nodos representan a los jugadores y las hiperaristas representan las diferentes combinaciones que pueden formar una alineación.
+
+A partir de esta representación proponen dos métodos para evaluar el rendimiento de las combinaciones de jugadores:
+
+\begin{itemize}
+    \item \textit{Hypergraph Adjusted Plus-Minus} (HAPM): utiliza regresión Ridge ponderada y una representación extendida de las alineaciones para estimar las contribuciones de los jugadores y clasificar combinaciones de diferentes tamaños.
+
+    \item \textit{Line Graph Adjusted Plus-Minus} (LAPM): utiliza regresión bayesiana y la estructura de un grafo de líneas para estimar el rendimiento de las combinaciones, considerando las relaciones que existen entre ellas.
+\end{itemize}
+
+Una de las características del modelo LAPM es que utiliza la similitud de Jaccard para establecer qué tan relacionadas están dos combinaciones de jugadores. Esto permite representar la cantidad de integrantes que comparten diferentes alineaciones y utilizar esta información dentro del modelo.
+
+Para evaluar los métodos propuestos, los autores compararon sus resultados con métricas utilizadas en el análisis de jugadores de la NBA, como \textit{Box Plus-Minus} (BPM), \textit{Player Efficiency Rating} (PER), \textit{Value Over Replacement Player} (VORP) y \textit{Win Shares per 48 minutes} (WS/48).
+
+Los resultados muestran que HAPM presenta una mayor concordancia que el APM tradicional con algunas métricas avanzadas, como BPM, PER y VORP. Por otra parte, LAPM presenta una relación favorable con WS/48. También realizaron pruebas utilizando información de la primera mitad de una temporada para evaluar el comportamiento observado durante la segunda mitad, donde LAPM obtuvo los mejores resultados de correlación en las comparaciones presentadas.
+
+Como ejemplo de aplicación, analizaron a los Philadelphia 76ers durante la temporada 2021--2022, identificando las contribuciones individuales y las combinaciones de parejas y tríos. Entre los resultados encontraron que la combinación de James Harden y Joel Embiid presentó un rendimiento favorable, incluso cuando ambos jugadores compartieron una cantidad limitada de minutos durante la temporada. Este análisis permitió identificar combinaciones cuyo rendimiento no resultaba tan evidente al observar únicamente el diferencial de puntos tradicional.
+
+Una de las principales ventajas del estudio es que permite evaluar simultáneamente jugadores individuales y combinaciones de diferentes tamaños, en lugar de limitar el análisis a las alineaciones completas de cinco jugadores. Esto proporciona información adicional sobre las interacciones entre compañeros y permite identificar grupos que pueden presentar un rendimiento favorable.
+
+Otra ventaja es que los modelos propuestos consideran las relaciones existentes entre las diferentes combinaciones de jugadores. En particular, LAPM aprovecha la estructura de un grafo para relacionar alineaciones que comparten integrantes. Además, los métodos permiten generar clasificaciones de las combinaciones, las cuales pueden utilizarse para analizar posibles rotaciones dentro de un equipo.
+
+Sin embargo, una de las principales limitaciones es que HAPM y LAPM no incorporan directamente la identidad de los jugadores del equipo contrario. Aunque los autores consideran el diferencial entre puntos anotados y recibidos, sus modelos propuestos se calculan a nivel de equipo, por lo que no representan de manera explícita los emparejamientos con los jugadores rivales.
+
+Otra limitación es que los modelos utilizan principalmente información derivada del diferencial de puntos, sin incorporar directamente características individuales como el estilo de juego, las habilidades ofensivas y defensivas o las funciones que desempeña cada jugador. Esto puede dificultar la interpretación de las razones por las que una combinación obtiene mejores resultados que otra.
+
+Además, los autores mencionan que existen aspectos de la preparación de los datos que pueden mejorarse, como el seguimiento del diferencial de puntos durante determinadas sustituciones realizadas en tiros libres. También señalan que podrían investigarse otras medidas de similitud entre combinaciones y diferentes estrategias para seleccionar los parámetros de regularización de sus modelos.
+
+Este artículo representa una referencia importante para el presente proyecto, debido a que muestra cómo las interacciones entre jugadores pueden analizarse mediante estructuras de grafos y métodos estadísticos. En particular, permite comprender que el rendimiento colectivo no depende únicamente de las estadísticas individuales, sino también de las combinaciones que se forman durante los partidos. Sin embargo, el presente trabajo busca incorporar perfiles de las jugadoras de la WNBA, evaluar el rendimiento ofensivo y defensivo y considerar las características del equipo contrario, con la finalidad de estimar qué alineaciones pueden resultar más favorables dependiendo del contexto del encuentro.
+
+\cite{josephs2025hypergraphadjustedplusminus}
