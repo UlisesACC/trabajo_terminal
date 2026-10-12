@@ -1,0 +1,123 @@
+En la Tabla~\ref{tab:comparativa} se presenta una
+comparación de las principales características
+de los trabajos analizados, considerando los
+métodos utilizados, el análisis de jugadores
+y alineaciones, así como las variables que
+se consideran para evaluar su rendimiento.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Tabla comparativa de los trabajos analizados}
+    \label{tab:comparativa}
+    \small
+    \setlength{\tabcolsep}{4pt}
+    \renewcommand{\arraystretch}{1.3}
+
+    \begin{tabular}{p{4.3cm}ccccccc}
+        \toprule
+        \textbf{Trabajo} &
+        \textbf{C1} &
+        \textbf{C2} &
+        \textbf{C3} &
+        \textbf{C4} &
+        \textbf{C5} &
+        \textbf{C6} &
+        \textbf{C7} \\
+        \midrule
+
+        Chen et al. \cite{Chen17122023}
+        & -- & \checkmark & \checkmark
+        & \checkmark & -- & \checkmark
+        & $\triangle$ \\
+
+        Bonato y Hinds
+        \cite{bonato2026networkanalysislinkprediction}
+        & $\triangle$ & -- & --
+        & \checkmark & $\triangle$ & --
+        & $\triangle$ \\
+
+        Josephs y Upton
+        \cite{josephs2025hypergraphadjustedplusminus}
+        & \checkmark & \checkmark & --
+        & \checkmark & \checkmark & $\triangle$
+        & -- \\
+
+        Yamada y Fujii
+        \cite{yamada2024offensivelineupanalysisbasketball}
+        & \checkmark & \checkmark & \checkmark
+        & \checkmark & \checkmark & --
+        & -- \\
+
+        Devlin y Uminsky
+        \cite{devlin2020identifyinggroupcontributionsnba}
+        & \checkmark & \checkmark & --
+        & -- & \checkmark & $\triangle$
+        & -- \\
+
+        \midrule
+
+        \textbf{Propuesta}
+        &  &  & 
+        &  &  & 
+        & \\
+
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Las características consideradas para la
+comparación son las siguientes:
+
+\begin{itemize}
+    \item[C1.] Analiza el rendimiento individual
+    de los jugadores.
+
+    \item[C2.] Analiza combinaciones de jugadores
+    o alineaciones completas.
+
+    \item[C3.] Utiliza técnicas de clustering
+    para clasificar jugadores o alineaciones.
+
+    \item[C4.] Utiliza modelos estadísticos o de
+    aprendizaje automático para estimar el
+    rendimiento.
+
+    \item[C5.] Considera las interacciones entre
+    jugadores de una misma alineación.
+
+    \item[C6.] Considera el rendimiento ofensivo
+    y defensivo.
+
+    \item[C7.] Considera las características
+    o emparejamientos del equipo contrario
+    para evaluar alineaciones.
+\end{itemize}
+
+La simbología utilizada en la tabla es:
+
+\begin{itemize}
+    \item[$\checkmark$] La característica
+    está considerada en el estudio.
+
+    \item[$\triangle$] La característica
+    está considerada parcialmente.
+
+    \item[--] La característica no se
+    aborda directamente.
+\end{itemize}
+
+A partir de la Tabla~\ref{tab:comparativa},
+se observa que los trabajos analizados presentan
+diferentes enfoques para evaluar el rendimiento
+de los jugadores y sus alineaciones. Algunos
+estudios se centran en clasificar jugadores
+mediante técnicas de agrupamiento, mientras
+que otros analizan las contribuciones individuales
+y las interacciones entre compañeros mediante
+modelos estadísticos y representaciones de grafos.
+
+Sin embargo, los enfoques revisados no integran
+de manera conjunta la caracterización de las
+jugadoras, el análisis de las combinaciones,
+la evaluación ofensiva y defensiva y los
+emparejamientos frente al equipo contrario.
