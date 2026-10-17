@@ -1,0 +1,7 @@
+La primera fase integra históricos de jugadoras y de quintetos para estimar perfiles e interacciones. La ponderación entre temporadas, los métodos de regularización y los algoritmos de agrupamiento se elegirán mediante experimentos con validación temporal.
+
+En la segunda fase se estimará el rendimiento esperado de un quinteto candidato frente a la alineación rival:
+\begin{equation}
+ Q_B^*=\underset{Q_B\subseteq R_B,\;|Q_B|=5}{\operatorname{arg\,max}}\widehat f(Q_B,Q_A,c),
+\end{equation}
+donde $R_B$ representa las jugadoras disponibles, $Q_A$ el quinteto rival y $c$ el contexto conocido antes de decidir. Se explorará la restricción de máximo una sustitución por recomendación. Las salidas serán un \textit{Net Rating} esperado y una probabilidad de diferencial positivo, evaluadas mediante error, calibración y calidad del ordenamiento.
