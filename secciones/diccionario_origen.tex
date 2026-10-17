@@ -1,29 +1,43 @@
-La Tabla~\ref{tab:campos_wehoop} contiene nombres y tipos efectivamente documentados por wehoop. No representa todas las columnas posibles ni valida valores de cada archivo Parquet.
-\begin{longtable}{@{}p{3cm}p{3cm}p{2cm}p{5cm}@{}}
-\caption{Campos de origen documentados.}\label{tab:campos_wehoop}\\
-\toprule\textbf{Campo}&\textbf{Conjunto}&\textbf{Tipo}&\textbf{Descripción}\\\midrule\endfirsthead
-\toprule\textbf{Campo}&\textbf{Conjunto}&\textbf{Tipo}&\textbf{Descripción}\\\midrule\endhead
-\texttt{game\_id}&\texttt{pbp}&String&Identificador textual de partido.\\
-\texttt{season}&\texttt{pbp}&Int64&Temporada WNBA.\\
-\texttt{period}&\texttt{pbp}&Int64&Periodo o prórroga.\\
-\texttt{clock}&\texttt{pbp}&String&Reloj del evento en ISO 8601.\\
-\texttt{action\_number}&\texttt{pbp}&Int64&Orden de la acción.\\
-\texttt{team\_id}&\texttt{pbp}&Int64&Identificador de equipo.\\
-\texttt{person\_id}&\texttt{pbp}&Int64&Persona vinculada a la acción.\\
-\texttt{action\_type}&\texttt{pbp}&String&Tipo de acción.\\
-\texttt{score\_home}&\texttt{pbp}&String&Marcador local.\\
-\texttt{score\_away}&\texttt{pbp}&String&Marcador visitante.\\
-\texttt{x\_legacy}&\texttt{shots}&Int64&Coordenada de tiro.\\
-\texttt{y\_legacy}&\texttt{shots}&Int64&Coordenada de tiro.\\
-\texttt{shot\_result}&\texttt{shots}&String&Resultado de lanzamiento.\\
-\texttt{player\_id}&\texttt{player\_season\_stats}&Int64&ID de jugadora.\\
-\texttt{age}&\texttt{player\_season\_stats}&Float64&Edad.\\
-\texttt{ts\_pct}&\texttt{player\_season\_stats}&Float64&Eficiencia de tiro.\\
-\texttt{usg\_pct}&\texttt{player\_season\_stats}&Float64&Uso ofensivo.\\
-\texttt{off\_rating}&\texttt{lineups}&Float64&Rating ofensivo agregado.\\
-\texttt{def\_rating}&\texttt{lineups}&Float64&Rating defensivo agregado.\\
-\texttt{net\_rating}&\texttt{lineups}&Float64&Rating neto agregado.\\
-\texttt{poss}&\texttt{lineups}&Int64&Posesiones.\\
-\texttt{player\_id}&\texttt{game\_rosters}&Int64&ID en plantilla del partido.\\
-\bottomrule\end{longtable}
-Los ratings de \texttt{lineups} no deben interpretarse automáticamente como rendimientos de enfrentamientos entre dos quintetos específicos. Las coordenadas de tiro tampoco identifican a la defensora.
+La Tabla~\ref{tab:campos_wehoop} reúne una selección de campos tal como se identifican en los diccionarios publicados por SportsDataverse \cite{wehoopPbp,wehoopShots,wehoopLineups,wehoopPlayerSeason}. Se incluyen sus tipos de origen, conservando la distinción entre identificadores, características numéricas e información contextual.
+
+{\small
+\renewcommand{\arraystretch}{1.14}
+\begin{longtable}{@{}p{3.2cm}p{3.2cm}p{1.65cm}p{4.9cm}@{}}
+\caption{Variables originales documentadas en los conjuntos de datos.}\label{tab:campos_wehoop}\\
+\toprule
+\textbf{Variable} & \textbf{Origen} & \textbf{Tipo} & \textbf{Descripción}\\
+\midrule
+\endfirsthead
+\multicolumn{4}{l}{\small Continuación de la Tabla~\ref{tab:campos_wehoop}}\\
+\toprule
+\textbf{Variable} & \textbf{Origen} & \textbf{Tipo} & \textbf{Descripción}\\
+\midrule
+\endhead
+\midrule\multicolumn{4}{r}{\small Continúa en la siguiente página}\\\endfoot
+\bottomrule\endlastfoot
+\texttt{game\_id} & \texttt{pbp} & String & Clave que identifica cada encuentro.\\
+\texttt{season} & \texttt{pbp} & Int64 & Año de la temporada.\\
+\texttt{period} & \texttt{pbp} & Int64 & Periodo del evento, incluidos tiempos extra.\\
+\texttt{clock} & \texttt{pbp} & String & Tiempo restante según el reloj del periodo.\\
+\texttt{action\_number} & \texttt{pbp} & Int64 & Posición de la acción en el orden del partido.\\
+\texttt{team\_id} & \texttt{pbp} & Int64 & Identificador del equipo al que se asocia la acción.\\
+\texttt{person\_id} & \texttt{pbp} & Int64 & Persona vinculada al evento; no indica necesariamente a una defensora.\\
+\texttt{action\_type} & \texttt{pbp} & String & Clasificación general del evento registrado.\\
+\texttt{score\_home} & \texttt{pbp} & String & Marcador del equipo local después de la acción.\\
+\texttt{score\_away} & \texttt{pbp} & String & Marcador visitante después de la acción.\\
+\texttt{x\_legacy} & \texttt{shots} & Int64 & Coordenada horizontal del lanzamiento en el sistema de origen.\\
+\texttt{y\_legacy} & \texttt{shots} & Int64 & Coordenada vertical del lanzamiento en el sistema de origen.\\
+\texttt{shot\_result} & \texttt{shots} & String & Indica si el lanzamiento se convirtió o falló.\\
+\texttt{player\_id} & \texttt{player\_season\_stats} & Int64 & Identificador persistente de jugadora.\\
+\texttt{age} & \texttt{player\_season\_stats} & Float64 & Edad registrada para el periodo.\\
+\texttt{ts\_pct} & \texttt{player\_season\_stats} & Float64 & Porcentaje de tiro verdadero.\\
+\texttt{usg\_pct} & \texttt{player\_season\_stats} & Float64 & Porcentaje de uso ofensivo.\\
+\texttt{off\_rating} & \texttt{lineups} & Float64 & Indicador ofensivo agregado de una alineación.\\
+\texttt{def\_rating} & \texttt{lineups} & Float64 & Indicador defensivo agregado de una alineación.\\
+\texttt{net\_rating} & \texttt{lineups} & Float64 & Diferencial de indicadores ofensivo y defensivo.\\
+\texttt{poss} & \texttt{lineups} & Int64 & Posesiones asociadas al registro agregado.\\
+\end{longtable}
+}
+
+\noindent\textbf{Descripción de la tabla.}
+La Tabla~\ref{tab:campos_wehoop} constituye un diccionario resumido de variables de entrada, no una tabla de resultados del modelo. Los campos del registro de eventos permiten ordenar acciones y reconstruir el marcador, mientras que las estadísticas de temporada describen el perfil general de una jugadora. Por su parte, los ratings de \texttt{lineups} son agregados y no permiten inferir automáticamente el rendimiento de un quinteto ante cinco rivales específicos. La posición de los tiros no permite identificar trayectorias continuas de todas las jugadoras ni marcajes defensivos.

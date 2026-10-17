@@ -1,15 +1,26 @@
-La fuente principal propuesta es el repositorio público \textit{wehoop-wnba-stats-data}, que contiene registros procesados de WNBA Stats. Las familias relevantes se relacionan en la Tabla~\ref{tab:fuentes_wehoop}. La disponibilidad de carpetas no garantiza igual cobertura ni completitud en todas las temporadas.
-\begin{table}[htbp]\centering\small
-\caption{Fuentes de datos y aplicación propuesta.}\label{tab:fuentes_wehoop}
-\begin{tabularx}{\textwidth}{@{}p{3.1cm}XX@{}}\toprule
-\textbf{Conjunto} & \textbf{Información} & \textbf{Uso en el modelo}\\\midrule
-\texttt{pbp} & Eventos, periodo, reloj, marcador y persona asociada. & Contexto temporal de las acciones.\\
-\texttt{game\_lineups} & Alineaciones por partido; esquema por verificar. & Reconstrucción de quintetos.\\
-\texttt{possessions} & Registros de posesiones; esquema por verificar. & Normalización por posesiones.\\
-\texttt{lineups} & Métricas agregadas de alineaciones. & Referencia de rendimiento colectivo.\\
-\texttt{player\_season\_stats} & Estadísticas individuales por temporada. & Perfiles funcionales.\\
-\texttt{player\_game\_logs} & Estadísticas por encuentro y jugadora. & Características históricas.\\
-\texttt{shots} & Tiros y posiciones de lanzamiento. & Estilos de anotación.\\
-\texttt{game\_rosters} & Plantillas por partido. & Identificación de participantes.\\
-\bottomrule\end{tabularx}\end{table}
-La documentación de metadatos puede consultarse en \url{https://github.com/sportsdataverse/wehoop-wnba-stats-data/tree/main/docs/datasets}. Se verificará cada esquema Parquet antes de construir el conjunto de entrenamiento.
+Para la elaboración del modelo se contempla utilizar la información procesada del repositorio \textit{wehoop-wnba-stats-data}, que reúne conjuntos tabulares relacionados con estadísticas y eventos de la WNBA \cite{wehoopRepositorio}. Cada conjunto contiene una unidad de observación diferente, por lo que no será posible integrar los archivos sin antes comprobar identificadores y granularidad.
+
+\begin{table}[htbp]
+\centering
+\small
+\renewcommand{\arraystretch}{1.18}
+\caption{Conjuntos de datos previstos para el modelo de alineaciones.}
+\label{tab:fuentes_wehoop}
+\begin{tabularx}{\textwidth}{@{}p{3.2cm}XX@{}}
+\toprule
+\textbf{Conjunto} & \textbf{Contenido} & \textbf{Aplicación prevista}\\
+\midrule
+\texttt{pbp} & Eventos, periodo, reloj y marcador. & Reconstruir el contexto temporal de los encuentros.\\
+\texttt{game\_lineups} & Información de alineaciones por partido; esquema pendiente de confirmar. & Determinar qué quintetos coincidieron en cancha.\\
+\texttt{possessions} & Registros de posesiones; esquema pendiente de confirmar. & Normalizar el rendimiento por posesiones.\\
+\texttt{lineups} & Indicadores agregados de alineaciones. & Obtener referencias de desempeño colectivo.\\
+\texttt{player\_season\_stats} & Indicadores de jugadoras por temporada. & Elaborar perfiles funcionales.\\
+\texttt{player\_game\_logs} & Estadísticas por encuentro y jugadora. & Construir historiales con corte temporal.\\
+\texttt{shots} & Eventos y coordenadas de lanzamiento. & Identificar tendencias de tiro.\\
+\texttt{game\_rosters} & Integrantes asociados a cada partido. & Comprobar identidades y participación.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\noindent\textbf{Descripción de la tabla.}
+La Tabla~\ref{tab:fuentes_wehoop} muestra la función prevista de cada familia de archivos, sin asumir que sus registros pueden unirse directamente. Los eventos y las posesiones servirían para construir observaciones temporales; las estadísticas agregadas se emplearían como referencias y las individuales permitirían caracterizar jugadoras. Los diccionarios oficiales disponibles en la documentación del repositorio respaldan las denominaciones de \texttt{pbp}, \texttt{lineups}, \texttt{player\_season\_stats} y \texttt{shots} \cite{wehoopPbp,wehoopLineups,wehoopPlayerSeason,wehoopShots}. Los esquemas de \texttt{game\_lineups} y \texttt{possessions} aún requieren inspección directa.

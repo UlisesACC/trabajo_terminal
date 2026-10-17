@@ -299,262 +299,57 @@ En \cite{ejemploW} se define a un lenguaje de programación como \ldots
 % CAPÍTULO 4. ANÁLISIS
 % ============================================================
 \chapter{Análisis}
+El capítulo describe los recursos analíticos, el modelo de datos previsto y la factibilidad del trabajo. El alcance es exclusivamente el desarrollo y evaluación de un modelo, no la construcción de un sistema de software.
 
-\section{Requerimientos}
+\section{Herramientas y modelos a utilizar}
+\input{secciones/herramientas_modelos}
 
-\subsection{Requerimientos funcionales}
-\begin{description}[leftmargin=2cm]
-    \item[RF01] El sistema permitirá \ldots
-    \item[RF02] El sistema permitirá \ldots
-\end{description}
-
-\subsection{Requerimientos no funcionales}
-\begin{description}[leftmargin=2.2cm]
-    \item[RNF01 -- La contraseña se debe guardar cifrada en la base de datos.] El sistema guardará las contraseñas de todos los usuarios de forma cifrada en la base de datos, de manera que no sea visible en caso de que se haga la petición correspondiente.
-    \item[RNF02] El sistema \ldots
-\end{description}
-
-\subsection{Reglas de negocio}
-\begin{description}[leftmargin=2.5cm]
-    \item[RN01 -- Datos obligatorios] Al registrar los datos de su perfil de usuario, los siguientes son obligatorios: Nombre, apellidos, teléfono y código postal.
-    \item[RN02 -- Número máximo de hijos registrados] Cada usuario puede registrar un máximo de 5 hijos al sistema.
-    \item[RN03] \ldots
-\end{description}
-
-\section{Análisis de las herramientas a utilizar}
-
-\subsection{Análisis de los sistemas operativos}
-
-\begin{table}[H]
-\centering
-\caption{Análisis de los sistemas operativos}
-\begin{tabular}{@{}lccccc@{}}
-\toprule
-\textbf{Sistema operativo} & \textbf{Car. 1} & \textbf{Car. 2} & \textbf{Car. 3} & \textbf{Car. 4} & \textbf{Car. 5} \\
-\midrule
-Windows \cite{ejemploX} & \checkmark & $\times$   & \checkmark & $\times$   & \checkmark \\
-Linux \cite{ejemploY}   & \checkmark & \checkmark & \checkmark & \checkmark & $\times$   \\
-Solaris \cite{ejemploZ} & $\times$   & \checkmark & \checkmark & \checkmark & \checkmark \\
-OS-X \cite{ejemploW}    & \checkmark & \checkmark & $\times$   & \checkmark & $\times$   \\
-\ldots & & & & & \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-De acuerdo con la Tabla 4.2, se optó por utilizar el sistema operativo Solaris; ya que ofrece \ldots
-
-\section{Análisis de riesgos}
-
-\begin{table}[H]
-\centering
-\caption{Matriz de riesgos}
-\begin{tabular}{@{}p{1cm}p{3.5cm}p{2.2cm}p{2cm}p{5.5cm}@{}}
-\toprule
-\textbf{Riesgo} & \textbf{Descripción} & \textbf{Categoría} & \textbf{Probabilidad} & \textbf{Gestión del riesgo} \\
-\midrule
-R01 & Pérdida del código & Técnico & Alta & Realizar un respaldo de todo el código cada viernes a las 8:00 pm \\
-R02 & Un integrante deja el equipo & Personal & Baja & Replantear los objetivos. No se realizarán los módulos menos importantes, como graficación y generación de reportes \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\section{Análisis de factibilidad}
-
-\subsection{Factibilidad técnica}
-% {Evaluar disponibilidad de equipo, software y personal con experiencia técnica.}
-
-\subsection{Factibilidad operativa}
-% {Determinar la posibilidad de que el sistema se utilice y que ese uso sea adecuado.
-%  Incluir instrumento de recolección de datos (encuesta/cuestionario/entrevista).}
-
-\subsubsection{Sobre si los adultos mayores conviven con animales de compañía}
-Del total de la muestra, se analizaron los adultos mayores (personas con 60 años o más) y se obtuvo que casi un 60\% de ellos cuentan con algún animal de compañía (ver \cref{fig:animales}).
-
-\begin{figure}[H]
-    \centering
-    %\includegraphics[width=0.55\textwidth]{figura_animales.png} % Reemplazar con la gráfica real
-    \caption{Porcentaje de adultos mayores que tienen animales de compañía en casa. Elaboración propia.}
-    \label{fig:animales}
-\end{figure}
-
-De esto se puede afirmar que un porcentaje muy alto de los adultos mayores encuestados podría utilizar la aplicación propuesta\ldots
-
-\subsection{Factibilidad económica}
-
-\subsubsection{Recursos humanos}
-
-\begin{table}[H]
-\centering
-\caption{Recursos humanos necesarios para realizar el proyecto. Elaboración propia}
-\begin{tabular}{@{}clrr@{}}
-\toprule
-\textbf{Núm.} & \textbf{Cargo} & \textbf{Costo individual} & \textbf{Costo total} \\
-\midrule
-1 & Ing. Sistemas (Líder del Proyecto) & \$ 24,000.00 & \$ 24,000.00 \\
-2 & Analista/Diseñador                 & \$ 19,200.00 & \$ 38,400.00 \\
-1 & Ingeniero del Software             & \$ 16,800.00 & \$ 16,800.00 \\
-1 & Programador                        & \$ 14,440.00 & \$ 14,440.00 \\
-\midrule
-\multicolumn{3}{r}{\textbf{Total}} & \textbf{\$ 93,640.00} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\subsubsection{Recursos tecnológicos}
-
-\begin{table}[H]
-\centering
-\caption{Recursos tecnológicos necesarios para realizar el proyecto. Elaboración propia}
-\begin{tabular}{@{}clrr@{}}
-\toprule
-\textbf{Cantidad} & \textbf{Descripción} & \textbf{Costo/hora} & \textbf{Total} \\
-\midrule
-\multicolumn{4}{l}{\textit{Hardware}} \\
-2 & 140 horas Computadora HP Pavilion x360 & \$16.00 & \$2,240.00 \\
-1 & Impresora Lexmark X3350 (depreciación) & -- & \$3,000.00 \\
-\multicolumn{4}{l}{\textit{Software}} \\
-1 & Licencia Microsoft Office & -- & \$800.00 \\
-\midrule
-\multicolumn{3}{r}{\textbf{Total}} & \textbf{\$6,040.00} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\subsubsection{Recursos materiales}
-
-\begin{table}[H]
-\centering
-\caption{Recursos materiales necesarios para realizar el proyecto. Elaboración propia}
-\begin{tabular}{@{}clrr@{}}
-\toprule
-\textbf{Cantidad} & \textbf{Descripción} & \textbf{Costo} & \textbf{Total} \\
-\midrule
-1  & Resma de Papel A4              & \$60.00  & \$60.00 \\
-2  & Cartuchos para Impresora       & \$300.00 & \$600.00 \\
-40 & Transporte a la empresa        & \$10.00  & \$400.00 \\
-20 & Viáticos                       & \$100.00 & \$2,000.00 \\
-\midrule
-\multicolumn{3}{r}{\textbf{Total}} & \textbf{\$3,060.00} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\subsubsection{Flujo de pago}
-El total requerido para \ldots
-
-\begin{table}[H]
-\centering
-\caption{Flujo de pago. Elaboración propia}
-\begin{tabular}{@{}lr@{}}
-\toprule
-\textbf{Recursos} & \textbf{Costo} \\
-\midrule
-Recursos Humanos      & \$93,640.00 \\
-Recursos Tecnológicos & \$6,040.00 \\
-Recursos Materiales   & \$3,060.00 \\
-Imprevistos (10\%)    & \$10,274.00 \\
-\midrule
-\textbf{Total} & \textbf{\$113,014.00} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\subsection{Factibilidad legal}
-% {Verificar que el proyecto no incumpla leyes municipales, estatales o mundiales. Incluir referencias.}
-
-\section{Análisis de sostenibilidad}
-% {Análisis fundamentado, incluyendo evaluación de impacto ambiental.}
-
-% ============================================================
-% CAPÍTULO 5. DISEÑO
-% ============================================================
-\chapter{Diseño}
-
-\section{Diagrama de arquitectura del software, sistema, aplicación}
-% {Seguir los primeros tres niveles del modelo C4: https://c4model.com/}
-
-\subsection{Diagrama de contexto}
-% {Sistema y sus interacciones con personas y otros sistemas.}
-
-\subsection{Diagrama de contenedores}
-% {Contenedores: aplicaciones, almacenamiento de datos, microservicios, etc.}
-
-\subsection{Diagrama de componentes}
-% {Expande un contenedor individual mostrando sus componentes.}
-
-\section{Casos de uso}
-
-\subsection{Diagrama de casos de uso}
-% {Notación UML: actores, casos de uso y relaciones.}
-
-\subsection{Actores}
-% {Ficha por cada actor del sistema}
-
-\begin{table}[H]
-\centering
-\caption{Ficha de Actor: [Nombre de Actor 1]}
-\begin{tabular}{@{}p{3.5cm}p{9.5cm}@{}}
-\toprule
-Actor & [Nombre del Actor] \quad Identificador: [Identificador único] \\
-\midrule
-Descripción  & [Breve descripción del Actor] \\
-Características & [Características que describen al actor] \\
-Relación & [Relación de este actor con otros actores del sistema] \\
-Referencias & [Casos de Uso, Diagramas de Secuencia, entre otros] \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\subsection{Especificación de Casos de Uso}
-% {Ficha por cada caso de uso}
-
-\begin{table}[H]
-\centering
-\caption{Especificación: [Nombre de Caso de Uso Nro. 1]}
-\begin{tabular}{@{}p{3.5cm}p{9.5cm}@{}}
-\toprule
-Caso de Uso & [Nombre del Caso de Uso] \quad Identificador: [Del caso de uso] \\
-\midrule
-Actores       & [Actores que participan] \\
-Tipo          & [Primario, secundario, opcional] \\
-Referencias   & [Requerimientos/funcionalidades incluidas; casos relacionados] \\
-Precondición  & [Condiciones necesarias para iniciar] \\
-Postcondición & [Efectos sobre el estado del sistema] \\
-Descripción   & [Descripción del caso de uso] \\
-Resumen       & [Resumen de alto nivel del funcionamiento] \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\section{Diagramas de secuencia}
-% {Interacción de objetos a lo largo del tiempo.}
-
-\section{Diagramas de código}
-
-\subsection{Diagramas de clases}
-% {Estructura: clases, atributos, operaciones y relaciones.}
-
-\subsection{Modelo de datos}
-% Las fuentes originales se distinguen de las variables derivadas para el TT.
-\subsubsection{Conjuntos de datos seleccionados}
+\section{Modelo de datos}
+\subsection{Fuentes de información}
 \input{secciones/fuentes_datos}
-\subsubsection{Diccionario de campos de origen}
+\subsection{Diccionario de datos originales}
 \input{secciones/diccionario_origen}
-\subsubsection{Variables diseñadas para el modelo}
+\subsection{Variables derivadas para el modelo}
 \input{secciones/diccionario_derivado}
-\subsubsection{Validación de fuentes y limitaciones}
+\subsection{Validación y limitaciones de los datos}
 \input{secciones/validacion_datos}
 
+\section{Análisis de factibilidad}
+\subsection{Factibilidad técnica}
+\input{secciones/factibilidad_tecnica}
+\subsection{Factibilidad metodológica}
+\input{secciones/factibilidad_metodologica}
+\subsection{Factibilidad de datos y uso responsable}
+\input{secciones/factibilidad_datos}
+
+% ============================================================
+% CAPÍTULO 5. PREPROCESAMIENTO
+% ============================================================
+\chapter{Preprocesamiento}
+\section{Etapas del preprocesamiento}
+\subsection{Descripción de los datos}
+\input{secciones/preprocesamiento_descripcion_datos}
+\subsection{Limpieza}
+\input{secciones/preprocesamiento_limpieza}
+\subsection{Análisis exploratorio de datos}
+\input{secciones/preprocesamiento_eda}
+\subsection{Procesamiento}
+\input{secciones/preprocesamiento_procesamiento}
+\subsection{Presentación de resultados}
+\input{secciones/preprocesamiento_resultados}
+
+% ============================================================
+% CAPÍTULO 6. DESARROLLO DEL MODELO
 % ============================================================
 % CAPÍTULO 6. DESARROLLO E IMPLEMENTACIÓN
 % ============================================================
-\chapter{Desarrollo e Implementación}
+\chapter{Desarrollo y evaluación del modelo}
 
 \section{Desarrollo del proyecto}
 \input{secciones/procedimiento_modelo}
 
-\section{Implementación}
-% {Cómo y dónde se implementó el proyecto: plataforma, servidor, etc.}
+\section{Evaluación experimental}
+Se documentarán la validación temporal, los métodos de referencia y las métricas de predicción y recomendación una vez ejecutados los experimentos.
 
 % ============================================================
 % CAPÍTULO 7. PRUEBAS

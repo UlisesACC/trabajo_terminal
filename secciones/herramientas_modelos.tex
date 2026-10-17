@@ -1,0 +1,11 @@
+El proyecto se centra en el diseño, entrenamiento y evaluación de un modelo de recomendación de quintetos; no contempla desarrollar una aplicación informática para usuarios finales. Las herramientas se seleccionan por su utilidad para preparar datos, comparar métodos y reproducir los experimentos.
+
+\begin{itemize}
+ \item \textbf{Python:} lenguaje propuesto para integrar conjuntos tabulares y ejecutar los experimentos.
+ \item \textbf{Pandas y PyArrow:} bibliotecas para consultar, transformar y almacenar archivos Parquet.
+ \item \textbf{Scikit-learn:} biblioteca candidata para normalización, agrupamiento, modelos de referencia y evaluación.
+ \item \textbf{Herramientas estadísticas:} técnicas de regularización y estimación de efectos de jugadoras o quintetos, cuya implementación específica se decidirá tras la exploración de datos.
+ \item \textbf{Optimización combinatoria:} búsqueda y comparación de quintetos factibles mediante una función de desempeño estimado.
+\end{itemize}
+
+Se compararán métodos de agrupamiento para perfiles \textit{Guard}, \textit{Wing} y \textit{Big}, modelos predictivos del rendimiento colectivo y un optimizador que seleccione las cinco jugadoras disponibles. No se considera ninguno de estos métodos como implementado o validado en esta etapa. La fuente principal propuesta para las estadísticas es wehoop \cite{wehoopRepositorio}, cuya estructura y limitaciones se describen en el modelo de datos.

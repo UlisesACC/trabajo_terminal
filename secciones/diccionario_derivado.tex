@@ -1,35 +1,56 @@
-Las tablas siguientes contienen \textbf{variables que se propone construir}, no columnas originales documentadas en wehoop.
-\begin{longtable}{@{}p{3.6cm}p{2cm}p{6.5cm}@{}}
-\caption{Variables derivadas de intervalos de alineación.}\label{tab:stints_wnba}\\
-\toprule\textbf{Campo}&\textbf{Tipo}&\textbf{Construcción}\\\midrule\endfirsthead
-\toprule\textbf{Campo}&\textbf{Tipo}&\textbf{Construcción}\\\midrule\endhead
-\texttt{stint\_id}&Texto&Identificador generado por intervalo sin cambios de quinteto.\\
-\texttt{start\_clock}&Tiempo&Inicio del intervalo.\\
-\texttt{end\_clock}&Tiempo&Fin del intervalo.\\
-\texttt{stint\_seconds}&Decimal&Duración calculada dentro del periodo.\\
-\texttt{home\_team\_id}&ID&Equipo local, enlazado con los datos del partido.\\
-\texttt{away\_team\_id}&ID&Equipo visitante.\\
-\texttt{score\_margin\_start}&Entero&Diferencial al inicio.\\
-\texttt{score\_margin\_end}&Entero&Diferencial al final.\\
-\texttt{focal\_lineup}&Conjunto&Cinco jugadoras propias, si es reconstruible.\\
-\texttt{opponent\_lineup}&Conjunto&Cinco rivales, si es reconstruible.\\
-\bottomrule\end{longtable}
-\begin{longtable}{@{}p{3.6cm}p{2cm}p{6.5cm}@{}}
-\caption{Variables derivadas de coincidencia contextual entre rivales.}\label{tab:coincidencias_wnba}\\
-\toprule\textbf{Campo}&\textbf{Tipo}&\textbf{Construcción}\\\midrule\endfirsthead
-\toprule\textbf{Campo}&\textbf{Tipo}&\textbf{Construcción}\\\midrule\endhead
-\texttt{focal\_player\_id}&ID&Jugadora propia presente en el intervalo.\\
-\texttt{opponent\_player\_id}&ID&Rival simultáneamente presente, no defensora demostrada.\\
-\texttt{focal\_role}&Categoría&Perfil estimado Guard, Wing o Big.\\
-\texttt{opponent\_role}&Categoría&Perfil estimado de la rival.\\
-\texttt{compatible\_roles}&Binario&Regla de compatibilidad por validar.\\
-\texttt{focal\_starter}&Binario&Titularidad inferida o verificada.\\
-\texttt{opponent\_starter}&Binario&Titularidad rival.\\
-\texttt{shared\_seconds}&Decimal&Segundos de coincidencia.\\
-\texttt{shared\_possessions}&Entero&Posesiones durante coincidencia reconstruidas.\\
-\texttt{focal\_off\_possessions}&Entero&Posesiones ofensivas coincidentes.\\
-\texttt{focal\_def\_possessions}&Entero&Posesiones defensivas coincidentes.\\
-\texttt{shared\_seconds\_game}&Decimal&Segundos compartidos en el partido.\\
-\texttt{shared\_possessions\_game}&Entero&Posesiones compartidas en el partido.\\
-\bottomrule\end{longtable}
-Las estadísticas de puntos, tiros, rebotes, asistencias, pérdidas, robos, bloqueos y faltas durante cada coincidencia requerirán agregación de acciones verificables; no corresponden a los totales de temporada.
+A diferencia de las variables de origen, los campos de las Tablas~\ref{tab:stints_wnba} y \ref{tab:coincidencias_wnba} forman parte del diseño de los datos procesados del proyecto. Se pretende generarlos mediante cruces y operaciones sobre registros históricos; por tanto, su presencia no está garantizada en los archivos Parquet originales.
+
+{\small
+\renewcommand{\arraystretch}{1.15}
+\begin{longtable}{@{}p{3.8cm}p{1.7cm}p{6.9cm}@{}}
+\caption{Variables propuestas para identificar intervalos entre sustituciones.}\label{tab:stints_wnba}\\
+\toprule \textbf{Variable} & \textbf{Tipo} & \textbf{Procedimiento de obtención}\\\midrule\endfirsthead
+\multicolumn{3}{l}{\small Continuación de la Tabla~\ref{tab:stints_wnba}}\\
+\toprule\textbf{Variable}&\textbf{Tipo}&\textbf{Procedimiento de obtención}\\\midrule\endhead
+\midrule\multicolumn{3}{r}{\small Continúa en la siguiente página}\\\endfoot
+\bottomrule\endlastfoot
+\texttt{stint\_id}&Texto&Identificador generado para el intervalo en el que no cambia ninguno de los quintetos.\\
+\texttt{start\_clock}&Tiempo&Tiempo restante cuando inicia el intervalo.\\
+\texttt{end\_clock}&Tiempo&Tiempo restante al concluir el intervalo.\\
+\texttt{stint\_seconds}&Decimal&Duración, en segundos, después de normalizar el reloj y el periodo.\\
+\texttt{home\_team\_id}&ID&Equipo local del encuentro.\\
+\texttt{away\_team\_id}&ID&Equipo visitante del encuentro.\\
+\texttt{score\_margin\_start}&Entero&Diferencia entre marcadores al inicio.\\
+\texttt{score\_margin\_end}&Entero&Diferencia entre marcadores al cierre.\\
+\texttt{focal\_lineup}&Conjunto&Cinco identificadores del quinteto propio, cuando puedan reconstruirse.\\
+\texttt{opponent\_lineup}&Conjunto&Cinco identificadores de las rivales, cuando puedan reconstruirse.\\
+\end{longtable}
+}
+
+\noindent\textbf{Descripción de la tabla.}
+La Tabla~\ref{tab:stints_wnba} define la estructura propuesta para analizar segmentos del partido durante los cuales se mantienen las mismas diez jugadoras. Esta unidad permitiría asociar marcador, duración y quintetos; sin embargo, su construcción depende de reconstruir correctamente sustituciones y otras interrupciones de juego. Los campos temporales y los identificadores de quinteto son derivados, no columnas documentadas como tales en \texttt{pbp} \cite{wehoopPbp}.
+
+\medskip
+
+{\small
+\renewcommand{\arraystretch}{1.15}
+\begin{longtable}{@{}p{3.8cm}p{1.7cm}p{6.9cm}@{}}
+\caption{Variables propuestas para coincidencias contextuales entre jugadoras rivales.}\label{tab:coincidencias_wnba}\\
+\toprule\textbf{Variable}&\textbf{Tipo}&\textbf{Procedimiento de obtención}\\\midrule\endfirsthead
+\multicolumn{3}{l}{\small Continuación de la Tabla~\ref{tab:coincidencias_wnba}}\\
+\toprule\textbf{Variable}&\textbf{Tipo}&\textbf{Procedimiento de obtención}\\\midrule\endhead
+\midrule\multicolumn{3}{r}{\small Continúa en la siguiente página}\\\endfoot
+\bottomrule\endlastfoot
+\texttt{focal\_player\_id}&ID&Identificador de jugadora del equipo analizado presente en el intervalo.\\
+\texttt{opponent\_player\_id}&ID&Identificador de jugadora rival presente simultáneamente.\\
+\texttt{focal\_role}&Categoría&Perfil funcional Guard, Wing o Big asignado mediante el análisis.\\
+\texttt{opponent\_role}&Categoría&Perfil de la jugadora rival.\\
+\texttt{compatible\_roles}&Binario&Indicador de compatibilidad de perfiles según la regla que se valide.\\
+\texttt{focal\_starter}&Binario&Indica si la jugadora comenzó el encuentro, cuando pueda comprobarse.\\
+\texttt{opponent\_starter}&Binario&Titularidad de la jugadora rival.\\
+\texttt{shared\_seconds}&Decimal&Segundos de coincidencia dentro del intervalo.\\
+\texttt{shared\_possessions}&Entero&Posesiones reconstruidas mientras ambas están en cancha.\\
+\texttt{focal\_off\_possessions}&Entero&Posesiones ofensivas propias durante esa coincidencia.\\
+\texttt{focal\_def\_possessions}&Entero&Posesiones defensivas durante la coincidencia.\\
+\texttt{shared\_seconds\_game}&Decimal&Suma de segundos de coincidencia en un encuentro.\\
+\texttt{shared\_possessions\_game}&Entero&Suma de posesiones coincidentes en un encuentro.\\
+\end{longtable}
+}
+
+\noindent\textbf{Descripción de la tabla.}
+La Tabla~\ref{tab:coincidencias_wnba} especifica las observaciones necesarias para una comparación contextual individual: cuánto tiempo coincidieron dos rivales y qué ocurrió durante ese periodo. La presencia simultánea no implica que una jugadora defendiera directamente a la otra. Los perfiles y la compatibilidad también deben calcularse; las estadísticas por intervalo no podrán tomarse de los totales de temporada sin procesar.
