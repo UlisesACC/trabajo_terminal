@@ -1,0 +1,35 @@
+Las tablas siguientes contienen \textbf{variables que se propone construir}, no columnas originales documentadas en wehoop.
+\begin{longtable}{@{}p{3.6cm}p{2cm}p{6.5cm}@{}}
+\caption{Variables derivadas de intervalos de alineación.}\label{tab:stints_wnba}\\
+\toprule\textbf{Campo}&\textbf{Tipo}&\textbf{Construcción}\\\midrule\endfirsthead
+\toprule\textbf{Campo}&\textbf{Tipo}&\textbf{Construcción}\\\midrule\endhead
+\texttt{stint\_id}&Texto&Identificador generado por intervalo sin cambios de quinteto.\\
+\texttt{start\_clock}&Tiempo&Inicio del intervalo.\\
+\texttt{end\_clock}&Tiempo&Fin del intervalo.\\
+\texttt{stint\_seconds}&Decimal&Duración calculada dentro del periodo.\\
+\texttt{home\_team\_id}&ID&Equipo local, enlazado con los datos del partido.\\
+\texttt{away\_team\_id}&ID&Equipo visitante.\\
+\texttt{score\_margin\_start}&Entero&Diferencial al inicio.\\
+\texttt{score\_margin\_end}&Entero&Diferencial al final.\\
+\texttt{focal\_lineup}&Conjunto&Cinco jugadoras propias, si es reconstruible.\\
+\texttt{opponent\_lineup}&Conjunto&Cinco rivales, si es reconstruible.\\
+\bottomrule\end{longtable}
+\begin{longtable}{@{}p{3.6cm}p{2cm}p{6.5cm}@{}}
+\caption{Variables derivadas de coincidencia contextual entre rivales.}\label{tab:coincidencias_wnba}\\
+\toprule\textbf{Campo}&\textbf{Tipo}&\textbf{Construcción}\\\midrule\endfirsthead
+\toprule\textbf{Campo}&\textbf{Tipo}&\textbf{Construcción}\\\midrule\endhead
+\texttt{focal\_player\_id}&ID&Jugadora propia presente en el intervalo.\\
+\texttt{opponent\_player\_id}&ID&Rival simultáneamente presente, no defensora demostrada.\\
+\texttt{focal\_role}&Categoría&Perfil estimado Guard, Wing o Big.\\
+\texttt{opponent\_role}&Categoría&Perfil estimado de la rival.\\
+\texttt{compatible\_roles}&Binario&Regla de compatibilidad por validar.\\
+\texttt{focal\_starter}&Binario&Titularidad inferida o verificada.\\
+\texttt{opponent\_starter}&Binario&Titularidad rival.\\
+\texttt{shared\_seconds}&Decimal&Segundos de coincidencia.\\
+\texttt{shared\_possessions}&Entero&Posesiones durante coincidencia reconstruidas.\\
+\texttt{focal\_off\_possessions}&Entero&Posesiones ofensivas coincidentes.\\
+\texttt{focal\_def\_possessions}&Entero&Posesiones defensivas coincidentes.\\
+\texttt{shared\_seconds\_game}&Decimal&Segundos compartidos en el partido.\\
+\texttt{shared\_possessions\_game}&Entero&Posesiones compartidas en el partido.\\
+\bottomrule\end{longtable}
+Las estadísticas de puntos, tiros, rebotes, asistencias, pérdidas, robos, bloqueos y faltas durante cada coincidencia requerirán agregación de acciones verificables; no corresponden a los totales de temporada.
