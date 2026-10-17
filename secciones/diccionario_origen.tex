@@ -1,0 +1,29 @@
+La Tabla~\ref{tab:campos_wehoop} contiene nombres y tipos efectivamente documentados por wehoop. No representa todas las columnas posibles ni valida valores de cada archivo Parquet.
+\begin{longtable}{@{}p{3cm}p{3cm}p{2cm}p{5cm}@{}}
+\caption{Campos de origen documentados.}\label{tab:campos_wehoop}\\
+\toprule\textbf{Campo}&\textbf{Conjunto}&\textbf{Tipo}&\textbf{Descripción}\\\midrule\endfirsthead
+\toprule\textbf{Campo}&\textbf{Conjunto}&\textbf{Tipo}&\textbf{Descripción}\\\midrule\endhead
+\texttt{game\_id}&\texttt{pbp}&String&Identificador textual de partido.\\
+\texttt{season}&\texttt{pbp}&Int64&Temporada WNBA.\\
+\texttt{period}&\texttt{pbp}&Int64&Periodo o prórroga.\\
+\texttt{clock}&\texttt{pbp}&String&Reloj del evento en ISO 8601.\\
+\texttt{action\_number}&\texttt{pbp}&Int64&Orden de la acción.\\
+\texttt{team\_id}&\texttt{pbp}&Int64&Identificador de equipo.\\
+\texttt{person\_id}&\texttt{pbp}&Int64&Persona vinculada a la acción.\\
+\texttt{action\_type}&\texttt{pbp}&String&Tipo de acción.\\
+\texttt{score\_home}&\texttt{pbp}&String&Marcador local.\\
+\texttt{score\_away}&\texttt{pbp}&String&Marcador visitante.\\
+\texttt{x\_legacy}&\texttt{shots}&Int64&Coordenada de tiro.\\
+\texttt{y\_legacy}&\texttt{shots}&Int64&Coordenada de tiro.\\
+\texttt{shot\_result}&\texttt{shots}&String&Resultado de lanzamiento.\\
+\texttt{player\_id}&\texttt{player\_season\_stats}&Int64&ID de jugadora.\\
+\texttt{age}&\texttt{player\_season\_stats}&Float64&Edad.\\
+\texttt{ts\_pct}&\texttt{player\_season\_stats}&Float64&Eficiencia de tiro.\\
+\texttt{usg\_pct}&\texttt{player\_season\_stats}&Float64&Uso ofensivo.\\
+\texttt{off\_rating}&\texttt{lineups}&Float64&Rating ofensivo agregado.\\
+\texttt{def\_rating}&\texttt{lineups}&Float64&Rating defensivo agregado.\\
+\texttt{net\_rating}&\texttt{lineups}&Float64&Rating neto agregado.\\
+\texttt{poss}&\texttt{lineups}&Int64&Posesiones.\\
+\texttt{player\_id}&\texttt{game\_rosters}&Int64&ID en plantilla del partido.\\
+\bottomrule\end{longtable}
+Los ratings de \texttt{lineups} no deben interpretarse automáticamente como rendimientos de enfrentamientos entre dos quintetos específicos. Las coordenadas de tiro tampoco identifican a la defensora.
