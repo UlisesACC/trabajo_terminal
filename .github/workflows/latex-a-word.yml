@@ -1,0 +1,49 @@
+name: Exportar Trabajo Terminal a Word
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - actualizacion-metodologia-wehoop-20261017
+    paths:
+      - '**.tex'
+      - '**.bib'
+      - 'herramientas/exportar_word.py'
+      - '.github/workflows/latex-a-word.yml'
+
+jobs:
+  generar-docx:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Obtener proyecto
+        uses: actions/checkout@v4
+
+      - name: Instalar Pandoc
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc
+
+      - name: Expandir archivos de LaTeX
+        run: python3 herramientas/exportar_word.py
+
+      - name: Convertir a Word
+        run: |
+          pandoc build/main_expandido.tex \
+            --from=latex \
+            --to=docx \
+            --standalone \
+            --citeproc \
+            --bibliography=referencias.bib \
+            --resource-path=".:imagenes:secciones" \
+            --output=Trabajo_Terminal.docx
+
+      - name: Publicar documento descargable
+        uses: actions/upload-artifact@v4
+        with:
+          name: Trabajo-Terminal-Word
+          path: Trabajo_Terminal.docx
+          if-no-files-found: error
+          retention-days: 30
