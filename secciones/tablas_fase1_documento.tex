@@ -1,0 +1,88 @@
+La fase 1 combina procesamiento construido manualmente con algoritmos existentes de aprendizaje automático. El objetivo es evitar inventar manualmente una puntuación con pesos arbitrarios.
+
+\begin{longtable}{@{}p{3.2cm}p{1.8cm}p{7.7cm}@{}}
+\caption{Identificación del partido y del intervalo.}\\
+\toprule\textbf{Variable}&\textbf{Tipo}&\textbf{Descripción}\\\midrule\endhead
+\texttt{season}&Entero&Temporada WNBA, por ejemplo 2024, 2025 o 2026.\\
+\texttt{game\_id}&Texto&Identificador único del partido.\\
+\texttt{game\_date}&Fecha&Fecha del encuentro; permite ponderar más los datos recientes.\\
+\texttt{stint\_id}&Texto&Identificador del intervalo entre dos sustituciones.\\
+\texttt{period}&Entero&Cuarto o tiempo extra en el que ocurrió el intervalo.\\
+\texttt{start\_clock}&Tiempo&Tiempo restante cuando comenzó el intervalo.\\
+\texttt{end\_clock}&Tiempo&Tiempo restante cuando terminó.\\
+\texttt{stint\_seconds}&Decimal&Segundos durante los cuales no cambió ninguno de los quintetos.\\
+\texttt{home\_team\_id}&Texto&Equipo local.\\
+\texttt{away\_team\_id}&Texto&Equipo visitante.\\
+\texttt{score\_margin\_start}&Entero&Diferencia de puntos al inicio del intervalo.\\
+\texttt{score\_margin\_end}&Entero&Diferencia al finalizar el intervalo.\\
+\texttt{home\_away\_focal}&Binaria&Indica si el equipo de la jugadora focal era local o visitante.\\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}{@{}p{3.5cm}p{1.9cm}p{7.3cm}@{}}
+\caption{Identificación de las jugadoras comparadas.}\\
+\toprule\textbf{Variable}&\textbf{Tipo}&\textbf{Descripción}\\\midrule\endhead
+\texttt{focal\_player\_id}&Texto&Identificador de la jugadora que se desea evaluar.\\
+\texttt{Focal\_team\_id}&Texto&Equipo de la jugadora focal en esa temporada y partido.\\
+\texttt{Opponent\_player\_id}&Texto&Identificador de la jugadora rival con quien coincidió.\\
+\texttt{Opponent\_team\_id}&Texto&Equipo de la rival.\\
+\texttt{Focal\_role}&Categórica&Perfil funcional: Guard, Wing o Big.\\
+\texttt{Opponent\_role}&Categórica&Perfil funcional de la rival.\\
+\texttt{Compatible\_roles}&Binaria&Indica si sus perfiles son comparables.\\
+\texttt{Focal\_starter}&Binaria&Indica si la jugadora focal inició el partido.\\
+\texttt{Opponent\_starter}&Binaria&Indica si la rival inició el partido.\\
+\texttt{Focal\_age}&Decimal&Edad de la jugadora durante esa temporada.\\
+\texttt{Opponent\_age}&Decimal&Edad de la rival.\\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}{@{}p{4cm}p{1.8cm}p{6.9cm}@{}}
+\caption{Presencia simultánea.}\\
+\toprule\textbf{Variable}&\textbf{Tipo}&\textbf{Descripción}\\\midrule\endhead
+\texttt{shared\_seconds}&Decimal&Segundos que ambas jugadoras compartieron cancha en el intervalo.\\
+\texttt{shared\_possessions}&Entero&Posesiones disputadas mientras ambas estaban en cancha.\\
+\texttt{focal\_off\_possessions}&Entero&Posesiones ofensivas del equipo de la jugadora focal.\\
+\texttt{focal\_def\_possessions}&Entero&Posesiones defensivas del equipo de la jugadora focal.\\
+\texttt{shared\_stints\_game}&Entero&Número de intervalos compartidos durante ese partido.\\
+\texttt{shared\_seconds\_game}&Decimal&Tiempo total compartido durante el partido.\\
+\texttt{shared\_possessions\_game}&Entero&Posesiones totales compartidas en el partido.\\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}{@{}p{4.5cm}p{8.2cm}@{}}
+\caption{Estadísticas de cada jugadora durante la coincidencia.}\\
+\toprule\textbf{Variable para cada jugadora}&\textbf{Descripción}\\\midrule\endhead
+\texttt{minutes}&Minutos disputados durante la coincidencia.\\
+\texttt{pts}&Puntos anotados.\\
+\texttt{fgm}&Tiros de campo anotados.\\
+\texttt{fga}&Tiros de campo intentados.\\
+\texttt{two\_pm}&Tiros de dos puntos anotados.\\
+\texttt{two\_pa}&Tiros de dos puntos intentados.\\
+\texttt{three\_pm}&Triples anotados.\\
+\texttt{three\_pa}&Triples intentados.\\
+\texttt{ftm}&Tiros libres anotados.\\
+\texttt{fta}&Tiros libres intentados.\\
+\texttt{oreb}&Rebotes ofensivos.\\
+\texttt{dreb}&Rebotes defensivos.\\
+\texttt{reb}&Rebotes totales.\\
+\texttt{ast}&Asistencias.\\
+\texttt{tov}&Pérdidas.\\
+\texttt{stl}&Robos.\\
+\texttt{blk}&Bloqueos.\\
+\texttt{pf}&Faltas cometidas.\\
+\texttt{fouls\_drawn}&Faltas recibidas, si están disponibles.\\
+\texttt{plus\_minus}&Cambio en el marcador durante los minutos compartidos.\\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}{@{}p{5.5cm}p{7.2cm}@{}}
+\caption{Interacciones explicitas entre ambas.}\\
+\toprule\textbf{Variable}&\textbf{Descripción}\\\midrule\endhead
+\texttt{focal\_blocked\_opponent}&Veces que la focal bloqueó un tiro de la rival.\\
+\texttt{opponent\_blocked\_focal}&Veces que la rival bloqueó a la focal.\\
+\texttt{focal\_stole\_from\_opponent}&Robos de la focal asociados a una pérdida de la rival.\\
+\texttt{opponent\_stole\_from\_focal}&Robos de la rival asociados a una pérdida de la focal.\\
+\texttt{focal\_fouled\_opponent}&Faltas cometidas directamente sobre la rival.\\
+\texttt{opponent\_fouled\_focal}&Faltas recibidas de la rival.\\
+\bottomrule
+\end{longtable}
