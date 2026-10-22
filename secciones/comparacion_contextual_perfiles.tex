@@ -1,0 +1,108 @@
+\subsection{Comparación contextual y perfiles funcionales}
+Se usará una solución hibrida pues mezclaremos los datos de la temporada más reciente con datos de temporadas pasadas sin mezclarlas como si fueran equivalentes. El beneficio de aumentar la muestra sí vale la pena, siempre que se controle el cambio temporal. Usar únicamente una temporada puede generar estimaciones muy inestables: algunas parejas quizá sólo coincidan pocos minutos. En ese caso, una jugadora podría parecer excelente o pésima por azar. En términos estadísticos, se tendría menor sesgo, pero mucha mayor varianza.
+
+Por recomendación se utilizará la fórmula:
+\[
+\widehat R_{XZ}=w_{XZ}R_{XZ,\mathrm{actual}}+(1-w_{XZ})R_{XZ,\mathrm{hist\acute orico}}
+\]
+Con:
+\[
+w_{XZ}=\frac{n_{\mathrm{actual}}}{n_{\mathrm{actual}}+k}
+\]
+donde $n_{\mathrm{actual}}$ son las posesiones compartidas en la temporada actual:
+\begin{itemize}
+\item Si X y Z tienen muchas posesiones actuales, domina la temporada actual.
+\item Si tienen pocas, las temporadas anteriores estabilizan la estimación.
+\item Si nunca coincidieron actualmente, el histórico funciona como referencia.
+\item Si tampoco existe historial, se utiliza el promedio de jugadoras con perfiles similares.
+\end{itemize}
+
+Dentro del histórico también se ponderará por recencia:
+\[
+R_{\mathrm{hist\acute orico}}=[peso1]R_{t-1}+[peso2]R_{t-2}.
+\]
+No se fijarán esos pesos definitivamente desde ahora: deben ser seleccionarlos mediante un método o la comparación entre ellos con el objetivo de encontrar el peso óptimo. Por ejemplo, con validación temporal, se entrenaría con 2024-2025 y evaluaría qué tan bien predice 2026.
+\begin{itemize}
+\item Interpolación o extrapolación (jugar con los parámetros)
+\item Proponer varios modelos de como penalizarlos
+\end{itemize}
+
+\subsubsection*{1. ¿Qué equipos? y ¿por qué?}
+Solo haremos el modelo con 5 equipos pues nuestro objetivo es probar que tenemos una solución viable para el problema que planteamos. Los equipos serán los que hayan tenido menos cambios en su plantilla, pues eso brindará una estabilidad para evitar sesgar los resultados.
+
+\subsubsection*{2. Lo que no se puede asegurar con los datos que tenemos:}
+\begin{itemize}
+\item Que A defendió directamente a B.
+\item Cuántos tiros hizo B mientras A era su defensora.
+\item La distancia entre atacante y defensora.
+\item Cambios defensivos después de una pantalla.
+\item Posesiones exactas de emparejamiento individual.
+\item Movimiento continuo x,y de las diez jugadoras y el balón.
+\end{itemize}
+
+“Datos posicionales de eventos” no necesariamente significa tracking óptico continuo. Puede significar ubicación del tiro o del evento. Tampoco track\_on\_court=true significa que obtengan las coordenadas continuas de cada jugadora; normalmente indica que el feed registra quién está dentro de la cancha.
+
+Por eso, aunque dos Guards coincidan en cancha, no pueden concluir automáticamente que se defendieron entre sí. Para estudiar enfrentamientos defensivos reales necesitarían datos de tracking espacial (posición en cancha y defensora asignada) que normalmente son comerciales.
+
+\subsubsection*{3. Lo que sí pueden hacer nuestros datos.}
+Por ejemplo, para Dallas vs. Indiana:
+\begin{enumerate}
+\item Identificar cuándo estuvieron simultáneamente Paige Bueckers y Caitlin Clark.
+\item Calcular los minutos compartidos.
+\item Extraer los eventos ocurridos en esos intervalos.
+\end{enumerate}
+Comparar: Podríamos producir una puntuación como:
+\[
+Score_{A,B}=Rendimiento_A-Rendimiento_B
+\]
+pero calculada únicamente durante los minutos en los que ambas estuvieron en cancha.
+
+A esto le llamaremos “Comparación contextual 1 vs. 1 durante minutos compartidos en cancha.”
+
+\begin{longtable}{@{}p{3cm}p{9.5cm}@{}}
+\toprule\textbf{Dimensión}&\textbf{Variables posibles}\\\midrule\endhead
+Anotación&Puntos, FG\%, 3P\%, TS\%, puntos por posesión\\
+Creación&Asistencias, asistencias potenciales si están disponibles\\
+Control&Pérdidas, AST/TOV\\
+Defensa&Robos, bloqueos, faltas\\
+Contexto&Marcador, periodo, tiempo restante\\
+Espacio&Zona o coordenada del tiro, si está disponible\\
+Coincidencia&Minutos en cancha simultáneamente\\
+\bottomrule
+\end{longtable}
+
+\subsubsection*{4. Lo que nos serviría más adelante:}
+Las cinco jugadoras en cancha por evento.
+
+Coordenadas de los tiros.
+
+Si identifica asistente, bloqueadora, causante de pérdida y jugadoras participantes.
+
+Si contiene identificador de defensora.
+
+\subsubsection*{5. ¿Qué posiciones tomaremos en cuenta para nuestro modelo y por qué?}
+Para esta parte del trabajo debemos comprender dos conceptos fundamentales: Posición nominal y perfil funcional, el primero es la posición que le es asignado a la jugadora de acuerdo con las reglas PG, SG, SF, PF o C; el segundo es cómo juega realmente, por ejemplo: creadora, tiradora, wing defensiva, interior finalizador, protectora del aro, etc.
+
+\begin{longtable}{@{}p{2cm}p{3.4cm}p{3.6cm}p{3.6cm}@{}}
+\toprule\textbf{Opción}&\textbf{Cómo funcionaría}&\textbf{Ventajas}&\textbf{Desventajas}\\\midrule\endhead
+Manual rígido&Asignar PG, SG, SF, PF o C usando la posición oficial&Muy sencilla, interpretable y fácil de validar&Las posiciones son rígidas; una jugadora puede actuar como PG y SG, o SF y PF\\
+Manual por macrorroles&Convertir posiciones oficiales en Guard, Wing y Big&Sencilla, estable y adecuada para impedir comparaciones absurdas&Generaliza demasiado; dos Guards pueden jugar de formas completamente diferentes\\
+Clustering puro&El algoritmo agrupa jugadoras únicamente según sus estadísticas&Descubre estilos reales y evita imponer posiciones tradicionales&Los grupos pueden ser difíciles de interpretar, cambiar entre temporadas o mezclar jugadoras tácticamente incompatibles\\
+Híbrida&Macrorrol definido por reglas y subperfil obtenido con clustering.&Equilibra interpretación, flexibilidad y aprendizaje automático&Requiere dos niveles de clasificación y validación adicional\\
+\bottomrule
+\end{longtable}
+
+No usaremos posiciones rígidas como PG, SG, SF, PF y C, porque muchas jugadoras cumplen más de una función. Tampoco segmentaremos únicamente Guards y Bigs, pues se perdería demasiada información, especialmente con wings y forwards versátiles.
+
+Para la primera versión, tendríamos comparaciones entre categorías compatibles:
+\begin{longtable}{@{}p{4cm}p{7cm}@{}}
+\toprule\textbf{Perfil principal}&\textbf{Puede compararse con}\\\midrule\endhead
+Guard&Guard y Wing\\
+Wing&Guard, Wing y Big\\
+Big&Wing y Big\\
+\bottomrule
+\end{longtable}
+
+Así se mantiene la versatilidad sin afirmar que todas pueden cumplir cualquier función. Para este TT, la mejor opción sería usar Guard–Wing–Big y permitir pertenencia parcial o secundaria, tenemos estas dos opciones y decidiremos cual es la mejor al momento de comparar resultados entre el uso de uno y de otra con varios algoritmos; es más realista y sigue siendo manejable.
+
+¿estas posiciones las especificaremos manualmente o las obtendremos con algún algoritmo de ML? ¿cuál es la opción más viable? ¿cuál opción nos será más últil? ¿cuál opción es más sencilla? ¿con cuál opción nos deberíamos quedar? Ventajas y desventajas de cada una.
