@@ -1,0 +1,132 @@
+\subsection{Fase 2}
+Ante un quinteto rival determinado, el modelo recomendará la combinación de cinco jugadoras del equipo propio que maximice una función de desempeño esperado, sin garantizar la victoria del partido.
+
+\subsubsection*{Qué ocurre cuando cambia el rival}
+El flujo que se plantea es el siguiente:
+
+\begin{center}
+Sustitución rival $\longrightarrow$ Nuevo quinteto rival $\longrightarrow$ Modelo 1 vs 1 $\longrightarrow$ Evaluación de quintetos propios $\longrightarrow$ Quinteto recomendado
+\end{center}
+
+\subsubsection*{6. ¿Cómo se hace la recomendación final?}
+La recomendación final se hace a nivel de quinteto completo, no asignando secuencialmente una jugadora de B para cada jugadora de A.
+
+Por ejemplo, que sucedería si por ejemplo tenemos dos equipos A y B.
+
+A \{A1, A2, A3, \ldots, An\}
+
+B \{B1, B2, B2, \ldots, Bn\}
+
+El equipo contrario hace una sustitución y entra jugadora A2 a la cancha entonces nuestro modelo dice “la mejor jugadora para hacer frente a esa jugadora que acaba de entrar es B1; ¿qué sucede y cómo se maneja el hecho de que B1 ya se encuentre jugando en la cancha, entonces quién entraría para hacerle frente a la sustitución del equipo contrario? o ¿acaso se quedaría la misma alineación que ya se encuentra en cancha?
+
+En este ejemplo si B1 parece ser la mejor respuesta para A2, A3, A4 y A5, eso no significa que deba seleccionarse varias veces. Significa que B1 es una jugadora muy valiosa frente a ese quinteto rival. El optimizador la incluye una sola vez y busca qué otras cuatro jugadoras complementan mejor su presencia.
+
+La decisión sería:
+\[
+Q_B^*=\underset{Q_B\subseteq R_B,\;|Q_B|=5}{\arg\max}f(Q_B,Q_A,\text{contexto}).
+\]
+donde:
+\begin{itemize}
+\item $Q_A$: quinteto rival actual.
+\item $R_B$: jugadoras disponibles del equipo B.
+\item $Q_B$: quinteto candidato.
+\item $f$: desempeño esperado considerando enfrentamiento, cohesión, ataque y defensa.
+\end{itemize}
+Con variables binarias:
+\[
+x_i=\begin{cases}1&\text{si la jugadora }B_i\text{ integra el quinteto}\\0&\text{en otro caso}\end{cases}
+\qquad \sum_i x_i=5.
+\]
+Como $x_{B1}$ sólo puede valer 0 o 1, B1 nunca puede duplicarse.
+
+\subsubsection*{Si B1 ya está jugando}
+Cuando A2 entra al partido, no se debe preguntar: ¿Quién es la mejor sustituta para enfrentar a A2?
+
+Más bien: Dado que A2 entró y B1 ya está jugando, ¿cuál es ahora el mejor quinteto factible de B?
+
+El modelo puede concluir:
+\begin{itemize}
+\item Mantener a B1 y no hacer ningún cambio.
+\item Mantener a B1 y sustituir a otra jugadora.
+\item Sacar a B1 si otra combinación completa tiene mayor rendimiento esperado.
+\end{itemize}
+Si se quiere recomendar solamente un cambio cada vez, se restringen los quintetos candidatos a aquellos que difieran del actual en máximo una jugadora. Después se comparan todas las sustituciones permitidas y se selecciona la que produzca la mayor mejora:
+\[
+\Delta=f(Q_B^{\mathrm{nuevo}},Q_A)-f(Q_B^{\mathrm{actual}},Q_A).
+\]
+
+\subsubsection*{7. ¿Qué modelos proponemos? Y ¿por qué?}
+Proponemos usar 3 diferentes algoritmos:
+\begin{enumerate}
+\item Modelo de enfrentamiento y perfiles
+\item Modelo predictivo de quintetos
+\item Optimizador -> gradiente, interpolación, aprendizaje máquina
+\end{enumerate}
+3.1 seleccionar 4-5 optimizadores y fundamentar el por qué los elegimos.
+
+Exactamente. Deben distinguir entre:
+\begin{itemize}
+\item Variable objetivo: qué significa que un quinteto sea bueno.
+\item Métrica de evaluación: cómo medirán si el modelo acertó.
+\end{itemize}
+Los puntos totales son inadecuados porque dependen de minutos, ritmo y número de posesiones.
+
+Una mejor variable objetivo sería el Net Rating ajustado por 100 posesiones:
+\[
+NetRtg=ORtg-DRtg
+\]
+donde:
+\[
+ORtg=100\frac{\text{puntos anotados}}{\text{posesiones}},
+\qquad DRtg=100\frac{\text{puntos recibidos}}{\text{posesiones}}.
+\]
+Después pueden convertirlo en clasificación:
+\[
+Y=\begin{cases}
+1&NetRtg_{\mathrm{ajustado}}>0\\
+0&NetRtg_{\mathrm{ajustado}}\leq0.
+\end{cases}
+\]
+El modelo respondería:
+
+¿Cuál es la probabilidad de que este quinteto tenga un diferencial positivo frente al quinteto rival?
+
+Esto será más estable y evaluable que predecir puntos exactos.
+
+\subsubsection*{Métricas}
+\begin{longtable}{@{}p{3.3cm}p{9.4cm}@{}}
+\toprule\textbf{Métrica}&\textbf{Interpretación en el modelo}\\\midrule\endhead
+Accuracy&Puede engañar si predominan los quintetos positivos o negativos por lo cual se tendrán en cuenta variedad de métricas.\\
+Precision&De los quintetos recomendados como buenos, cuántos realmente fueron buenos.\\
+Recall&Cuántos quintetos buenos logró encontrar.\\
+F1-Score&Equilibrio entre Precision y Recall.\\
+ROC-AUC&Capacidad general para separar quintetos favorables y desfavorables.\\
+Brier Score o Log Loss&Calidad de las probabilidades predichas.\\
+Precision@K&Cuántos de los tres o cinco quintetos mejor recomendados tuvieron buen desempeño.\\
+NDCG o correlación de ranking&Qué tan bien ordenó los quintetos.\\
+\bottomrule
+\end{longtable}
+
+Consideraciones que se tendrán en la validación de los resultados:
+
+Se priorizarán las métricas Precision@3 + Brier Score + F1 porque interesa que los primeros quintetos recomendados sean realmente confiables.
+
+¿por qué?
+
+Precision@k (Precisión en el top k) es una métrica de evaluación utilizada en sistemas de recuperación de información, motores de recomendación y modelos de clasificación. Mide la proporción de elementos relevantes que se encuentran entre los primeros k resultados devueltos por el modelo o sistema.
+
+¿cómo funciona esta métrica?
+
+Orden de los resultados: A diferencia de la precisión tradicional, que evalúa un conjunto completo sin importar el orden, Precision@k penaliza si los elementos relevantes aparecen en posiciones más alejadas (por ejemplo, más atrás del puesto 3).
+
+El caso de k = 3: Significa que el sistema analiza únicamente los 3 primeros resultados que le muestra al usuario (o que predice el modelo) y cuenta cuántos de esos 3 son realmente útiles o correctos
+
+Además, se establecerán un mínimo de posesiones (por ejemplo, no evaluar un quinteto que sólo jugó dos posesiones) y reportar intervalos de confianza. Un quinteto con Net Rating = +50 en cuatro posesiones no necesariamente es mejor que uno con +8 en 200.
+
+El modelo producirá dos salidas:
+\begin{enumerate}
+\item Net Rating esperado ajustado.
+\item Probabilidad de rendimiento positivo.
+\end{enumerate}
+
+Así se podrá evaluar tanto la aproximación numérica con MAE/RMSE como la calidad de la recomendación con Precisión, F1 y calibración, lo cual enriquece más el entendimiento de los resultados que una accuracy superficialmente alta.
