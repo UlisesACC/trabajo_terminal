@@ -1,0 +1,122 @@
+\subsection{Elección de la temporada}
+La selección de las temporadas responde a las necesidades de cada fase del proyecto. En la primera fase se busca ampliar el conocimiento sobre el desempeño de cada jugadora durante los intervalos en que comparte cancha con una oponente determinada. Incorporar temporadas anteriores permite recuperar antecedentes de estas coincidencias y puede aumentar las observaciones disponibles, siempre que ambas jugadoras hayan participado en esos periodos. No obstante, este beneficio depende del historial de cada pareja y requiere considerar los cambios en su desempeño y contexto.
+
+En la segunda fase, el interés se centra en el rendimiento colectivo de los quintetos de la temporada objetivo. La información histórica debe utilizarse con mayor cautela, pues las plantillas no permanecen necesariamente iguales entre temporadas. Como referencia, a partir de la tabla oficial de comparación de plantillas publicada por Minnesota Lynx el 14 de junio de 2025, se calculó que los 12 equipos con participación en 2024 conservaron, en promedio, 5.33 jugadoras de su plantilla final de ese año. [X] Esta variación aconseja no considerar automáticamente equivalentes las configuraciones colectivas de distintas temporadas.
+
+Por ello, se propone utilizar varias temporadas para enriquecer el análisis individual de la primera fase y concentrar el análisis de quintetos en la temporada objetivo. Esta decisión se complementa con un cuadro comparativo de las ventajas y desventajas de ambas alternativas.
+
+\begin{longtable}{@{}p{2.15cm}p{5.35cm}p{5.35cm}@{}}
+\caption{Instrumento de ayuda a la elección de datos en determinada temporada por fase.}\\
+\toprule
+\textbf{Fase}&\textbf{Una temporada}&\textbf{Más de una temporada}\\\midrule\endfirsthead
+\toprule\textbf{Fase}&\textbf{Una temporada}&\textbf{Más de una temporada}\\\midrule\endhead
+Jugadora vs. jugadora&
+\textbf{Ventajas:} Mayor cercanía al desempeño, rol y contexto competitivo de la temporada objetivo. Reduce la mezcla de etapas diferentes de una misma jugadora. Facilita la preparación y comparación de los datos.
+
+\textbf{Desventajas:} Algunas parejas oponentes pueden acumular pocas posesiones o minutos compartidos. Esa escasez puede producir estimaciones con mayor incertidumbre y sensibilidad a partidos atípicos. Limita la cobertura de parejas y puede favorecer el sobreajuste si se emplean modelos complejos.&
+\textbf{Ventajas:} Puede aumentar las posesiones, partidos y contextos observados para las parejas con historial compartido. Una mayor muestra comparable puede reducir la variabilidad de las estimaciones y permitir distinguir patrones persistentes de fluctuaciones ocasionales. Amplía el historial individual disponible.
+
+\textbf{Desventajas:} Introduce riesgo de sesgo temporal por cambios de edad, condición física, rol, equipo, compañeros o sistema táctico. Las parejas no necesariamente acumulan más enfrentamientos por añadir temporadas. Requiere ponderación temporal, regularización y control del contexto; los registros adicionales tampoco son necesariamente independientes.\\\midrule
+Mejor quinteto&
+\textbf{Ventajas:} Permite estimar el desempeño colectivo dentro de una plantilla y un contexto temporal más cercanos al objetivo de recomendación. Facilita interpretar la participación conjunta de las jugadoras y su rendimiento frente a los rivales de esa temporada. Evita atribuir directamente al equipo actual resultados obtenidos con plantillas anteriores.
+
+\textbf{Desventajas:} Los quintetos poco utilizados pueden presentar estimaciones inestables. Las alineaciones nunca observadas requieren un modelo capaz de generalizar a partir de información individual o de combinaciones parciales. Persisten cambios dentro de la temporada por lesiones, transferencias o ajustes tácticos.&
+\textbf{Ventajas:} Puede aportar más observaciones de quintetos recurrentes y de parejas o tríos que permanecen juntos. Permite estudiar continuidad o cambios del rendimiento y entrenar modelos con una variedad más amplia de configuraciones.
+
+\textbf{Desventajas:} El aumento total de registros no implica más evidencia para cada quinteto actual. Mezclar temporadas puede confundir la contribución de una combinación con cambios de plantilla, entrenador, estilo o rivales. Las alineaciones históricas pueden tener poca representatividad para la temporada objetivo; se necesita modelar explícitamente esa heterogeneidad.\\
+\bottomrule
+\end{longtable}
+
+\subsection{Selección y ponderación de la información histórica}
+De antemano no podemos asegurar que el beneficio del historial supere sus riesgos, y los pesos deben elegirse para mejorar el desempeño predictivo fuera de muestra, no para minimizar directamente un sesgo que se desconoce.
+
+Con base en la comparación anterior, se utilizarán inicialmente tres temporadas 2024, 2025 y 2026 para construir las métricas de la primera fase, mientras que el análisis colectivo de la segunda fase se concentrará en la temporada objetivo de 2026. La incorporación del historial busca ampliar las observaciones disponibles para las parejas de jugadoras oponentes, particularmente cuando su participación simultánea en una sola temporada sea limitada.
+
+Sin embargo, los registros de distintas temporadas no se considerarán equivalentes. El desempeño de una jugadora puede cambiar junto con su rol, equipo, compañeras y condiciones competitivas. Por ello, la información histórica se incorporará mediante ponderación temporal y regularización. La utilidad de esta estrategia se comprobará mediante validación temporal, contrastándola con alternativas que utilicen únicamente información reciente.
+
+La propuesta se estructura en tres componentes: cálculo de métricas comparables por temporada, ponderación de su antigüedad y estabilización de las estimaciones cuando existan pocas observaciones.
+
+\subsubsection*{1. Definición de la métrica por pareja y temporada}
+Antes de asignar pesos, se definirá por separado cada indicador de desempeño. Para una métrica expresada como un promedio por posesión:
+\[
+\overline y_{ab,s}=\frac{\sum_{i=1}^{n_{ab,s}}y_{ab,s,i}}{n_{ab,s}},\qquad n_{ab,s}>0.
+\]
+Donde:
+
+\begin{description}
+\item[$a$:] jugadora cuyo desempeño se analiza.
+\item[$b$:] jugadora oponente que se encuentra simultáneamente en cancha.
+\item[$s$:] temporada de procedencia de los registros.
+\item[$i$:] índice de una posesión elegible.
+\item[$n_{ab,s}$:] número de posesiones elegibles de la pareja durante la temporada ($s$).
+\item[$y_{ab,s,i}$:] valor del indicador en la posesión ($i$).
+\item[$\overline y_{ab,s}$:] promedio observado del indicador para esa pareja y temporada.
+\end{description}
+
+Por ejemplo, para medir la anotación de ($a$), pueden considerarse las posesiones ofensivas de su equipo durante las cuales ambas jugadoras están en cancha. En ese caso, ($y_{ab,s,i}$) representa los puntos anotados por ($a$) en esa posesión, incluyendo cero cuando no anota.
+
+La definición del denominador dependerá de cada indicador: una proporción de aciertos de tiro utiliza intentos, no posesiones. Por tanto, no se aplicará un mismo denominador indiscriminadamente a todas las estadísticas ni se combinarán directamente indicadores con unidades diferentes.
+
+Estas métricas describen el desempeño durante la coexistencia de dos rivales en cancha; no permiten afirmar, por sí solas, que una haya defendido directamente a la otra.
+
+\subsubsection*{2. Ponderación por recencia}
+Se propone una ponderación exponencial por temporada:
+\[
+w_s=\lambda^{T-s},\qquad 0<\lambda\leq 1.
+\]
+Donde:
+\begin{description}
+\item[$w_s$:] peso asignado a una observación de la temporada ($s$).
+\item[$T$:] temporada objetivo, en este caso 2026.
+\item[$s$:] temporada de la observación.
+\item[$\lambda$:] factor de conservación del peso histórico.
+\end{description}
+Para las tres temporadas seleccionadas:
+\[
+w_{2026}=1,\qquad w_{2025}=\lambda,\qquad w_{2024}=\lambda^2.
+\]
+Cuando ($\lambda=1$), las observaciones reciben el mismo peso temporal. Cuando ($\lambda$) se aproxima a cero, disminuye la influencia de las temporadas anteriores. Como ejemplo ilustrativo, ($\lambda=0.7$) produciría pesos de ($1$), ($0.7$) y ($0.49$); estos valores no se adoptarán sin evaluación.
+
+El propósito de esta función es representar la hipótesis de que la información reciente resulta más pertinente para describir el desempeño actual. La validez de esa hipótesis y la intensidad del descuento se determinarán mediante validación.
+
+\subsubsection*{3. Estabilización mediante una referencia}
+La ponderación temporal no resuelve por sí sola la escasez de observaciones. Una pareja puede tener pocos antecedentes incluso después de incorporar tres temporadas. Para evitar que su estimación dependa excesivamente de resultados ocasionales, se propone:
+\[
+\widehat\theta_{ab}=\frac{\sum_{s=2024}^{2026}w_s n_{ab,s}\overline y_{ab,s}+\kappa\mu_{ab}}{\sum_{s=2024}^{2026}w_s n_{ab,s}+\kappa},\qquad \kappa>0.
+\]
+Donde:
+\begin{description}
+\item[$\widehat\theta_{ab}$:] estimación estabilizada del indicador para la pareja.
+\item[$w_s$:] ponderación temporal.
+\item[$n_{ab,s}$:] cantidad de observaciones elegibles.
+\item[$\overline y_{ab,s}$:] promedio observado por temporada.
+\item[$\mu_{ab}$:] valor de referencia para esa pareja, obtenido a partir de información de jugadoras con perfiles comparables.
+\item[$\kappa$:] parámetro que determina la intensidad del acercamiento hacia la referencia.
+\end{description}
+
+El producto ($w_s n_{ab,s}$) combina recencia y exposición. Así, una temporada con pocas observaciones no recibe automáticamente la misma influencia que otra con abundante participación compartida. El parámetro ($\kappa$) actúa como una cantidad equivalente de observaciones de referencia dentro del procedimiento de suavizado; no representa posesiones realmente disputadas. Valores mayores producen estimaciones más cercanas a ($\mu_{ab}$).
+
+Para interpretar la fórmula, se define:
+\[
+N_{ab}^{(w)}=\sum_{s=2024}^{2026}w_s n_{ab,s}.
+\]
+Esta cantidad es la exposición ponderada, no un número de observaciones independientes. Cuando ($N_{ab}^{(w)}>0$), la estimación puede escribirse como:
+\[
+\widehat\theta_{ab}=\rho_{ab}\overline y_{ab}^{(w)}+(1-\rho_{ab})\mu_{ab},
+\qquad
+\overline y_{ab}^{(w)}=\frac{\sum_s w_s n_{ab,s}\overline y_{ab,s}}{N_{ab}^{(w)}}.
+\]
+Aquí, ($\rho_{ab}$) determina cuánto influye el historial específico de la pareja frente a la referencia. Si la exposición ponderada es amplia respecto a ($\kappa$), predomina el historial de la pareja. Si es reducida, aumenta la influencia de la referencia.
+
+La temporada actual dominará únicamente cuando su exposición sea suficientemente grande respecto al historial ponderado y al término de regularización. No bastará con que existan algunas observaciones recientes.
+
+\subsubsection*{4. Tratamiento de parejas sin historial}
+Se distinguirán los siguientes casos:
+\begin{longtable}{@{}p{6cm}p{7cm}@{}}
+\toprule \textbf{Información disponible}&\textbf{Tratamiento propuesto}\\\midrule\endhead
+Observaciones actuales e históricas&Combinar ambos periodos mediante ponderación temporal y suavizado.\\
+Sin observaciones actuales, pero con historial&Utilizar el historial descontado por antigüedad y estabilizado hacia la referencia.\\
+Sin historial de la pareja, pero con registros individuales&Utilizar una referencia construida con los perfiles de ambas jugadoras.\\
+Jugadora debutante con información insuficiente&Utilizar una referencia más general, basada en atributos disponibles o, en último término, en el promedio de la población de referencia.\\
+\bottomrule
+\end{longtable}
