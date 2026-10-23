@@ -1,0 +1,44 @@
+El análisis estadístico en el baloncesto, permite identificar características del juego mediante indicadores cuantitativos las estadísticas tradicionales incluyen medidas de anotación, distribución del balón, rebotes y acciones defensivas, mientras que las métricas avanzadas permiten estudiar aspectos relacionados con la eficiencia y el impacto de las jugadoras y los equipos.\cite{zuccolotto2020basketball}
+
+\subsubsection{Posesiones de balón}
+Una posesión representa una unidad de análisis relacionada con el control del balón por parte de un equipo y el desarrollo de una oportunidad ofensiva.
+
+El análisis por posesiones permite establecer comparaciones entre equipos y alineaciones que han participado durante diferentes cantidades de tiempo.
+Por ello determinadas estadísticas pueden expresarse mediante tasas o promedios por posesión, reduciendo la influencia de las diferencias en el ritmo de juego.
+\cite{zuccolotto2020basketball}
+\subsubsection{Eficiencia ofensiva y defensiva}
+La eficiencia ofensiva (Ofensive Rating) expresa los puntos anotados por cada 100 posesiones, siempre y cuando se generen puntos.
+
+La eficiencia defensiva (Defensive Rating) expresa los puntos defendidos al equipo contrario por cada 100 posesiones. 
+
+\subsubsection{Net Rating}
+El Net Rating es una métrica que relaciona la eficiencia ofensiva como defensiva, mediante la diferencia de estos.
+$$NetRating=(Defensive_{Rating}-Ofensive_{rating})$$
+Notemos que si la métrica indica que durante las posesiones consideradas, el equipo anoto mas puntos que el contrario. La utilidad de esta métrica radica en que compara el rendimiento de diferentes observaciones.
+\cite{zuccolotto2020basketball,gaitan_netrating}
+\subsubsection{Datos play-by-play}
+Estos contienen registros de los acontecimientos dentro de un encuentro como intentos de anotación, rebotes, pérdidas de balón, faltas y sustituciones. Que permiten reconstruir parcialmente el desarrollo de un partido, identificar secuencias de acontecimientos y relacionar las acciones realizadas con el periodo y el marcador correspondiente.
+
+Cuando se combinan con información confiable sobre las jugadoras presentes en cancha, pueden utilizarse para estudiar intervalos de participación de diferentes alineaciones.
+\cite{rubies2021basketball,zuccolotto2020basketball}
+
+\subsubsection{Ciencia de datos aplicada al análisis deportivo}
+La ciencia de datos contiene procedimientos para recopilar, organizar, transformar y analizar información con la finalidad de identificar patrones y construir modelos que describan fenómenos de interés. En el ámbito deportivo, estas técnicas permiten estudiar registros históricos de encuentros y relacionar estadísticas individuales con resultados colectivos.
+\cite{zuccolotto2020basketball}
+\subsubsection{Preparación de los datos}
+La preparación de datos comprende actividades destinadas a asegurar que la información sea adecuada para su análisis. Entre ellas se encuentran la identificación de valores faltantes, la eliminación de duplicados, la estandarización de identificadores y la integración de conjuntos que presentan diferentes unidades de observación. Cuando se utilizan datos históricos, también resulta necesario conservar la secuencia temporal de los registros para distinguir entre la información disponible en un momento determinado y aquella que se obtiene posteriormente.
+\cite{bishop2006pattern}
+\subsubsection{Modelos estadísticos y de aprendizaje automático}
+El aprendizaje automático son métodos computacionales estos permiten identificar relaciones entre variables partiendo de observaciones. Dependiendo de las características, estos pueden utilizarse para clasificación, regresión, agrupamiento, entre otras tareas.
+\cite{bishop2006pattern}
+\subsubsection{Aprendizaje supervisado, No supervisado y agrupamiento}
+El aprendizaje supervisado hace uso de observaciones que contienen vaariables de entrada y un resultado conocido. En ella se estima una función donde permite generar predicciones sobre nuevas observaciones.
+
+Mientras que el no supervisado hace uso de técnicas donde se orientan a identificar estructuras en conjuntos de datos donde no se requieren etiquetas previamente definidas, entre estas esta el agrupamiento por clustering donde se organizan observaciones según semejanzas entre estas.
+
+\cite{bishop2006pattern}
+\subsubsection{Regularización}
+La regularización reúne técnicas que buscan controlar la complejidad de los modelos o estabilizar determinadas estimaciones.
+
+Su importancia aumenta cuando existen combinaciones de jugadoras con pocas observaciones, ya que los resultados registrados durante intervalos reducidos pueden presentar una elevada variabilidad.
+\cite{zuccolotto2020basketball}
