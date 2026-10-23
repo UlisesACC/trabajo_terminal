@@ -1,0 +1,64 @@
+El análisis de riesgos permite identificar las situaciones que podrían afectar el desarrollo del Trabajo Terminal, así como valorar su probabilidad de ocurrencia y sus posibles consecuencias. En este proyecto se consideran principalmente los riesgos relacionados con la adquisición y preparación de los datos de la WNBA, la reconstrucción de quintetos, la estimación de su rendimiento y la evaluación del modelo propuesto.
+
+La probabilidad y el efecto se clasifican cualitativamente en tres niveles: \emph{bajo}, \emph{medio} y \emph{alto}. La probabilidad representa la posibilidad estimada de que ocurra el problema, mientras que el efecto describe la gravedad de sus consecuencias para los objetivos del proyecto. Estas valoraciones son preliminares y no corresponden a frecuencias calculadas experimentalmente; deberán revisarse conforme avance el desarrollo.
+
+En la Tabla~\ref{tab:riesgos_proyecto} se presentan los riesgos identificados.
+
+\begin{longtable}{@{}p{6.1cm}p{2.65cm}p{2.1cm}p{1.85cm}@{}}
+\caption{Análisis de riesgos del Trabajo Terminal.}
+\label{tab:riesgos_proyecto}\\
+\toprule
+\textbf{Riesgo} & \textbf{Tipo de riesgo} & \textbf{Probabilidad} & \textbf{Efecto}\\
+\midrule
+\endfirsthead
+
+\multicolumn{4}{@{}l}{\small\textit{Continuación de la Tabla~\thetable}}\\
+\toprule
+\textbf{Riesgo} & \textbf{Tipo de riesgo} & \textbf{Probabilidad} & \textbf{Efecto}\\
+\midrule
+\endhead
+
+\midrule
+\multicolumn{4}{r@{}}{\small\textit{Continúa en la siguiente página}}\\
+\endfoot
+
+\bottomrule
+\endlastfoot
+
+\textbf{R-01.} Valores faltantes, duplicados o inconsistencias en los registros obtenidos de las fuentes de datos. & Técnico & Alta & Alto\\
+\midrule
+\textbf{R-02.} Reconstrucción incorrecta de los intervalos de juego, las sustituciones o las posesiones correspondientes a cada enfrentamiento entre quintetos. & Técnico & Media & Alto\\
+\midrule
+\textbf{R-03.} Diferencias entre identificadores, esquemas o coberturas de los conjuntos de datos empleados para integrar las estadísticas. & Técnico & Media & Alto\\
+\midrule
+\textbf{R-04.} Cantidad insuficiente de observaciones para estimar el rendimiento de determinadas parejas o combinaciones de cinco jugadoras. & Metodológico & Alta & Alto\\
+\midrule
+\textbf{R-05.} Introducción de información de partidos futuros en los datos de entrenamiento o en las variables calculadas para la predicción. & Metodológico & Media & Alto\\
+\midrule
+\textbf{R-06.} Sobreajuste del modelo a las temporadas de entrenamiento y pérdida de capacidad predictiva ante nuevas alineaciones. & Analítico & Media & Alto\\
+\midrule
+\textbf{R-07.} Cambios de plantilla, roles o rendimiento entre temporadas que disminuyan la representatividad de los registros históricos. & Analítico & Alta & Alto\\
+\midrule
+\textbf{R-08.} Interpretación de coincidencias entre jugadoras en cancha como si fueran emparejamientos defensivos individuales confirmados. & Analítico & Media & Alto\\
+\midrule
+\textbf{R-09.} Recomendación de quintetos no disponibles o que no cumplan las restricciones deportivas consideradas. & Operacional & Media & Alto\\
+\midrule
+\textbf{R-10.} Limitaciones de memoria, tiempo de ejecución o compatibilidad de bibliotecas durante el procesamiento y entrenamiento. & Técnico & Media & Medio\\
+\midrule
+\textbf{R-11.} Pérdida de datos procesados, resultados experimentales o versiones del código durante el desarrollo. & Operacional & Media & Alto\\
+\midrule
+\textbf{R-12.} Interpretación de una predicción favorable como garantía del resultado real de un encuentro, sin considerar su incertidumbre. & Analítico & Media & Alto\\
+
+\end{longtable}
+
+\subsubsection*{Estrategias de mitigación}
+
+Para los riesgos asociados con la información (\textbf{R-01}, \textbf{R-02} y \textbf{R-03}), se contempla revisar los esquemas y los identificadores de cada conjunto de datos, detectar valores faltantes y duplicados, y contrastar la reconstrucción de quintetos y posesiones con los eventos del partido y los totales agregados. También se registrarán las transformaciones aplicadas para facilitar la reproducción del procesamiento. Estas comprobaciones son necesarias debido a que los datos publicados por \textit{wehoop} corresponden a diferentes unidades de observación \cite{wehoopRepositorio,wehoopPbp,wehoopLineups}.
+
+Para los riesgos relacionados con la estimación y la evaluación (\textbf{R-04}, \textbf{R-05}, \textbf{R-06} y \textbf{R-07}), se establecerán tamaños mínimos de muestra, se utilizarán procedimientos de regularización cuando corresponda y se compararán alternativas de ponderación histórica. La separación de datos se realizará cronológicamente, de manera que las variables utilizadas para un pronóstico se calculen solo con la información disponible antes del partido considerado. Además, los resultados se contrastarán con métodos de referencia para identificar posibles problemas de sobreajuste.
+
+Respecto a la interpretación y utilización de los resultados (\textbf{R-08}, \textbf{R-09} y \textbf{R-12}), las coincidencias en cancha se describirán como comparaciones contextuales, sin atribuir enfrentamientos defensivos individuales que no puedan comprobarse. Las recomendaciones se limitarán a jugadoras disponibles y a las restricciones de quintetos establecidas para cada escenario. Las estimaciones se presentarán como resultados esperados sujetos a incertidumbre y no como garantías de victoria.
+
+Finalmente, para los riesgos técnicos y operacionales restantes (\textbf{R-10} y \textbf{R-11}), se propone realizar pruebas con subconjuntos de datos antes de procesar la totalidad de los registros, registrar las versiones de las dependencias y conservar copias de los datos procesados y los resultados experimentales. El código y los documentos del proyecto se mantendrán bajo control de versiones para facilitar la recuperación de estados anteriores.
+
+La revisión periódica de estos riesgos permitirá ajustar las medidas propuestas cuando se disponga de evidencia sobre su ocurrencia o sobre el rendimiento del modelo.
