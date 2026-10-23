@@ -1,6 +1,6 @@
 Para organizar el desarrollo del presente Trabajo Terminal se utilizará la \textbf{metodología en cascada} (\textit{Waterfall}), un enfoque de desarrollo dirigido por un plan en el que el trabajo se estructura en etapas sucesivas, con objetivos, actividades y productos definidos para cada una de ellas. 
 
-Este modelo permite establecer una secuencia de trabajo desde el análisis de los requisitos hasta la verificación de los resultados \cite{sommerville2016software,ibmWaterfallModel}. La descripción de procesos secuenciales de desarrollo y la necesidad de revisar sus resultados se encuentran entre los antecedentes presentados por Royce \cite{royce1970large}.
+Este modelo permite establecer una secuencia de trabajo desde el análisis de los requisitos hasta la verificación de los resultados \cite{sommerville2016software,ibmWaterfallModel,ibmWaterfallAdvantages}. La descripción de procesos secuenciales de desarrollo y la necesidad de revisar sus resultados se encuentran entre los antecedentes presentados por Royce \cite{royce1970large}.
 
 La metodología en cascada se empleará para \emph{organizar el desarrollo del modelo computacional}, no para definir el enfoque de investigación ni para asumir que se construirá una aplicación destinada a usuarios finales. En este caso, el producto previsto es un modelo de análisis y recomendación de quintetos de la WNBA, junto con los datos procesados, los procedimientos experimentales y los resultados de su evaluación.
 
@@ -92,18 +92,8 @@ A continuación presentamos un diagrama para simplificar lo anteriormente mencio
 \label{fig:metodologia-cascada-wnba}
 \end{figure}
 
+\subsubsection{Limitaciones y consideraciones}
 
-\subsection{Ventajas de la metodología en cascada}
+Una limitación del modelo en cascada es que los cambios detectados en etapas avanzadas pueden requerir revisar actividades ya concluidas. Dado que en un trabajo basado en datos, debido a que durante la implementación pueden encontrarse registros insuficientes, variables inexistentes o dificultades para reconstruir los intervalos entre quintetos. \cite{sommerville2016software,ibmWaterfallAdvantages}.
 
-La organización propuesta ofrece ventajas para la planificación y el seguimiento del trabajo \cite{sommerville2016software,ibmWaterfallModel,ibmWaterfallAdvantages}. Para este proyecto destacan las siguientes:
-
-\begin{center}
-*Nota:
-Estas ventajas representan características de organización del trabajo y no constituyen, por sí mismas, evidencia de que el modelo alcanzará un mejor desempeño predictivo.    
-\end{center}
-
-\subsection{Limitaciones y consideraciones de aplicación}
-
-Una limitación del modelo en cascada es que los cambios detectados en etapas avanzadas pueden requerir revisar actividades ya concluidas. Esto resulta relevante en un trabajo basado en datos, debido a que durante la implementación pueden encontrarse registros insuficientes, variables inexistentes o dificultades para reconstruir los intervalos entre quintetos. Además, los resultados de la evaluación pueden mostrar que las características o los algoritmos definidos inicialmente requieren modificaciones \cite{sommerville2016software,ibmWaterfallAdvantages}.
-
-Para conservar la organización de la metodología sin ignorar estas situaciones, los cambios necesarios se documentarán y se revisará la etapa afectada antes de continuar. Esta previsión es compatible con la necesidad de retroalimentación y revisión entre fases señalada por Royce \cite{royce1970large}. Por consiguiente, la adopción de cascada establece el orden general del desarrollo, pero no supone que las decisiones iniciales sean inmodificables ni que los resultados experimentales estén garantizados.
+Para conservar la organización de la metodología sin ignorar estas situaciones, los cambios necesarios se documentarán y se revisará la etapa afectada antes de continuar. Esto es necesario dada la necesidad de retroalimentación y revisión entre fases señalada por Royce \cite{royce1970large}.
