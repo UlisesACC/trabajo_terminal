@@ -49,6 +49,50 @@ Documentación y mantenimiento & Registrar configuraciones, limitaciones, result
 \end{tabularx}
 \end{table}
 A continuación presentamos un diagrama para simplificar lo anteriormente mencionado:
+
+\begin{figure}[htbp]
+\centering
+\begingroup
+\setlength{\fboxsep}{7pt}
+\renewcommand{\arraystretch}{1.1}
+\begin{minipage}{0.93\textwidth}
+\centering
+\fcolorbox{guindaipn}{white}{%
+  \begin{minipage}{0.86\linewidth}\centering
+  \textbf{1. Análisis y definición de requisitos}\\[-1pt]
+  {\small Problema, objetivos, datos y criterios de evaluación}
+  \end{minipage}}\\[2pt]
+{\color{guindaipn}\Large$\Downarrow$}\\[2pt]
+\fcolorbox{guindaipn}{white}{%
+  \begin{minipage}{0.86\linewidth}\centering
+  \textbf{2. Diseño de la solución}\\[-1pt]
+  {\small Variables, perfiles de jugadoras y optimización de quintetos}
+  \end{minipage}}\\[2pt]
+{\color{guindaipn}\Large$\Downarrow$}\\[2pt]
+\fcolorbox{guindaipn}{white}{%
+  \begin{minipage}{0.86\linewidth}\centering
+  \textbf{3. Implementación}\\[-1pt]
+  {\small Limpieza, transformación de datos y desarrollo del modelo}
+  \end{minipage}}\\[2pt]
+{\color{guindaipn}\Large$\Downarrow$}\\[2pt]
+\fcolorbox{guindaipn}{white}{%
+  \begin{minipage}{0.86\linewidth}\centering
+  \textbf{4. Pruebas y validación}\\[-1pt]
+  {\small Validación temporal, evaluación y comparación de métodos}
+  \end{minipage}}\\[2pt]
+{\color{guindaipn}\Large$\Downarrow$}\\[2pt]
+\fcolorbox{guindaipn}{white}{%
+  \begin{minipage}{0.86\linewidth}\centering
+  \textbf{5. Documentación y mantenimiento de los resultados}\\[-1pt]
+  {\small Registro de resultados, versiones y reproducibilidad}
+  \end{minipage}}
+\end{minipage}
+\endgroup
+\caption{Etapas de la metodología en cascada aplicadas al modelo de alineaciones de la WNBA.}
+\label{fig:metodologia-cascada-wnba}
+\end{figure}
+
+
 \subsection{Ventajas de la metodología en cascada}
 
 La organización propuesta ofrece ventajas para la planificación y el seguimiento del trabajo \cite{sommerville2016software,ibmWaterfallModel,ibmWaterfallAdvantages}. Para este proyecto destacan las siguientes:
