@@ -1,4 +1,6 @@
-Para organizar el desarrollo del presente Trabajo Terminal se utilizará la \textbf{metodología en cascada} (\textit{Waterfall}), un enfoque de desarrollo dirigido por un plan en el que el trabajo se estructura en etapas sucesivas, con objetivos, actividades y productos definidos para cada una de ellas. Este modelo permite establecer una secuencia de trabajo desde el análisis de los requisitos hasta la verificación de los resultados \cite{sommerville2016software,ibmWaterfallModel}. La descripción de procesos secuenciales de desarrollo y la necesidad de revisar sus resultados se encuentran entre los antecedentes presentados por Royce \cite{royce1970large}.
+Para organizar el desarrollo del presente Trabajo Terminal se utilizará la \textbf{metodología en cascada} (\textit{Waterfall}), un enfoque de desarrollo dirigido por un plan en el que el trabajo se estructura en etapas sucesivas, con objetivos, actividades y productos definidos para cada una de ellas. 
+
+Este modelo permite establecer una secuencia de trabajo desde el análisis de los requisitos hasta la verificación de los resultados \cite{sommerville2016software,ibmWaterfallModel}. La descripción de procesos secuenciales de desarrollo y la necesidad de revisar sus resultados se encuentran entre los antecedentes presentados por Royce \cite{royce1970large}.
 
 La metodología en cascada se empleará para \emph{organizar el desarrollo del modelo computacional}, no para definir el enfoque de investigación ni para asumir que se construirá una aplicación destinada a usuarios finales. En este caso, el producto previsto es un modelo de análisis y recomendación de quintetos de la WNBA, junto con los datos procesados, los procedimientos experimentales y los resultados de su evaluación.
 
@@ -11,16 +13,19 @@ Para el alcance del proyecto, las etapas se adaptan de la siguiente manera:
     Se identificará el problema de selección de alineaciones frente a quintetos rivales, los objetivos del trabajo, las fuentes de información necesarias y las restricciones de las recomendaciones. Se establecerán las entradas previstas, tales como las jugadoras disponibles, las estadísticas históricas y el quinteto contrario, así como las salidas esperadas: un ordenamiento de quintetos candidatos y estimaciones de su rendimiento. También se definirán los criterios con los que se evaluará el modelo.
 
     \item \textbf{Diseño de la solución.}
-    Se especificará el procedimiento para integrar los registros de eventos, posesiones, jugadoras y alineaciones. Se diseñarán las variables necesarias para describir el rendimiento individual y colectivo, la identificación de perfiles funcionales y la comparación contextual entre jugadoras. Asimismo, se establecerá la estructura de las dos fases del modelo: la estimación de perfiles e interacciones y la selección de un quinteto mediante una función de desempeño esperado, considerando las restricciones definidas.
+    Se especificará el procedimiento para integrar los registros de eventos, posesiones, jugadoras y alineaciones. Se identificaran y  diseñarán las variables necesarias para describir el rendimiento individual y colectivo, la identificación de perfiles funcionales y la comparación contextual entre jugadoras. Asimismo,  la estructura comprenderá de dos fases el modelo: la estimación de perfiles e interacciones y la selección de un quinteto mediante una función de desempeño esperado.
 
     \item \textbf{Implementación.}
-    Se desarrollarán los procedimientos de limpieza, transformación y procesamiento de los datos mediante las herramientas seleccionadas. Posteriormente, se implementarán y entrenarán los métodos candidatos para caracterizar jugadoras y estimar el rendimiento de quintetos. Finalmente, se programará el procedimiento de optimización que compare las combinaciones factibles frente a una alineación rival. La elección de los algoritmos específicos dependerá de los resultados obtenidos durante los experimentos.
+    Se desarrollarán los procedimientos de limpieza, transformación y procesamiento de los datos mediante las herramientas propuestas por sus siglas (ETL). Posteriormente, se implementarán y entrenarán los métodos candidatos para caracterizar a las jugadoras y poder estimar el rendimiento de quintetos. Finalmente, se programará el procedimiento de optimización que compare las combinaciones factibles frente a una alineación rival.
+    \begin{center}
+\textbf{    Nota: *La elección de los algoritmos específicos podria cambiar y dependerá de los resultados obtenidos durante los experimentos.}
+    \end{center}
 
     \item \textbf{Pruebas y validación.}
-    Se comprobará la consistencia de los datos procesados y la reconstrucción de los intervalos en que coinciden las alineaciones. La evaluación de los modelos utilizará una separación temporal para evitar incorporar información futura en las predicciones y se contrastarán los resultados con métodos de referencia. Entre las medidas contempladas se encuentran MAE y RMSE para las estimaciones numéricas, Brier Score para la calidad de las probabilidades y Precision@3 para evaluar las recomendaciones mejor posicionadas. Se revisará también el cumplimiento de las restricciones de disponibilidad y composición del quinteto.
+    Se comprobará la consistencia de los datos procesados y se definirán los intervalos en que coinciden las alineaciones. La evaluación de los modelos utilizará una separación temporal para evitar incorporar información futura en las predicciones y se contrastarán los resultados con métodos de referencia. Entre las medidas contempladas se encuentran MAE y RMSE para las estimaciones numéricas, Brier Score para la calidad de las probabilidades y Precision@3 para evaluar las recomendaciones mejor posicionadas. Se revisará también el cumplimiento de las restricciones de disponibilidad y composición del quinteto.
 
     \item \textbf{Documentación y mantenimiento de los resultados.}
-    Se registrarán las características de los conjuntos de datos, las transformaciones realizadas, los parámetros utilizados, los resultados experimentales y las limitaciones identificadas. Se conservarán las versiones del código y los procedimientos necesarios para reproducir los experimentos. Esta etapa corresponde a la adaptación del mantenimiento al alcance académico del proyecto y no implica el despliegue de una aplicación comercial ni la operación continua de un sistema.
+    Se registrarán las características de los conjuntos de datos, las transformaciones realizadas, los parámetros utilizados, los resultados experimentales y las limitaciones identificadas. Se conservarán las versiones del código y los procedimientos necesarios para reproducir los experimentos.
 \end{enumerate}
 
 Las actividades y los entregables se relacionan con los capítulos del documento en la Tabla~\ref{tab:metodologia_cascada_tt}.
@@ -29,7 +34,7 @@ Las actividades y los entregables se relacionan con los capítulos del documento
 \centering
 \small
 \renewcommand{\arraystretch}{1.18}
-\caption{Aplicación de las etapas de la metodología en cascada al Trabajo Terminal.}
+\caption{Aplicación de las etapas de la metodología en cascada.}
 \label{tab:metodologia_cascada_tt}
 \begin{tabularx}{\textwidth}{@{}p{3.2cm}Xp{3.2cm}@{}}
 \toprule
@@ -43,20 +48,15 @@ Documentación y mantenimiento & Registrar configuraciones, limitaciones, result
 \bottomrule
 \end{tabularx}
 \end{table}
-
+A continuación presentamos un diagrama para simplificar lo anteriormente mencionado:
 \subsection{Ventajas de la metodología en cascada}
 
-La organización secuencial ofrece ventajas para la planificación y el seguimiento del trabajo, especialmente cuando se dispone de objetivos y entregables previamente delimitados \cite{sommerville2016software,ibmWaterfallModel,ibmWaterfallAdvantages}. Para este proyecto destacan las siguientes:
+La organización propuesta ofrece ventajas para la planificación y el seguimiento del trabajo \cite{sommerville2016software,ibmWaterfallModel,ibmWaterfallAdvantages}. Para este proyecto destacan las siguientes:
 
-\begin{itemize}
-    \item \textbf{Claridad en las etapas de trabajo.} Permite distinguir la definición del problema, el diseño de la solución, la implementación y la evaluación, evitando confundir los resultados esperados con actividades que todavía no se han realizado.
-    \item \textbf{Planificación y seguimiento.} Facilita establecer tareas, hitos y productos verificables para cada etapa, lo que permite dar seguimiento al avance del Trabajo Terminal.
-    \item \textbf{Documentación de las decisiones.} Favorece registrar la procedencia de los datos, las variables seleccionadas, los procedimientos de transformación y los criterios empleados para comparar los modelos.
-    \item \textbf{Verificación de entregables.} Permite comprobar que se cumplen los requisitos definidos antes de considerar terminada una etapa; por ejemplo, verificar la consistencia de los registros antes de utilizarlos para entrenar el modelo.
-    \item \textbf{Trazabilidad entre objetivos y resultados.} Facilita relacionar las necesidades iniciales de recomendación de quintetos con las variables construidas, los algoritmos evaluados y las métricas de validación.
-\end{itemize}
-
-Estas ventajas representan características de organización del trabajo y no constituyen, por sí mismas, evidencia de que el modelo alcanzará un mejor desempeño predictivo.
+\begin{center}
+*Nota:
+Estas ventajas representan características de organización del trabajo y no constituyen, por sí mismas, evidencia de que el modelo alcanzará un mejor desempeño predictivo.    
+\end{center}
 
 \subsection{Limitaciones y consideraciones de aplicación}
 
