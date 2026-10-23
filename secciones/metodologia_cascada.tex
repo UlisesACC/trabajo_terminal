@@ -1,0 +1,65 @@
+Para organizar el desarrollo del presente Trabajo Terminal se utilizará la \textbf{metodología en cascada} (\textit{Waterfall}), un enfoque de desarrollo dirigido por un plan en el que el trabajo se estructura en etapas sucesivas, con objetivos, actividades y productos definidos para cada una de ellas. Este modelo permite establecer una secuencia de trabajo desde el análisis de los requisitos hasta la verificación de los resultados \cite{sommerville2016software,ibmWaterfallModel}. La descripción de procesos secuenciales de desarrollo y la necesidad de revisar sus resultados se encuentran entre los antecedentes presentados por Royce \cite{royce1970large}.
+
+La metodología en cascada se empleará para \emph{organizar el desarrollo del modelo computacional}, no para definir el enfoque de investigación ni para asumir que se construirá una aplicación destinada a usuarios finales. En este caso, el producto previsto es un modelo de análisis y recomendación de quintetos de la WNBA, junto con los datos procesados, los procedimientos experimentales y los resultados de su evaluación.
+
+\subsection{Etapas de la metodología en cascada}
+
+Para el alcance del proyecto, las etapas se adaptan de la siguiente manera:
+
+\begin{enumerate}[label=\arabic*.]
+    \item \textbf{Análisis y definición de requisitos.}
+    Se identificará el problema de selección de alineaciones frente a quintetos rivales, los objetivos del trabajo, las fuentes de información necesarias y las restricciones de las recomendaciones. Se establecerán las entradas previstas, tales como las jugadoras disponibles, las estadísticas históricas y el quinteto contrario, así como las salidas esperadas: un ordenamiento de quintetos candidatos y estimaciones de su rendimiento. También se definirán los criterios con los que se evaluará el modelo.
+
+    \item \textbf{Diseño de la solución.}
+    Se especificará el procedimiento para integrar los registros de eventos, posesiones, jugadoras y alineaciones. Se diseñarán las variables necesarias para describir el rendimiento individual y colectivo, la identificación de perfiles funcionales y la comparación contextual entre jugadoras. Asimismo, se establecerá la estructura de las dos fases del modelo: la estimación de perfiles e interacciones y la selección de un quinteto mediante una función de desempeño esperado, considerando las restricciones definidas.
+
+    \item \textbf{Implementación.}
+    Se desarrollarán los procedimientos de limpieza, transformación y procesamiento de los datos mediante las herramientas seleccionadas. Posteriormente, se implementarán y entrenarán los métodos candidatos para caracterizar jugadoras y estimar el rendimiento de quintetos. Finalmente, se programará el procedimiento de optimización que compare las combinaciones factibles frente a una alineación rival. La elección de los algoritmos específicos dependerá de los resultados obtenidos durante los experimentos.
+
+    \item \textbf{Pruebas y validación.}
+    Se comprobará la consistencia de los datos procesados y la reconstrucción de los intervalos en que coinciden las alineaciones. La evaluación de los modelos utilizará una separación temporal para evitar incorporar información futura en las predicciones y se contrastarán los resultados con métodos de referencia. Entre las medidas contempladas se encuentran MAE y RMSE para las estimaciones numéricas, Brier Score para la calidad de las probabilidades y Precision@3 para evaluar las recomendaciones mejor posicionadas. Se revisará también el cumplimiento de las restricciones de disponibilidad y composición del quinteto.
+
+    \item \textbf{Documentación y mantenimiento de los resultados.}
+    Se registrarán las características de los conjuntos de datos, las transformaciones realizadas, los parámetros utilizados, los resultados experimentales y las limitaciones identificadas. Se conservarán las versiones del código y los procedimientos necesarios para reproducir los experimentos. Esta etapa corresponde a la adaptación del mantenimiento al alcance académico del proyecto y no implica el despliegue de una aplicación comercial ni la operación continua de un sistema.
+\end{enumerate}
+
+Las actividades y los entregables se relacionan con los capítulos del documento en la Tabla~\ref{tab:metodologia_cascada_tt}.
+
+\begin{table}[htbp]
+\centering
+\small
+\renewcommand{\arraystretch}{1.18}
+\caption{Aplicación de las etapas de la metodología en cascada al Trabajo Terminal.}
+\label{tab:metodologia_cascada_tt}
+\begin{tabularx}{\textwidth}{@{}p{3.2cm}Xp{3.2cm}@{}}
+\toprule
+\textbf{Etapa} & \textbf{Actividad principal} & \textbf{Producto esperado}\\
+\midrule
+Análisis de requisitos & Delimitar el problema, los datos necesarios, las restricciones y los criterios de éxito. & Requisitos y alcance del modelo.\\
+Diseño & Definir la preparación de datos, las variables, las fases del modelo y la función de optimización. & Especificación metodológica del modelo.\\
+Implementación & Preparar los datos y desarrollar los procedimientos de estimación y recomendación. & Código, conjuntos procesados y modelos candidatos.\\
+Pruebas y validación & Comprobar la integridad de los registros y evaluar predicciones y recomendaciones con datos posteriores al entrenamiento. & Resultados experimentales y comparación de métodos.\\
+Documentación y mantenimiento & Registrar configuraciones, limitaciones, resultados y versiones del trabajo. & Documentación reproducible y conclusiones.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Ventajas de la metodología en cascada}
+
+La organización secuencial ofrece ventajas para la planificación y el seguimiento del trabajo, especialmente cuando se dispone de objetivos y entregables previamente delimitados \cite{sommerville2016software,ibmWaterfallModel,ibmWaterfallAdvantages}. Para este proyecto destacan las siguientes:
+
+\begin{itemize}
+    \item \textbf{Claridad en las etapas de trabajo.} Permite distinguir la definición del problema, el diseño de la solución, la implementación y la evaluación, evitando confundir los resultados esperados con actividades que todavía no se han realizado.
+    \item \textbf{Planificación y seguimiento.} Facilita establecer tareas, hitos y productos verificables para cada etapa, lo que permite dar seguimiento al avance del Trabajo Terminal.
+    \item \textbf{Documentación de las decisiones.} Favorece registrar la procedencia de los datos, las variables seleccionadas, los procedimientos de transformación y los criterios empleados para comparar los modelos.
+    \item \textbf{Verificación de entregables.} Permite comprobar que se cumplen los requisitos definidos antes de considerar terminada una etapa; por ejemplo, verificar la consistencia de los registros antes de utilizarlos para entrenar el modelo.
+    \item \textbf{Trazabilidad entre objetivos y resultados.} Facilita relacionar las necesidades iniciales de recomendación de quintetos con las variables construidas, los algoritmos evaluados y las métricas de validación.
+\end{itemize}
+
+Estas ventajas representan características de organización del trabajo y no constituyen, por sí mismas, evidencia de que el modelo alcanzará un mejor desempeño predictivo.
+
+\subsection{Limitaciones y consideraciones de aplicación}
+
+Una limitación del modelo en cascada es que los cambios detectados en etapas avanzadas pueden requerir revisar actividades ya concluidas. Esto resulta relevante en un trabajo basado en datos, debido a que durante la implementación pueden encontrarse registros insuficientes, variables inexistentes o dificultades para reconstruir los intervalos entre quintetos. Además, los resultados de la evaluación pueden mostrar que las características o los algoritmos definidos inicialmente requieren modificaciones \cite{sommerville2016software,ibmWaterfallAdvantages}.
+
+Para conservar la organización de la metodología sin ignorar estas situaciones, los cambios necesarios se documentarán y se revisará la etapa afectada antes de continuar. Esta previsión es compatible con la necesidad de retroalimentación y revisión entre fases señalada por Royce \cite{royce1970large}. Por consiguiente, la adopción de cascada establece el orden general del desarrollo, pero no supone que las decisiones iniciales sean inmodificables ni que los resultados experimentales estén garantizados.
