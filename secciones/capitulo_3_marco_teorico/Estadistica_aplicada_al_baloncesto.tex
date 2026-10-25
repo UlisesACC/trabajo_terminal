@@ -16,6 +16,18 @@ El Net Rating es una métrica que relaciona la eficiencia ofensiva como defensiv
 $$NetRating=(Defensive_{Rating}-Ofensive_{rating})$$
 Notemos que si la métrica indica que durante las posesiones consideradas, el equipo anoto mas puntos que el contrario. La utilidad de esta métrica radica en que compara el rendimiento de diferentes observaciones.
 \cite{zuccolotto2020basketball,gaitan_netrating}
+\subsubsection{Plus minus}
+Para poder medir el efecto individual de los deportes en equipo se hace uso del \textit{plus minus} (PM) sin ajustes.
+
+La función de esta métrica permite identificar el impacto de la jugadora, separando la contribución de sus compañeras, esto se logra calculando la diferencia acumulada entre los puntos que anota el equipo y los que recibe mientras la jugadora se encuentra en la cancha.
+$$PM_j=\text{puntos de su equipo mientras juega}- \text{puntos del rival mientras juega}$$
+
+La característica de esta métrica no calcula el impacto cuando estas jugadoras siempre han estado juntas, dado que no identifica la responsable del impacto de esta, por ello se hace uso del \textit{mas-menos ajustado}. \cite{josephs2025hypergraphadjustedplusminus}
+\subsubsection{mas-menos ajustado}
+Este enfoque mas-menos ajustado conocido como (APM) ayuda a comparar a jugadores individuales sin dejar de lado a los que juegan juntos; sin embargo no identifica las interacciones entre las jugadoras, esto se da
+
+\cite{josephs2025hypergraphadjustedplusminus}
+
 \subsubsection{Datos play-by-play}
 Estos contienen registros de los acontecimientos dentro de un encuentro como intentos de anotación, rebotes, pérdidas de balón, faltas y sustituciones. Que permiten reconstruir parcialmente el desarrollo de un partido, identificar secuencias de acontecimientos y relacionar las acciones realizadas con el periodo y el marcador correspondiente.
 
