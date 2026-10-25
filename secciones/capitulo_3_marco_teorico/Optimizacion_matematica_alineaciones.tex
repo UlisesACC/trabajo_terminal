@@ -29,3 +29,68 @@ Cuando las variables de decisión toman valores discretos, como
 la selección o exclusión de determinados elementos, el problema
 puede estudiarse mediante técnicas de optimización entera o
 combinatoria. \cite{boyd2004convex}
+
+\subsubsection{Net Rating}
+El Net Rating es una métrica que relaciona la eficiencia ofensiva como defensiva, mediante la diferencia de estos.
+$$NetRating=(Defensive_{Rating}-Ofensive_{rating})$$
+Notemos que si la métrica indica que durante las posesiones consideradas, el equipo anoto mas puntos que el contrario. La utilidad de esta métrica radica en que compara el rendimiento de diferentes observaciones.
+\cite{zuccolotto2020basketball,gaitan_netrating}
+\subsubsection{Plus minus}
+Para poder medir el efecto individual de los deportes en equipo se hace uso del \textit{plus minus} (PM) sin ajustes.
+
+La función de esta métrica permite identificar el impacto de la jugadora, separando la contribución de sus compañeras, esto se logra calculando la diferencia acumulada entre los puntos que anota el equipo y los que recibe mientras la jugadora se encuentra en la cancha.
+$$PM_j=\text{puntos de su equipo mientras juega}- \text{puntos del rival mientras juega}$$
+
+La característica de esta métrica no calcula el impacto cuando estas jugadoras siempre han estado juntas, dado que no identifica la responsable del impacto de esta, por ello se hace uso del \textit{mas-menos ajustado}.
+
+También conviene considerar que es un valor acumulado: el tiempo de participación afecta las oportunidades de acumular diferencias positivas o negativas. El PM básico descrito aquí no está normalizado por minutos o posesiones.
+\cite{josephs2025hypergraphadjustedplusminus}
+
+\subsubsection{mas-menos ajustado}
+Este enfoque mas-menos ajustado conocido como (APM) ayuda a comparar a jugadores individuales sin dejar de lado a los que juegan juntos; sin embargo no identifica las interacciones entre las jugadoras, esto se da a que una pareja podría funcionar especialmente bien junta y el modelo no tendría un término específico para representarlo.
+
+Para poder calcularlo se hace uso de regresión para estimar la contribución individual, teniendo en cuenta qué otras jugadoras compartieron cancha.
+
+El modelo básico del artículo es:
+
+$$Y=X\beta+\epsilon$$
+
+\begin{itemize}
+    \item $Y$ contiene las diferencias de puntos observados para las alineaciones.
+    \item $X$ indica que jugadoras integran a cada alineación
+    \item $\beta$ contiene las contribuciones individuales de las que se quiere estimar.
+    \item $\epsilon$ representa la parte del resultado que el modelo no explica.
+\end{itemize}
+
+En cuanto una alineación para 5 jugadoras el modelo supone que:
+$$\hat{Y}_{ABCDE}=\hat{\beta}_A+\hat{\beta}_B+\hat{\beta}_C+\hat{\beta}_D+\hat{\beta}_E$$
+Por ejemplo, si A suele tener un PM alto porque juega con B, el APM intenta separar sus contribuciones a partir de las distintas alineaciones observadas. Si siempre juegan juntas, los datos dificultan esa separación.\cite{josephs2025hypergraphadjustedplusminus}
+
+\subsubsection{Hipergrafo}
+Un hipergrafo $H$, denotado por $H = (V; E = (e_i)_{i \in I})$ sobre un conjunto finito $V$, es una familia $(e_i)_{i \in I}$ ($I$ es un conjunto finito de índices) de subconjuntos de $V$ llamados hiperaristas. A veces $V$ se denota por $V(H)$ y $E$ por $E(H)$.
+
+El orden del hipergrafo $H = (V; E)$ es la cardinalidad de $V$, es decir, $|V| = n$; su tamaño es la cardinalidad de $E$, es decir, $|E| = m$.
+
+Por definición, el hipergrafo vacío es el hipergrafo tal que:
+
+\begin{itemize}
+    \item $V = \emptyset$;
+    \item $E = \emptyset$.
+\end{itemize}
+
+Siempre por definición, un hipergrafo trivial es un hipergrafo tal que:
+
+\begin{itemize}
+    \item $V \neq \emptyset$;
+    \item $E = \emptyset$.
+\end{itemize}
+\cite{bretto2013hypergraph}
+
+
+\subsubsection{Hypergraph Adjusted Plus-Minus}
+En este método se amplia el modelo anteriormente mencionado (mas-menos ajustado) para poder estimar simultáneamente contribuciones de jugadoras individuales y parejas de tríos.
+
+Hace uso de un hipergrafo donde se representan las relaciones que se presentan entre mas de dos jugadoras.
+
+\cite{josephs2025hypergraphadjustedplusminus}
+Presentamos una tabla que representa las diferencias entre cada uno de los elementos anteriormente mencionados.
