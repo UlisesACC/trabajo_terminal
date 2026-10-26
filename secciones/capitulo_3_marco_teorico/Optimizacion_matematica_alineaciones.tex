@@ -64,7 +64,39 @@ $$Y=X\beta+\epsilon$$
 
 En cuanto una alineación para 5 jugadoras el modelo supone que:
 $$\hat{Y}_{ABCDE}=\hat{\beta}_A+\hat{\beta}_B+\hat{\beta}_C+\hat{\beta}_D+\hat{\beta}_E$$
-Por ejemplo, si A suele tener un PM alto porque juega con B, el APM intenta separar sus contribuciones a partir de las distintas alineaciones observadas. Si siempre juegan juntas, los datos dificultan esa separación.\cite{josephs2025hypergraphadjustedplusminus}
+Por ejemplo, si A suele tener un PM alto porque juega con B, el APM intenta separar sus contribuciones a partir de las distintas alineaciones observadas. Si siempre juegan juntas, los datos dificultan esa separación.
+
+En la bibliografía los autores utilizan el término \textit{alineaciones generalizadas}
+para referirse tanto a jugadores individuales como a parejas,
+tríos y otras combinaciones de integrantes de un equipo.
+Para evaluar estas combinaciones mediante PM y APM, identifican
+dos alternativas:
+
+\begin{enumerate}
+    \item \textbf{Sumar los valores individuales de APM.}
+    Esta alternativa representa el rendimiento de una combinación
+    como la suma de las contribuciones estimadas de sus integrantes.
+    Su limitación consiste en que no incluye un efecto específico
+    asociado a la participación conjunta de dichos jugadores.
+
+    \item \textbf{Calcular el PM acumulado de la combinación.}
+    Consiste en obtener la diferencia entre los puntos anotados
+    y recibidos durante los intervalos en los que sus integrantes
+    participan simultáneamente. Aunque permite describir el
+    resultado observado, no ajusta por las otras combinaciones
+    presentes en cancha y conserva la sensibilidad a los patrones
+    de sustitución.
+\end{enumerate}
+
+Estas limitaciones motivan la propuesta de un enfoque que permita
+evaluar simultáneamente jugadores y combinaciones de distintos
+tamaños. Para ello, los autores emplean una representación
+mediante hipergrafos que incorpora las alineaciones completas
+y las combinaciones de menor tamaño contenidas en ellas.
+Esta representación constituye la base de sus métodos para
+estimar contribuciones y analizar posibles sinergias positivas
+o negativas entre integrantes de un equipo
+\cite{josephs2025hypergraphadjustedplusminus}
 
 \subsubsection{Hipergrafo}
 Un hipergrafo $H$, denotado por $H = (V; E = (e_i)_{i \in I})$ sobre un conjunto finito $V$, es una familia $(e_i)_{i \in I}$ ($I$ es un conjunto finito de índices) de subconjuntos de $V$ llamados hiperaristas. A veces $V$ se denota por $V(H)$ y $E$ por $E(H)$.
@@ -87,10 +119,151 @@ Siempre por definición, un hipergrafo trivial es un hipergrafo tal que:
 \cite{bretto2013hypergraph}
 
 
-\subsubsection{Hypergraph Adjusted Plus-Minus}
-En este método se amplia el modelo anteriormente mencionado (mas-menos ajustado) para poder estimar simultáneamente contribuciones de jugadoras individuales y parejas de tríos.
-
-Hace uso de un hipergrafo donde se representan las relaciones que se presentan entre mas de dos jugadoras.
-
+\subsubsection{Hypergraph Adjusted Plus-Minus (HAMP)}
+El Hypergraph Adjusted Plus-Minus (HAPM) amplía el
+modelo mas-menos ajustado mediante una representación de las
+alineaciones basada en hipergrafos. Su función es estimar las
+contribuciones individuales considerando información de
+jugadoras, parejas, tríos y otras combinaciones, además de
+las alineaciones completas.
 \cite{josephs2025hypergraphadjustedplusminus}
-Presentamos una tabla que representa las diferencias entre cada uno de los elementos anteriormente mencionados.
+
+Para ello, se utiliza un hipergrafo extendido donde los
+vértices representan a las jugadoras y las hiperaristas
+representan las combinaciones observadas. Esta se puede representar mediante una matriz de diseño que
+se obtiene al transponer la matriz de incidencia de este
+hipergrafo. Cada fila corresponde a una combinación y cada
+columna a una jugadora:
+
+\begin{equation}
+    (X_H)_{ij} =
+    \begin{cases}
+        1, & \text{si la jugadora } j
+             \text{ pertenece a la combinación } i, \\
+        0, & \text{en otro caso}.
+    \end{cases}
+\end{equation}
+
+A diferencia del APM básico, que considera las alineaciones
+completas, esta matriz también incluye filas correspondientes
+a combinaciones de menor tamaño. Para cada combinación se
+utiliza como respuesta su diferencial de puntos acumulado
+durante los intervalos en los que sus integrantes
+participaron juntas.
+
+El modelo se expresa como (que proviene del mas-menos ajustado):
+
+\begin{equation}
+    Y_H = X_H \beta_H + \epsilon.
+\end{equation}
+
+\begin{itemize}
+    \item $Y_H$ contiene los diferenciales de puntos observados
+    para las combinaciones consideradas.
+    \item $X_H$ indica qué jugadoras integran cada combinación.
+    \item $\beta_H$ contiene las contribuciones individuales
+    que se busca estimar.
+    \item $\epsilon$ representa la parte del resultado que
+    el modelo no explica.
+\end{itemize}
+
+Para estimar estas contribuciones se utiliza regresión
+Ridge ponderada:
+
+\begin{equation}
+    \hat{\beta}_H =
+    \underset{\beta}{\operatorname{arg\,min}}
+    \left\{
+        (Y_H-X_H\beta)^{\mathsf T}
+        W(Y_H-X_H\beta)
+        + \lambda \|\beta\|_2^2
+    \right\}.
+\end{equation}
+
+Donde $W$ es una matriz diagonal de pesos asociados al tiempo
+de participación conjunta de las combinaciones y $\lambda$
+es el parámetro de regularización. La penalización Ridge
+permite estabilizar las estimaciones cuando las jugadoras
+comparten frecuentemente la cancha o existen combinaciones
+con pocas observaciones.
+\cite{josephs2025hypergraphadjustedplusminus}
+
+Una vez estimados los coeficientes, se obtienen los valores
+ajustados de las combinaciones:
+
+\begin{equation}
+    \hat{Y}_H = X_H\hat{\beta}_H.
+\end{equation}
+
+Para una combinación formada por las jugadoras
+A, B y C, el valor ajustado se calcula como:
+
+\begin{equation}
+    \hat{Y}_{ABC} =
+    \hat{\beta}_{H,A}
+    + \hat{\beta}_{H,B}
+    + \hat{\beta}_{H,C}.
+\end{equation}
+
+La utilidad de este método consiste en generar clasificaciones
+de jugadoras y combinaciones a partir de un mismo modelo.
+Para comparar parejas se ordenan los valores ajustados de las
+filas que contienen dos jugadoras; el mismo procedimiento
+se aplica a tríos y quintetos. Aunque la predicción conserva
+una estructura aditiva, los coeficientes se estiman utilizando
+información de combinaciones de distintos tamaños.\cite{josephs2025hypergraphadjustedplusminus}
+
+A continuación presentamos una tabla que representa las diferencias entre cada uno de los elementos anteriormente mencionados.
+\begin{table}[htbp]
+    \centering
+    \caption{Comparación entre PM, APM y HAPM}
+    \label{tab:comparacion-pm-apm-hapm}
+    \begingroup
+    \small
+    \setlength{\tabcolsep}{5pt}
+    \renewcommand{\arraystretch}{1.2}
+
+    \begin{tabularx}{\linewidth}{
+        @{}
+        >{\raggedright\arraybackslash}p{1.2cm}
+        >{\raggedright\arraybackslash}X
+        >{\raggedright\arraybackslash}X
+        @{}
+    }
+        \toprule
+        \textbf{Medida} &
+        \textbf{Qué permite conocer} &
+        \textbf{Principal limitación} \\
+        \midrule
+
+        PM &
+        El diferencial de puntos observado mientras participa
+        una jugadora o combinación. &
+        No separa la contribución individual de la influencia
+        de las demás jugadoras. \\
+        \addlinespace
+
+        APM &
+        La contribución individual estimada, ajustada por las
+        otras jugadoras consideradas en el modelo. &
+        No representa explícitamente las interacciones
+        entre jugadoras. \\
+        \addlinespace
+
+        HAPM &
+        Las contribuciones estimadas de jugadoras individuales
+        y combinaciones dentro de un mismo modelo. &
+        La estimación de numerosos efectos depende de la
+        cantidad y diversidad de observaciones disponibles. \\
+
+        \bottomrule
+    \end{tabularx}
+
+    \par\smallskip
+    \begin{minipage}{\linewidth}
+        \footnotesize
+        \textit{Fuente:} elaboración propia con base en
+        \cite{josephs2025hypergraphadjustedplusminus}.
+    \end{minipage}
+    \endgroup
+\end{table}

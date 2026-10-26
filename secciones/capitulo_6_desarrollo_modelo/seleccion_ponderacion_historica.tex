@@ -27,14 +27,27 @@ Mejor quinteto&
 \bottomrule
 \end{longtable}
 
-\subsection{Selección y ponderación de la información histórica}
+\subsection{Selección y ponderación de la información histórica para la fase 1}
 De antemano no podemos asegurar que el beneficio del historial supere sus riesgos, y los pesos deben elegirse para mejorar el desempeño predictivo fuera de muestra, no para minimizar directamente un sesgo que se desconoce.
 
-Con base en la comparación anterior, se utilizarán inicialmente tres temporadas 2024, 2025 y 2026 para construir las métricas de la primera fase, mientras que el análisis colectivo de la segunda fase se concentrará en la temporada objetivo de 2026. La incorporación del historial busca ampliar las observaciones disponibles para las parejas de jugadoras oponentes, particularmente cuando su participación simultánea en una sola temporada sea limitada.
+Con base en la comparación anterior, se utilizarán inicialmente tres temporadas 2024, 2025 y 2026 para construir la primera fase, mientras que el análisis colectivo de la segunda fase se concentrará en la temporada objetivo 2026. La incorporación del historial busca ampliar las observaciones disponibles para las parejas de jugadoras oponentes, particularmente cuando su participación simultánea en una sola temporada sea limitada.
 
-Sin embargo, los registros de distintas temporadas no se considerarán equivalentes. El desempeño de una jugadora puede cambiar junto con su rol, equipo, compañeras y condiciones competitivas. Por ello, la información histórica se incorporará mediante ponderación temporal y regularización. La utilidad de esta estrategia se comprobará mediante validación temporal, contrastándola con alternativas que utilicen únicamente información reciente.
+Sin embargo, los registros de distintas temporadas no se considerarán equivalentes. El desempeño de una jugadora puede cambiar junto con su rol, equipo, compañeras y condiciones competitivas. Por ello, la información histórica se incorporará mediante ponderación temporal y regularización. La utilidad de esta estrategia se comprobará mediante validación temporal y se propondrán otras técnicas de validación.
+
+Como buscamos obtener las ponderaciones que maximicen la aproximación a la realidad esto también se convierte en un problema de optimización de pesos
 
 La propuesta se estructura en tres componentes: cálculo de métricas comparables por temporada, ponderación de su antigüedad y estabilización de las estimaciones cuando existan pocas observaciones.
+
+Se identificarón tres formas de aproximar las cuales se describen a continuación.
+Elegiremos solo dos para comparar al final del modelo. ¿por qué esta decisión?
+
+Ponderación de cada año.
+Ponderación de la importancia de cada variable para el dataset en general.
+Ponderación de la importancia de cada variable de acuerdo a la posición de la jugadora.
+
+Formas de aproximación derivadas que involucrán 2 o más formas de aproximación:
+Ponderación segmentada por año e importancia de la variable en general.
+Ponderación segmentada por año e importancia de la variable de acuerdo a la posición de la jugadora.
 
 \subsubsection*{1. Definición de la métrica por pareja y temporada}
 Antes de asignar pesos, se definirá por separado cada indicador de desempeño. Para una métrica expresada como un promedio por posesión:
