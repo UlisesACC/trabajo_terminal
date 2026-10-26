@@ -1,108 +1,92 @@
-\subsection{Comparación contextual y perfiles funcionales}
-Se usará una solución hibrida pues mezclaremos los datos de la temporada más reciente con datos de temporadas pasadas sin mezclarlas como si fueran equivalentes. El beneficio de aumentar la muestra sí vale la pena, siempre que se controle el cambio temporal. Usar únicamente una temporada puede generar estimaciones muy inestables: algunas parejas quizá sólo coincidan pocos minutos. En ese caso, una jugadora podría parecer excelente o pésima por azar. En términos estadísticos, se tendría menor sesgo, pero mucha mayor varianza.
+\subsection{Procedimiento de ponderación temporal y selección de sus parámetros}
+\label{subsec:procedimiento-ponderacion-temporal}
+Como continuación del apartado~\ref{subsubsec:ponderacion-temporada}, se desarrollará inicialmente la ponderación por temporada. Esta alternativa permite controlar la recencia mediante un único parámetro compartido, sin estimar descuentos distintos para cada posición, variable o pareja. Su menor número de decisiones ajustables facilita la interpretación y limita la carga experimental. No se afirma que produzca el menor sesgo: descontar registros antiguos puede reducir su falta de representatividad, pero también eliminar información útil. Su conveniencia se establecerá mediante predicción de observaciones posteriores.
 
-Por recomendación se utilizará la fórmula:
+El fundamento es la hipótesis de que el desempeño reciente puede resultar más pertinente para la temporada objetivo. Dixon y Coles utilizaron un descuento temporal en predicción deportiva; se retoma ese principio como antecedente metodológico, sin trasladar sus parámetros del fútbol al baloncesto \cite{dixon1997scores}. La cantidad de temporadas, la forma del descuento y su selección serán decisiones explícitas del presente proyecto.
+
+La experimentación avanzará de menor a mayor complejidad. Primero se evaluará esta alternativa a través de ambas fases. Si no satisface los criterios de validación, se considerarán por separado los tratamientos por posición o por variable; las combinaciones se reservarán para una etapa posterior y solo si existe cobertura suficiente. No se ejecutarán obligatoriamente todas las opciones. La elección y el criterio de avance se resolverán dentro de los datos de desarrollo, antes de consultar la prueba final. Esta separación evita utilizar repetidamente la prueba para rediseñar el modelo \cite{cawley2010selection}.
+
+\subsubsection*{Alcance de la ponderación en el dataset}
+Cada fila conservará su significado: desempeño de una jugadora focal durante su coincidencia en cancha con una rival en un partido determinado. Se conservarán las dos direcciones de la pareja, cuando estén disponibles, sin interpretarlas como enfrentamientos defensivos identificados ni como observaciones independientes.
+
+Los registros originales permanecerán disponibles. No se multiplicarán por un peso los identificadores \texttt{game\_id}, \texttt{matchup\_id}, los identificadores de las jugadoras ni \texttt{date}. La fecha y la temporada servirán para ordenar los antecedentes y calcular su antigüedad. Tampoco se descontarán categorías como localía, equipo o macrorrol, ni valores contextuales como días de descanso. Estos atributos conservarán su interpretación original.
+
+El descuento se aplicará al construir características históricas numéricas, por ejemplo, aciertos e intentos de triple o anotación por posesión durante minutos compartidos. La misma regla temporal se utilizará para todas las métricas elegibles, respetando sus denominadores. Se conservará, además, la exposición original para distinguir una estimación apoyada en numerosos partidos de otra basada en pocas coincidencias.
+
+La variable objetivo no se multiplicará por el descuento. En la fase 1 representará el rendimiento observado conforme a la definición que se establezca para su indicador; en la fase 2 corresponderá al Net Rating observado en los intervalos del quinteto, es decir, la diferencia entre sus eficiencias ofensiva y defensiva por cada cien posesiones. El descuento modificará los antecedentes utilizados para predecir esos resultados, no el resultado observado que se pretende explicar. La definición del indicador de la fase 1 deberá fijarse antes de optimizar los pesos. Las estadísticas del partido que originan esa respuesta no podrán utilizarse simultáneamente como predictores disponibles antes de ese mismo partido \cite{sklearnCommonPitfallsPonderacion}.
+
+Como configuración inicial, la ponderación operará únicamente en la construcción de antecedentes. No se añadirá un segundo descuento por temporada a la función de pérdida del modelo. Ponderar ejemplos durante el entrenamiento sería un experimento distinto; mantener separadas ambas operaciones evitará descontar dos veces la misma información sin justificación.
+
+\subsubsection*{Cálculo del descuento por temporada}
+Para una predicción realizada en la fecha de corte $t$, se considerarán exclusivamente partidos anteriores a esa fecha, dentro de la temporada objetivo y las dos precedentes. Se definirá:
+\begin{equation}
+ w_s(\lambda)=\lambda^{T-s},\qquad 0<\lambda\leq 1.
+ \label{eq:descuento-temporada-613}
+\end{equation}
+Aquí, $s$ es la temporada del antecedente; $T$ es la temporada correspondiente a la fecha de corte; $w_s$ es su peso temporal, sin unidades; y $\lambda$ es el factor de conservación del historial. Para el análisis objetivo de 2026, los pesos de 2026, 2025 y 2024 serán, respectivamente, $1$, $\lambda$ y $\lambda^2$. Un valor de $1$ conserva la misma influencia temporal; un valor menor reduce progresivamente la de temporadas anteriores. Este mecanismo no diferencia fechas dentro de una misma temporada, lo que constituye una simplificación deliberada.
+
+Se incluirá también el caso $\lambda=0$, definido por separado: peso $1$ para la temporada de corte y $0$ para las anteriores. Representará la referencia de una sola temporada y evitará interpretar la expresión indeterminada $0^0$. Por ejemplo, $\lambda=0.5$ produciría pesos $1$, $0.5$ y $0.25$; se trata de una ilustración y no de valores seleccionados.
+
+Para calcular una métrica histórica de la pareja dirigida $(a,b)$ se utilizará:
+\begin{equation}
+ H_{ab,m}(t;\lambda)=
+ \frac{\sum_{s=T-2}^{T}w_s(\lambda)A_{ab,s,m}(t)}
+ {\sum_{s=T-2}^{T}w_s(\lambda)B_{ab,s,m}(t)}.
+ \label{eq:antecedente-ponderado-613}
+\end{equation}
+La letra $a$ identifica a la jugadora focal; $b$, a la rival; $m$, a la métrica; y $H$ es el antecedente ponderado que se incorporará como característica. El término $A$ es el numerador acumulado de esa métrica y $B$ su denominador elegible, ambos calculados con partidos anteriores a $t$. Para el porcentaje de triples, $A$ corresponderá a triples acertados y $B$ a intentos; para puntos por posesión, a puntos de la focal y posesiones ofensivas elegibles de su equipo, respectivamente. Solo se incluirán los intervalos con ambas jugadoras en cancha. El porcentaje se expresará en escala porcentual si así lo requiere el diccionario de datos.
+
+La fórmula relaciona cantidades comparables y evita promediar porcentajes como si todas las temporadas contaran con la misma exposición. Un peso temporal mayor no garantiza que una temporada domine: también influye el número de intentos o posesiones aportados. Si el denominador es cero, el antecedente se marcará como no disponible; no se asignará rendimiento cero.
+
+Si la pareja carece de historial, se utilizarán los datos previos de cada jugadora. Si estos resultan insuficientes, se recurrirá a una referencia poblacional calculada en entrenamiento. Se conservarán indicadores de ausencia de historial y exposición. Una proporción indefinida, una tasa observada igual a cero y una jugadora debutante serán situaciones diferentes. La penalización del modelo ayudará a controlar estimaciones inestables; su intensidad se mantendrá fija durante la primera comparación de descuentos, tras seleccionarla únicamente con datos de entrenamiento y validación. No se introducirán fórmulas de suavizado adicionales como parte de este primer experimento.
+
+\subsubsection*{Formulación del problema de optimización}
+La elección del descuento sí constituye un problema de optimización: existe una variable de decisión, un conjunto de valores admisibles y un criterio que se busca minimizar \cite{boyd2004convex}. Sin embargo, no se observa directamente la ``realidad actual'' ni el sesgo verdadero. Se utilizará como aproximación medible el error al predecir resultados posteriores. Los pesos serán hiperparámetros del procedimiento, diferenciados de los parámetros que cada modelo aprende durante su ajuste.
+
+Se establecerá una búsqueda inicial acotada:
 \[
-\widehat R_{XZ}=w_{XZ}R_{XZ,\mathrm{actual}}+(1-w_{XZ})R_{XZ,\mathrm{hist\acute orico}}
+ \Lambda=\{0,\;0.25,\;0.50,\;0.75,\;1\}.
 \]
-Con:
-\[
-w_{XZ}=\frac{n_{\mathrm{actual}}}{n_{\mathrm{actual}}+k}
-\]
-donde $n_{\mathrm{actual}}$ son las posesiones compartidas en la temporada actual:
-\begin{itemize}
-\item Si X y Z tienen muchas posesiones actuales, domina la temporada actual.
-\item Si tienen pocas, las temporadas anteriores estabilizan la estimación.
-\item Si nunca coincidieron actualmente, el histórico funciona como referencia.
-\item Si tampoco existe historial, se utiliza el promedio de jugadoras con perfiles similares.
-\end{itemize}
+El símbolo $\Lambda$ representa el conjunto de candidatos. Se optimizará un solo $\lambda$, del cual se derivarán los tres pesos; no se estimarán tres valores independientes. Esta restricción impone un orden de recencia y reduce la flexibilidad del ajuste. La malla es una decisión operativa del proyecto, no una recomendación numérica de los artículos. La búsqueda exhaustiva sobre una lista finita permite comparar todos sus candidatos \cite{sklearnSearch613}; no garantiza encontrar el óptimo de un intervalo continuo ni que el resultado se mantenga en temporadas futuras.
 
-Dentro del histórico también se ponderará por recencia:
-\[
-R_{\mathrm{hist\acute orico}}=[peso1]R_{t-1}+[peso2]R_{t-2}.
-\]
-No se fijarán esos pesos definitivamente desde ahora: deben ser seleccionarlos mediante un método o la comparación entre ellos con el objetivo de encontrar el peso óptimo. Por ejemplo, con validación temporal, se entrenaría con 2024-2025 y evaluaría qué tan bien predice 2026.
-\begin{itemize}
-\item Interpolación o extrapolación (jugar con los parámetros)
-\item Proponer varios modelos de como penalizarlos
-\end{itemize}
+Para vincular la selección con la finalidad colectiva del proyecto, se propondrá el error absoluto de predicción del Net Rating en la fase 2 como criterio principal. Para cada bloque de validación $k$:
+\begin{equation}
+ E_k(\lambda)=\frac{1}{|G_k|}\sum_{g\in G_k}
+ \frac{\sum_{r\in R_g}q_r\,|y_r-\widehat y_r^{(\lambda,k)}|}
+ {\sum_{r\in R_g}q_r}.
+ \label{eq:error-validacion-613}
+\end{equation}
+El conjunto $G_k$ contiene los partidos del bloque y $|G_k|$ es su cantidad; $g$ identifica un partido; $R_g$ contiene sus intervalos elegibles con quintetos constantes; $r$ identifica uno de esos intervalos; $y_r$ es el Net Rating observado; y $\widehat y_r^{(\lambda,k)}$ es su predicción mediante la cadena de ambas fases ajustada sin utilizar ese bloque. El término $q_r$ es la exposición del intervalo, definida como la semisuma de sus posesiones ofensivas y defensivas. Solo se evaluarán intervalos con ambas cantidades positivas. El promedio interno otorga mayor contribución a intervalos con mayor exposición; el externo evita que un partido con más registros domine por esa razón. Esta ponderación de evaluación por exposición es distinta del descuento histórico y será idéntica para todos los candidatos.
 
-\subsubsection*{1. ¿Qué equipos? y ¿por qué?}
-Solo haremos el modelo con 5 equipos pues nuestro objetivo es probar que tenemos una solución viable para el problema que planteamos. Los equipos serán los que hayan tenido menos cambios en su plantilla, pues eso brindará una estabilidad para evitar sesgar los resultados.
+Con $K$ bloques temporales internos, la selección será:
+\begin{equation}
+ \lambda^*\in\underset{\lambda\in\Lambda}{\operatorname{arg\,min}}\;
+ J(\lambda),\qquad
+ J(\lambda)=\frac{1}{K}\sum_{k=1}^{K}E_k(\lambda).
+ \label{eq:optimizacion-pesos-613}
+\end{equation}
+El símbolo $J$ representa el error medio de validación; $K$, la cantidad de bloques; y $\lambda^*$, un candidato que obtiene su mínimo. Si existe igualdad numérica, se preferirá el candidato de mayor conservación histórica. Las diferencias pequeñas se interpretarán junto con su variabilidad entre bloques, sin proclamar una superioridad concluyente.
 
-\subsubsection*{2. Lo que no se puede asegurar con los datos que tenemos:}
-\begin{itemize}
-\item Que A defendió directamente a B.
-\item Cuántos tiros hizo B mientras A era su defensora.
-\item La distancia entre atacante y defensora.
-\item Cambios defensivos después de una pantalla.
-\item Posesiones exactas de emparejamiento individual.
-\item Movimiento continuo x,y de las diez jugadoras y el balón.
-\end{itemize}
+\subsubsection*{Ejecución de la búsqueda y control de la información}
+Para cada candidato se reconstruirán los antecedentes anteriores a cada fecha de corte y se ajustará la cadena de procesamiento: tratamiento de faltantes, escalamiento, perfiles funcionales, modelo de la fase 1 y enriquecimiento del modelo de la fase 2. Se mantendrán los mismos algoritmos, particiones y semillas aleatorias entre candidatos. Así se comparará el descuento sin confundir su efecto con cambios simultáneos de arquitectura. El ajuste de otros hiperparámetros, cuando sea necesario, permanecerá dentro del nivel interno de validación y tendrá un presupuesto documentado.
 
-“Datos posicionales de eventos” no necesariamente significa tracking óptico continuo. Puede significar ubicación del tiro o del evento. Tampoco track\_on\_court=true significa que obtengan las coordenadas continuas de cada jugadora; normalmente indica que el feed registra quién está dentro de la cancha.
+Las variables de la fase 1 que alimenten el entrenamiento de la fase 2 se generarán mediante predicciones temporales fuera de muestra: cada partido recibirá resultados de un modelo construido con partidos anteriores. No se usarán predicciones del propio conjunto con el que se ajustó ese modelo como si fueran evidencia nueva. En cada corte, el clustering y las referencias también se estimarán con el pasado disponible; la ficha estadística de una jugadora no incluirá el cierre de una temporada todavía no observado en ese corte \cite{sklearnCommonPitfallsPonderacion}.
 
-Por eso, aunque dos Guards coincidan en cancha, no pueden concluir automáticamente que se defendieron entre sí. Para estudiar enfrentamientos defensivos reales necesitarían datos de tracking espacial (posición en cancha y defensora asignada) que normalmente son comerciales.
+El error de la fase 1, la cobertura de parejas y la estabilidad de perfiles se registrarán como diagnósticos secundarios. Optimizar únicamente el error individual no demostraría que el descuento sea el mejor para los quintetos; por ello, el criterio principal requiere ejecutar también la fase 2 dentro de la validación. Predecir adecuadamente el Net Rating tampoco demostrará por sí solo que un quinteto nunca observado sea óptimo: esa recomendación requerirá su evaluación específica y se reconocerá la ausencia de resultados contrafactuales observados.
 
-\subsubsection*{3. Lo que sí pueden hacer nuestros datos.}
-Por ejemplo, para Dallas vs. Indiana:
-\begin{enumerate}
-\item Identificar cuándo estuvieron simultáneamente Paige Bueckers y Caitlin Clark.
-\item Calcular los minutos compartidos.
-\item Extraer los eventos ocurridos en esos intervalos.
-\end{enumerate}
-Comparar: Podríamos producir una puntuación como:
-\[
-Score_{A,B}=Rendimiento_A-Rendimiento_B
-\]
-pero calculada únicamente durante los minutos en los que ambas estuvieron en cancha.
+\subsubsection*{Validación de la optimización y de los pesos seleccionados}
+Antes de ejecutar la búsqueda se reservará el último bloque cronológico de partidos de 2026 como prueba final. Su extensión se fijará y documentará tras verificar cobertura, sin consultar sus resultados de rendimiento. El resto constituirá los datos de desarrollo. No se dividirán filas al azar: todas las parejas dirigidas, eventos e intervalos de un mismo \texttt{game\_id} pertenecerán a una sola partición, y los bloques de fechas no se superpondrán. Dado que los partidos y sus filas no están uniformemente espaciados, se construirán cortes por calendario y partido, en lugar de aplicar automáticamente una división temporal por índices de fila \cite{sklearnTemporal613}.
 
-A esto le llamaremos “Comparación contextual 1 vs. 1 durante minutos compartidos en cancha.”
+Se buscará disponer de al menos dos bloques externos y dos internos por bloque externo, siempre con entrenamiento anterior a validación. Dentro de cada bloque externo, los cortes internos seleccionarán $\lambda^*$. Después se reajustará el procedimiento con el pasado disponible y se evaluará en el bloque externo siguiente, sin modificar el descuento a partir de sus respuestas. Esta validación temporal anidada separará la búsqueda de hiperparámetros de la estimación del desempeño de esa búsqueda; la necesidad de controlar el sobreajuste en la selección está documentada por Cawley y Talbot \cite{cawley2010selection}.
 
-\begin{longtable}{@{}p{3cm}p{9.5cm}@{}}
-\toprule\textbf{Dimensión}&\textbf{Variables posibles}\\\midrule\endhead
-Anotación&Puntos, FG\%, 3P\%, TS\%, puntos por posesión\\
-Creación&Asistencias, asistencias potenciales si están disponibles\\
-Control&Pérdidas, AST/TOV\\
-Defensa&Robos, bloqueos, faltas\\
-Contexto&Marcador, periodo, tiempo restante\\
-Espacio&Zona o coordenada del tiro, si está disponible\\
-Coincidencia&Minutos en cancha simultáneamente\\
-\bottomrule
-\end{longtable}
+Como la fase 2 se limita a 2026, los cortes utilizados para su criterio deberán contar con un tramo de entrenamiento y otro posterior de validación dentro de ese año. Entrenar únicamente con 2024--2025 y evaluar todo 2026 no permitirá reproducir por sí solo esta cadena colectiva. Si la disponibilidad no permite los niveles anidados, se fijará una partición cronológica de entrenamiento, validación y prueba, se reducirá la búsqueda y se informará esa limitación. No se afirmará haber validado un procedimiento anidado que los datos no permitan ejecutar.
 
-\subsubsection*{4. Lo que nos serviría más adelante:}
-Las cinco jugadoras en cancha por evento.
+Validar los pesos significará comprobar la utilidad y estabilidad del procedimiento que los selecciona, no demostrar que sean valores verdaderos. Se contrastará su desempeño con $\lambda=1$ (sin descuento) y $\lambda=0$ (solo temporada de corte), utilizando idénticos partidos. Se informarán errores por bloque, descuentos seleccionados, cobertura de parejas y resultados para casos con y sin historial. Una selección que cambie ampliamente entre cortes o cuya ventaja desaparezca ante valores próximos se interpretará como evidencia de inestabilidad. Si se calculan intervalos de incertidumbre, el remuestreo respetará bloques temporales de partidos y nunca tratará las filas rivales como independientes.
 
-Coordenadas de los tiros.
+\subsubsection*{Criterio de avance y cierre del procedimiento}
+Se considerará insuficiente el enfoque inicial cuando, en los datos de desarrollo, no mejore de forma consistente las referencias o presente fallas de cobertura y estabilidad que impidan su uso previsto. Una diferencia pequeña o incierta no justificará por sí sola aumentar la complejidad. Antes de probar alternativas se fijarán las métricas, el presupuesto de búsqueda y las condiciones de aceptación; las opciones posicionales y por variable se ordenarán según sus parámetros ajustables y la cobertura efectivamente disponible.
 
-Si identifica asistente, bloqueadora, causante de pérdida y jugadoras participantes.
+Las combinaciones solo se habilitarán si los grupos correspondientes contienen historial en entrenamiento y observaciones posteriores en validación, con exposición y curvas de aprendizaje que permitan evaluar su estabilidad. No se establecerá un número universal de filas como garantía de suficiencia, pues varias filas pueden provenir del mismo partido. Si la evidencia no permite una alternativa más compleja, se conservará la opción mejor respaldada entre las evaluadas y se documentarán sus limitaciones.
 
-Si contiene identificador de defensora.
+Una vez fijada la familia de ponderación, se seleccionará el descuento con los datos de desarrollo, se reajustará la cadena completa y se evaluará una sola vez en la prueba final. Un resultado desfavorable en esa prueba se reportará como limitación; no se reutilizará el mismo conjunto para reiniciar la selección y presentar el nuevo resultado como independiente. La especificación de estos pasos precederá a su ejecución, de acuerdo con la planificación experimental de la metodología en cascada.
 
-\subsubsection*{5. ¿Qué posiciones tomaremos en cuenta para nuestro modelo y por qué?}
-Para esta parte del trabajo debemos comprender dos conceptos fundamentales: Posición nominal y perfil funcional, el primero es la posición que le es asignado a la jugadora de acuerdo con las reglas PG, SG, SF, PF o C; el segundo es cómo juega realmente, por ejemplo: creadora, tiradora, wing defensiva, interior finalizador, protectora del aro, etc.
-
-\begin{longtable}{@{}p{2cm}p{3.4cm}p{3.6cm}p{3.6cm}@{}}
-\toprule\textbf{Opción}&\textbf{Cómo funcionaría}&\textbf{Ventajas}&\textbf{Desventajas}\\\midrule\endhead
-Manual rígido&Asignar PG, SG, SF, PF o C usando la posición oficial&Muy sencilla, interpretable y fácil de validar&Las posiciones son rígidas; una jugadora puede actuar como PG y SG, o SF y PF\\
-Manual por macrorroles&Convertir posiciones oficiales en Guard, Wing y Big&Sencilla, estable y adecuada para impedir comparaciones absurdas&Generaliza demasiado; dos Guards pueden jugar de formas completamente diferentes\\
-Clustering puro&El algoritmo agrupa jugadoras únicamente según sus estadísticas&Descubre estilos reales y evita imponer posiciones tradicionales&Los grupos pueden ser difíciles de interpretar, cambiar entre temporadas o mezclar jugadoras tácticamente incompatibles\\
-Híbrida&Macrorrol definido por reglas y subperfil obtenido con clustering.&Equilibra interpretación, flexibilidad y aprendizaje automático&Requiere dos niveles de clasificación y validación adicional\\
-\bottomrule
-\end{longtable}
-
-No usaremos posiciones rígidas como PG, SG, SF, PF y C, porque muchas jugadoras cumplen más de una función. Tampoco segmentaremos únicamente Guards y Bigs, pues se perdería demasiada información, especialmente con wings y forwards versátiles.
-
-Para la primera versión, tendríamos comparaciones entre categorías compatibles:
-\begin{longtable}{@{}p{4cm}p{7cm}@{}}
-\toprule\textbf{Perfil principal}&\textbf{Puede compararse con}\\\midrule\endhead
-Guard&Guard y Wing\\
-Wing&Guard, Wing y Big\\
-Big&Wing y Big\\
-\bottomrule
-\end{longtable}
-
-Así se mantiene la versatilidad sin afirmar que todas pueden cumplir cualquier función. Para este TT, la mejor opción sería usar Guard–Wing–Big y permitir pertenencia parcial o secundaria, tenemos estas dos opciones y decidiremos cual es la mejor al momento de comparar resultados entre el uso de uno y de otra con varios algoritmos; es más realista y sigue siendo manejable.
-
-¿estas posiciones las especificaremos manualmente o las obtendremos con algún algoritmo de ML? ¿cuál es la opción más viable? ¿cuál opción nos será más últil? ¿cuál opción es más sencilla? ¿con cuál opción nos deberíamos quedar? Ventajas y desventajas de cada una.
