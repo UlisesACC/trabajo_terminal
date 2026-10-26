@@ -2,6 +2,6 @@
 Se comprobarán temporadas, cobertura de partidos, nombres y tipos de columnas Parquet, valores faltantes, claves y duplicados. Las uniones utilizarán identificadores documentados como \texttt{game\_id}, \texttt{team\_id} y \texttt{player\_id}/\texttt{person\_id}. La reconstrucción de intervalos sin sustituciones y de posesiones se contrastará con marcadores y estadísticas agregadas.
 
 Se validará cronológicamente: para pronosticar un partido se usarán exclusivamente datos disponibles antes de ese partido, evitando fuga de información procedente del final de temporada. Se indicará el tamaño de muestra y se excluirán o suavizarán exposiciones demasiado pequeñas.
-
+Estos datos se presentan de manera superficial en \textbf{\nameref{subsec:analisis_exploratorio_datos}}
 \subsubsection{Alcance de las comparaciones individuales}
-Las coordenadas de tiro no equivalen a \textit{tracking} espacial continuo. La coincidencia de rivales en cancha no demuestra que una defendió directamente a otra; el modelo analizará \emph{comparaciones contextuales durante minutos compartidos}.
+Como las coordenadas de tiro no equivalen a \textit{tracking} espacial continuo. La coincidencia de rivales en cancha no demuestra que una defendió directamente a otra; el modelo analizará \emph{comparaciones contextuales durante minutos compartidos}.

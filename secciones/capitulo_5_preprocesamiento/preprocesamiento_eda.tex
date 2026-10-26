@@ -1,3 +1,89 @@
 El análisis exploratorio permitirá describir la cobertura anual, el número de partidos y jugadoras disponibles, la distribución de minutos y posesiones, así como la frecuencia de cada quinteto y de sus enfrentamientos observados. Se estudiarán los valores extremos y la variabilidad de los ratings ofensivo, defensivo y neto para identificar estimaciones inestables por tamaño de muestra.
 
 También se analizarán distribuciones y correlaciones de puntos, asistencias, rebotes, pérdidas, robos, bloqueos y métricas de tiro, con el propósito de seleccionar atributos adecuados para caracterizar perfiles. Las visualizaciones y resúmenes se presentarán sólo después de ejecutar la exploración; no se reportan cifras observadas en esta propuesta.
+Como el conjunto de datos esta presente en formato parquet se hará uso de la herramienta previamente mencionada de visual studio code llamada Parquet Visualizer.
+\begin{lstlisting}[
+    style=sqlstyle,
+    caption={Lectura e integración de archivos play-by-play por temporada},
+    label={lst:integracion_pbp}
+]
+SELECT
+    *,
+    regexp_extract(
+        filename,
+        '(\d{4})\.parquet$',
+        1
+    ) AS anio_doc
+FROM read_parquet(
+    'd:/Progra/Escom/Trabajo terminal/codigos_trabajo_terminal/datos_a_usar/wnba_stats/pbp/parquet/wnba_play_by_play_*.parquet',
+    filename = true
+);
+\end{lstlisting}
+Dentro de esta herramienta podremos juntar todos los tipos de
+Se realizo un análisis exploratorio inicial de las variables presentes preliminar del conjunto de datos que se cuenta.
+Posteriormente la herramienta permite exportar a csv que es el formato que ocuparemos para el eda.
+\begin{lstlisting}[
+    style=pythonstyle,
+    caption={Lectura de datos play-by-play de la WNBA},
+    label={lst:lectura_pbp}
+]
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+file = 'play_by_play_2026.csv'
+df = pd.read_csv(file)
+df.dtypes
+\end{lstlisting}
+El codigo \ref{lst:lectura_pbp} nos presenta una visualizacion del tipo de datos presente en el archivo play by play con la siguiente salida.
+\begin{table}[H]
+\centering
+\caption{Estructura de datos y tipos de variables}
+\label{tab:variables_wnba}
+\begin{tabular}{ll}
+\toprule
+\textbf{Columna} & \textbf{Tipo de Dato} \\
+\midrule
+order\_index & int64 \\
+action\_number & int64 \\
+clock & str \\
+period & int64 \\
+team\_id & int64 \\
+team\_tricode & str \\
+person\_id & int64 \\
+player\_name & str \\
+player\_name\_i & str \\
+x\_legacy & int64 \\
+y\_legacy & int64 \\
+shot\_distance & int64 \\
+shot\_result & str \\
+is\_field\_goal & int64 \\
+score\_home & float64 \\
+score\_away & float64 \\
+points\_total & int64 \\
+location & str \\
+description & str \\
+action\_type & str \\
+sub\_type & str \\
+video\_available & int64 \\
+shot\_value & int64 \\
+action\_id & int64 \\
+game\_id & int64 \\
+seconds\_remaining & float64 \\
+event\_type & str \\
+is\_made\_shot & bool \\
+is\_missed\_shot & bool \\
+is\_free\_throw & bool \\
+is\_rebound & bool \\
+is\_turnover & bool \\
+is\_foul & bool \\
+is\_substitution & bool \\
+is\_jump\_ball & bool \\
+is\_timeout & bool \\
+is\_period & bool \\
+season & int64 \\
+filename & str \\
+anio\_doc & int64 \\
+\bottomrule
+\end{tabular}
+\end{table}

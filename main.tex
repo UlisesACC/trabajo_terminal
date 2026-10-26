@@ -32,6 +32,8 @@
 \usepackage[backend=biber,style=ieee,sorting=none]{biblatex} % Referencias en formato IEEE
 \usepackage{hyperref}              % Hipervínculos y marcadores en el PDF (cargar casi al final)
 \usepackage[capitalize]{cleveref}  % Referencias cruzadas inteligentes (después de hyperref)
+\usepackage{listings}
+\usepackage{xcolor}
 % ---------------------- CONFIGURACIÓN GENERAL ----------------------
 \geometry{left=3cm, right=2.5cm, top=2.5cm, bottom=2.5cm}
 \addbibresource{referencias.bib}   % Archivo .bib con las referencias (crear aparte)
@@ -69,7 +71,45 @@
     pdftitle={Modelo de optimización de alineaciones mediante análisis de emparejamientos en la WNBA},
     pdfauthor={Ulises Abdiel Cabello Cardenas, Fernanda Madariaga Villanueva}
 }
-
+%-------- Estilo de python
+\lstdefinestyle{pythonstyle}{
+    language=Python,
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{red!60!black},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    numbersep=8pt,
+    backgroundcolor=\color{gray!5},
+    frame=single,
+    rulecolor=\color{gray!40},
+    breaklines=true,
+    showstringspaces=false,
+    tabsize=4,
+    captionpos=b
+}
+%-------- Estilo SQL
+\lstdefinestyle{sqlstyle}{
+    language=SQL,
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{gray},
+    stringstyle=\color{red!60!black},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    numbersep=8pt,
+    backgroundcolor=\color{gray!5},
+    frame=single,
+    rulecolor=\color{gray!40},
+    breaklines=true,
+    showstringspaces=false,
+    tabsize=4,
+    captionpos=b,
+    columns=fullflexible,
+    keepspaces=true,
+    morekeywords={read_parquet,regexp_extract,true}
+}
 % ---------------------- DATOS DEL DOCUMENTO ----------------------
 \newcommand{\tituloTT}{Modelo de optimización de alineaciones mediante análisis de emparejamientos en la WNBA}
 \newcommand{\numeroTT}{2027-A133}
@@ -316,6 +356,7 @@ El presente capitulo describe los recursos analíticos, el modelo de datos previ
 
 \section{Modelo de datos}
 \subsection{Fuentes de información}
+\label{subsec:Fuentes_informacion}
 \input{secciones/capitulo_4_analisis/fuentes_datos}
 \subsection{Diccionario de datos originales}
 \input{secciones/capitulo_4_analisis/diccionario_origen}
@@ -347,6 +388,7 @@ El presente capitulo describe los recursos analíticos, el modelo de datos previ
 \subsection{Descripción de los datos}
 \input{secciones/capitulo_5_preprocesamiento/preprocesamiento_descripcion_datos}
 \subsection{Análisis exploratorio de datos}
+\label{subsec:analisis_exploratorio_datos}
 \input{secciones/capitulo_5_preprocesamiento/preprocesamiento_eda}
 \subsection{Limpieza}
 \input{secciones/capitulo_5_preprocesamiento/preprocesamiento_limpieza}
@@ -362,7 +404,7 @@ El presente capitulo describe los recursos analíticos, el modelo de datos previ
 % CAPÍTULO 6. DESARROLLO E IMPLEMENTACIÓN
 % ============================================================
 \chapter{Desarrollo y evaluación del modelo}
-
+En este capitulo se identifica un diseño preliminar de el modelo a desarrollar, esto se debe a que se requiere un mayor análisis de los datos que se tienen.
 \section{Desarrollo del proyecto}
 \input{secciones/capitulo_6_desarrollo_modelo/procedimiento_modelo}
 \input{secciones/capitulo_6_desarrollo_modelo/seleccion_ponderacion_historica}

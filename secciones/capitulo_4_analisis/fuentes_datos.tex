@@ -16,11 +16,1469 @@ Para la elaboración del modelo se contempla utilizar la información procesada 
 \texttt{lineups} & Indicadores agregados de alineaciones. & Obtener referencias de desempeño colectivo.\\
 \texttt{player\_season\_stats} & Indicadores de jugadoras por temporada. & Elaborar perfiles funcionales.\\
 \texttt{player\_game\_logs} & Estadísticas por encuentro y jugadora. & Construir historiales con corte temporal.\\
-\texttt{shots} & Eventos y coordenadas de lanzamiento. & Identificar tendencias de tiro.\\
 \texttt{game\_rosters} & Integrantes asociados a cada partido. & Comprobar identidades y participación.\\
 \bottomrule
 \end{tabularx}
 \end{table}
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.95\textwidth}
+\begin{lstlisting}[
+    basicstyle=\ttfamily\scriptsize,
+    frame=single,
+    breaklines=true,
+    showstringspaces=false,
+    columns=fullflexible
+]
+codigos_trabajo_terminal/
+`-- datos_a_usar/
+    `-- wnba_stats/
+        |-- coaches/parquet/
+        |-- draft/parquet/
+        |-- game_lineups/parquet/
+        |-- game_rosters/parquet/
+        |-- leaguedash/parquet/
+        |-- lineups/parquet/
+        |-- metric_curves/parquet/
+        |-- officials/parquet/
+        |-- pbp/
+        |   |-- json/
+        |   `-- parquet/
+        |-- player_boxscores/parquet/
+        |-- player_game_logs/
+        |   |-- json/
+        |   `-- parquet/
+        |-- player_impact/
+        |   `-- parquet/
+        |-- player_season_stats/
+        |-- possessions/
+        |-- rolling_windows/
+        |-- rosters/parquet/
+        |-- schedules/parquet/
+        |-- shots/parquet/
+        |-- standings/parquet/
+        |-- team_boxscores/parquet/
+        `-- team_season_stats/parquet/
+\end{lstlisting}
+\end{minipage}
+\caption{Estructura general de los archivos
+de datos de la WNBA utilizados en el proyecto.}
+\label{fig:estructura_archivos_wnba}
+\end{figure}
 
+La siguiente tabla describe la totalidad del conjunto de datos recopilado. Esta información permite al lector consultar la estructura y las rutas de los archivos que servirán como base para el desarrollo de este análisis.
+\begingroup
+\lstset{
+    basicstyle=\ttfamily\tiny,
+    breaklines=true,
+    breakatwhitespace=false,
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false,
+    frame=single,
+    caption={Estructura completa de archivos de datos de la WNBA, organizada por directorio y temporada.},
+    label={lst:estructura_completa_wnba},
+    captionpos=b
+}
+\begin{lstlisting}
+codigos_trabajo_terminal/
+  datos_a_usar/
+    wnba_stats/
+      |   wnba_stats_games_in_data_repo.parquet
+      |   wnba_stats_schedule_coverage.parquet
+      |   wnba_stats_schedule_master.parquet
+      |
+      |---coaches
+      |   `---parquet
+      |           coaches_1997.parquet
+      |           coaches_1998.parquet
+      |           coaches_1999.parquet
+      |           coaches_2000.parquet
+      |           coaches_2001.parquet
+      |           coaches_2002.parquet
+      |           coaches_2003.parquet
+      |           coaches_2004.parquet
+      |           coaches_2005.parquet
+      |           coaches_2006.parquet
+      |           coaches_2007.parquet
+      |           coaches_2008.parquet
+      |           coaches_2009.parquet
+      |           coaches_2010.parquet
+      |           coaches_2011.parquet
+      |           coaches_2012.parquet
+      |           coaches_2013.parquet
+      |           coaches_2014.parquet
+      |           coaches_2015.parquet
+      |           coaches_2016.parquet
+      |           coaches_2017.parquet
+      |           coaches_2018.parquet
+      |           coaches_2020.parquet
+      |           coaches_2021.parquet
+      |           coaches_2022.parquet
+      |           coaches_2023.parquet
+      |           coaches_2024.parquet
+      |           coaches_2025.parquet
+      |           coaches_2026.parquet
+      |
+      |---draft
+      |   `---parquet
+      |           draft_1997.parquet
+      |           draft_1998.parquet
+      |           draft_1999.parquet
+      |           draft_2000.parquet
+      |           draft_2001.parquet
+      |           draft_2002.parquet
+      |           draft_2003.parquet
+      |           draft_2004.parquet
+      |           draft_2005.parquet
+      |           draft_2006.parquet
+      |           draft_2007.parquet
+      |           draft_2008.parquet
+      |           draft_2009.parquet
+      |           draft_2010.parquet
+      |           draft_2011.parquet
+      |           draft_2012.parquet
+      |           draft_2013.parquet
+      |           draft_2014.parquet
+      |           draft_2015.parquet
+      |           draft_2016.parquet
+      |           draft_2017.parquet
+      |           draft_2018.parquet
+      |           draft_2019.parquet
+      |           draft_2020.parquet
+      |           draft_2021.parquet
+      |           draft_2022.parquet
+      |           draft_2023.parquet
+      |           draft_2024.parquet
+      |           draft_2025.parquet
+      |           draft_2026.parquet
+      |
+      |---game_lineups
+      |   `---parquet
+      |           wnba_lineups_1997.parquet
+      |           wnba_lineups_1998.parquet
+      |           wnba_lineups_1999.parquet
+      |           wnba_lineups_2000.parquet
+      |           wnba_lineups_2001.parquet
+      |           wnba_lineups_2002.parquet
+      |           wnba_lineups_2003.parquet
+      |           wnba_lineups_2004.parquet
+      |           wnba_lineups_2005.parquet
+      |           wnba_lineups_2006.parquet
+      |           wnba_lineups_2007.parquet
+      |           wnba_lineups_2008.parquet
+      |           wnba_lineups_2009.parquet
+      |           wnba_lineups_2010.parquet
+      |           wnba_lineups_2011.parquet
+      |           wnba_lineups_2012.parquet
+      |           wnba_lineups_2013.parquet
+      |           wnba_lineups_2014.parquet
+      |           wnba_lineups_2015.parquet
+      |           wnba_lineups_2016.parquet
+      |           wnba_lineups_2017.parquet
+      |           wnba_lineups_2018.parquet
+      |           wnba_lineups_2019.parquet
+      |           wnba_lineups_2020.parquet
+      |           wnba_lineups_2021.parquet
+      |           wnba_lineups_2022.parquet
+      |           wnba_lineups_2023.parquet
+      |           wnba_lineups_2024.parquet
+      |           wnba_lineups_2025.parquet
+      |           wnba_lineups_2026.parquet
+      |
+      |---game_rosters
+      |   `---parquet
+      |           game_rosters_1997.parquet
+      |           game_rosters_1998.parquet
+      |           game_rosters_1999.parquet
+      |           game_rosters_2000.parquet
+      |           game_rosters_2001.parquet
+      |           game_rosters_2002.parquet
+      |           game_rosters_2003.parquet
+      |           game_rosters_2004.parquet
+      |           game_rosters_2005.parquet
+      |           game_rosters_2006.parquet
+      |           game_rosters_2007.parquet
+      |           game_rosters_2008.parquet
+      |           game_rosters_2009.parquet
+      |           game_rosters_2010.parquet
+      |           game_rosters_2011.parquet
+      |           game_rosters_2012.parquet
+      |           game_rosters_2013.parquet
+      |           game_rosters_2014.parquet
+      |           game_rosters_2015.parquet
+      |           game_rosters_2016.parquet
+      |           game_rosters_2017.parquet
+      |           game_rosters_2018.parquet
+      |           game_rosters_2019.parquet
+      |           game_rosters_2020.parquet
+      |           game_rosters_2021.parquet
+      |           game_rosters_2022.parquet
+      |           game_rosters_2023.parquet
+      |           game_rosters_2024.parquet
+      |           game_rosters_2025.parquet
+      |           game_rosters_2026.parquet
+      |
+      |---leaguedash
+      |   `---parquet
+      |           lineups_advanced_1997.parquet
+      |           lineups_advanced_1998.parquet
+      |           lineups_advanced_1999.parquet
+      |           lineups_advanced_2000.parquet
+      |           lineups_advanced_2001.parquet
+      |           lineups_advanced_2002.parquet
+      |           lineups_advanced_2003.parquet
+      |           lineups_advanced_2004.parquet
+      |           lineups_advanced_2005.parquet
+      |           lineups_advanced_2006.parquet
+      |           lineups_advanced_2007.parquet
+      |           lineups_advanced_2008.parquet
+      |           lineups_advanced_2009.parquet
+      |           lineups_advanced_2010.parquet
+      |           lineups_advanced_2011.parquet
+      |           lineups_advanced_2012.parquet
+      |           lineups_advanced_2013.parquet
+      |           lineups_advanced_2014.parquet
+      |           lineups_advanced_2015.parquet
+      |           lineups_advanced_2016.parquet
+      |           lineups_advanced_2017.parquet
+      |           lineups_advanced_2018.parquet
+      |           lineups_advanced_2019.parquet
+      |           lineups_advanced_2020.parquet
+      |           lineups_advanced_2021.parquet
+      |           lineups_advanced_2022.parquet
+      |           lineups_advanced_2023.parquet
+      |           lineups_advanced_2024.parquet
+      |           lineups_advanced_2025.parquet
+      |           lineups_advanced_2026.parquet
+      |           lineups_base_1997.parquet
+      |           lineups_base_1998.parquet
+      |           lineups_base_1999.parquet
+      |           lineups_base_2000.parquet
+      |           lineups_base_2001.parquet
+      |           lineups_base_2002.parquet
+      |           lineups_base_2003.parquet
+      |           lineups_base_2004.parquet
+      |           lineups_base_2005.parquet
+      |           lineups_base_2006.parquet
+      |           lineups_base_2007.parquet
+      |           lineups_base_2008.parquet
+      |           lineups_base_2009.parquet
+      |           lineups_base_2010.parquet
+      |           lineups_base_2011.parquet
+      |           lineups_base_2012.parquet
+      |           lineups_base_2013.parquet
+      |           lineups_base_2014.parquet
+      |           lineups_base_2015.parquet
+      |           lineups_base_2016.parquet
+      |           lineups_base_2017.parquet
+      |           lineups_base_2018.parquet
+      |           lineups_base_2019.parquet
+      |           lineups_base_2020.parquet
+      |           lineups_base_2021.parquet
+      |           lineups_base_2022.parquet
+      |           lineups_base_2023.parquet
+      |           lineups_base_2024.parquet
+      |           lineups_base_2025.parquet
+      |           lineups_base_2026.parquet
+      |           lineups_fourfactors_1997.parquet
+      |           lineups_fourfactors_1998.parquet
+      |           lineups_fourfactors_1999.parquet
+      |           lineups_fourfactors_2000.parquet
+      |           lineups_fourfactors_2001.parquet
+      |           lineups_fourfactors_2002.parquet
+      |           lineups_fourfactors_2003.parquet
+      |           lineups_fourfactors_2004.parquet
+      |           lineups_fourfactors_2005.parquet
+      |           lineups_fourfactors_2006.parquet
+      |           lineups_fourfactors_2007.parquet
+      |           lineups_fourfactors_2008.parquet
+      |           lineups_fourfactors_2009.parquet
+      |           lineups_fourfactors_2010.parquet
+      |           lineups_fourfactors_2011.parquet
+      |           lineups_fourfactors_2012.parquet
+      |           lineups_fourfactors_2013.parquet
+      |           lineups_fourfactors_2014.parquet
+      |           lineups_fourfactors_2015.parquet
+      |           lineups_fourfactors_2016.parquet
+      |           lineups_fourfactors_2017.parquet
+      |           lineups_fourfactors_2018.parquet
+      |           lineups_fourfactors_2019.parquet
+      |           lineups_fourfactors_2020.parquet
+      |           lineups_fourfactors_2021.parquet
+      |           lineups_fourfactors_2022.parquet
+      |           lineups_fourfactors_2023.parquet
+      |           lineups_fourfactors_2024.parquet
+      |           lineups_fourfactors_2025.parquet
+      |           lineups_fourfactors_2026.parquet
+      |           lineups_master_1997.parquet
+      |           lineups_master_1998.parquet
+      |           lineups_master_1999.parquet
+      |           lineups_master_2000.parquet
+      |           lineups_master_2001.parquet
+      |           lineups_master_2002.parquet
+      |           lineups_master_2003.parquet
+      |           lineups_master_2004.parquet
+      |           lineups_master_2005.parquet
+      |           lineups_master_2006.parquet
+      |           lineups_master_2007.parquet
+      |           lineups_master_2008.parquet
+      |           lineups_master_2009.parquet
+      |           lineups_master_2010.parquet
+      |           lineups_master_2011.parquet
+      |           lineups_master_2012.parquet
+      |           lineups_master_2013.parquet
+      |           lineups_master_2014.parquet
+      |           lineups_master_2015.parquet
+      |           lineups_master_2016.parquet
+      |           lineups_master_2017.parquet
+      |           lineups_master_2018.parquet
+      |           lineups_master_2019.parquet
+      |           lineups_master_2020.parquet
+      |           lineups_master_2021.parquet
+      |           lineups_master_2022.parquet
+      |           lineups_master_2023.parquet
+      |           lineups_master_2024.parquet
+      |           lineups_master_2025.parquet
+      |           lineups_master_2026.parquet
+      |           lineups_misc_1997.parquet
+      |           lineups_misc_1998.parquet
+      |           lineups_misc_1999.parquet
+      |           lineups_misc_2000.parquet
+      |           lineups_misc_2001.parquet
+      |           lineups_misc_2002.parquet
+      |           lineups_misc_2003.parquet
+      |           lineups_misc_2004.parquet
+      |           lineups_misc_2005.parquet
+      |           lineups_misc_2006.parquet
+      |           lineups_misc_2007.parquet
+      |           lineups_misc_2008.parquet
+      |           lineups_misc_2009.parquet
+      |           lineups_misc_2010.parquet
+      |           lineups_misc_2011.parquet
+      |           lineups_misc_2012.parquet
+      |           lineups_misc_2013.parquet
+      |           lineups_misc_2014.parquet
+      |           lineups_misc_2015.parquet
+      |           lineups_misc_2016.parquet
+      |           lineups_misc_2017.parquet
+      |           lineups_misc_2018.parquet
+      |           lineups_misc_2019.parquet
+      |           lineups_misc_2020.parquet
+      |           lineups_misc_2021.parquet
+      |           lineups_misc_2022.parquet
+      |           lineups_misc_2023.parquet
+      |           lineups_misc_2024.parquet
+      |           lineups_misc_2025.parquet
+      |           lineups_misc_2026.parquet
+      |           lineups_opponent_1997.parquet
+      |           lineups_opponent_1998.parquet
+      |           lineups_opponent_1999.parquet
+      |           lineups_opponent_2000.parquet
+      |           lineups_opponent_2001.parquet
+      |           lineups_opponent_2002.parquet
+      |           lineups_opponent_2003.parquet
+      |           lineups_opponent_2004.parquet
+      |           lineups_opponent_2005.parquet
+      |           lineups_opponent_2006.parquet
+      |           lineups_opponent_2007.parquet
+      |           lineups_opponent_2008.parquet
+      |           lineups_opponent_2009.parquet
+      |           lineups_opponent_2010.parquet
+      |           lineups_opponent_2011.parquet
+      |           lineups_opponent_2012.parquet
+      |           lineups_opponent_2013.parquet
+      |           lineups_opponent_2014.parquet
+      |           lineups_opponent_2015.parquet
+      |           lineups_opponent_2016.parquet
+      |           lineups_opponent_2017.parquet
+      |           lineups_opponent_2018.parquet
+      |           lineups_opponent_2019.parquet
+      |           lineups_opponent_2020.parquet
+      |           lineups_opponent_2021.parquet
+      |           lineups_opponent_2022.parquet
+      |           lineups_opponent_2023.parquet
+      |           lineups_opponent_2024.parquet
+      |           lineups_opponent_2025.parquet
+      |           lineups_opponent_2026.parquet
+      |           lineups_scoring_1997.parquet
+      |           lineups_scoring_1998.parquet
+      |           lineups_scoring_1999.parquet
+      |           lineups_scoring_2000.parquet
+      |           lineups_scoring_2001.parquet
+      |           lineups_scoring_2002.parquet
+      |           lineups_scoring_2003.parquet
+      |           lineups_scoring_2004.parquet
+      |           lineups_scoring_2005.parquet
+      |           lineups_scoring_2006.parquet
+      |           lineups_scoring_2007.parquet
+      |           lineups_scoring_2008.parquet
+      |           lineups_scoring_2009.parquet
+      |           lineups_scoring_2010.parquet
+      |           lineups_scoring_2011.parquet
+      |           lineups_scoring_2012.parquet
+      |           lineups_scoring_2013.parquet
+      |           lineups_scoring_2014.parquet
+      |           lineups_scoring_2015.parquet
+      |           lineups_scoring_2016.parquet
+      |           lineups_scoring_2017.parquet
+      |           lineups_scoring_2018.parquet
+      |           lineups_scoring_2019.parquet
+      |           lineups_scoring_2020.parquet
+      |           lineups_scoring_2021.parquet
+      |           lineups_scoring_2022.parquet
+      |           lineups_scoring_2023.parquet
+      |           lineups_scoring_2024.parquet
+      |           lineups_scoring_2025.parquet
+      |           lineups_scoring_2026.parquet
+      |           player_bio_1997.parquet
+      |           player_bio_1998.parquet
+      |           player_bio_1999.parquet
+      |           player_bio_2000.parquet
+      |           player_bio_2001.parquet
+      |           player_bio_2002.parquet
+      |           player_bio_2003.parquet
+      |           player_bio_2004.parquet
+      |           player_bio_2005.parquet
+      |           player_bio_2006.parquet
+      |           player_bio_2007.parquet
+      |           player_bio_2008.parquet
+      |           player_bio_2009.parquet
+      |           player_bio_2010.parquet
+      |           player_bio_2011.parquet
+      |           player_bio_2012.parquet
+      |           player_bio_2013.parquet
+      |           player_bio_2014.parquet
+      |           player_bio_2015.parquet
+      |           player_bio_2016.parquet
+      |           player_bio_2017.parquet
+      |           player_bio_2018.parquet
+      |           player_bio_2019.parquet
+      |           player_bio_2020.parquet
+      |           player_bio_2021.parquet
+      |           player_bio_2022.parquet
+      |           player_bio_2023.parquet
+      |           player_bio_2024.parquet
+      |           player_bio_2025.parquet
+      |           player_bio_2026.parquet
+      |           player_master_1997.parquet
+      |           player_master_1998.parquet
+      |           player_master_1999.parquet
+      |           player_master_2000.parquet
+      |           player_master_2001.parquet
+      |           player_master_2002.parquet
+      |           player_master_2003.parquet
+      |           player_master_2004.parquet
+      |           player_master_2005.parquet
+      |           player_master_2006.parquet
+      |           player_master_2007.parquet
+      |           player_master_2008.parquet
+      |           player_master_2009.parquet
+      |           player_master_2010.parquet
+      |           player_master_2011.parquet
+      |           player_master_2012.parquet
+      |           player_master_2013.parquet
+      |           player_master_2014.parquet
+      |           player_master_2015.parquet
+      |           player_master_2016.parquet
+      |           player_master_2017.parquet
+      |           player_master_2018.parquet
+      |           player_master_2019.parquet
+      |           player_master_2020.parquet
+      |           player_master_2021.parquet
+      |           player_master_2022.parquet
+      |           player_master_2023.parquet
+      |           player_master_2024.parquet
+      |           player_master_2025.parquet
+      |           player_master_2026.parquet
+      |           player_stats_advanced_1997.parquet
+      |           player_stats_advanced_1998.parquet
+      |           player_stats_advanced_1999.parquet
+      |           player_stats_advanced_2000.parquet
+      |           player_stats_advanced_2001.parquet
+      |           player_stats_advanced_2002.parquet
+      |           player_stats_advanced_2003.parquet
+      |           player_stats_advanced_2004.parquet
+      |           player_stats_advanced_2005.parquet
+      |           player_stats_advanced_2006.parquet
+      |           player_stats_advanced_2007.parquet
+      |           player_stats_advanced_2008.parquet
+      |           player_stats_advanced_2009.parquet
+      |           player_stats_advanced_2010.parquet
+      |           player_stats_advanced_2011.parquet
+      |           player_stats_advanced_2012.parquet
+      |           player_stats_advanced_2013.parquet
+      |           player_stats_advanced_2014.parquet
+      |           player_stats_advanced_2015.parquet
+      |           player_stats_advanced_2016.parquet
+      |           player_stats_advanced_2017.parquet
+      |           player_stats_advanced_2018.parquet
+      |           player_stats_advanced_2019.parquet
+      |           player_stats_advanced_2020.parquet
+      |           player_stats_advanced_2021.parquet
+      |           player_stats_advanced_2022.parquet
+      |           player_stats_advanced_2023.parquet
+      |           player_stats_advanced_2024.parquet
+      |           player_stats_advanced_2025.parquet
+      |           player_stats_advanced_2026.parquet
+      |           player_stats_base_1997.parquet
+      |           player_stats_base_1998.parquet
+      |           player_stats_base_1999.parquet
+      |           player_stats_base_2000.parquet
+      |           player_stats_base_2001.parquet
+      |           player_stats_base_2002.parquet
+      |           player_stats_base_2003.parquet
+      |           player_stats_base_2004.parquet
+      |           player_stats_base_2005.parquet
+      |           player_stats_base_2006.parquet
+      |           player_stats_base_2007.parquet
+      |           player_stats_base_2008.parquet
+      |           player_stats_base_2009.parquet
+      |           player_stats_base_2010.parquet
+      |           player_stats_base_2011.parquet
+      |           player_stats_base_2012.parquet
+      |           player_stats_base_2013.parquet
+      |           player_stats_base_2014.parquet
+      |           player_stats_base_2015.parquet
+      |           player_stats_base_2016.parquet
+      |           player_stats_base_2017.parquet
+      |           player_stats_base_2018.parquet
+      |           player_stats_base_2019.parquet
+      |           player_stats_base_2020.parquet
+      |           player_stats_base_2021.parquet
+      |           player_stats_base_2022.parquet
+      |           player_stats_base_2023.parquet
+      |           player_stats_base_2024.parquet
+      |           player_stats_base_2025.parquet
+      |           player_stats_base_2026.parquet
+      |           player_stats_defense_1997.parquet
+      |           player_stats_defense_1998.parquet
+      |           player_stats_defense_1999.parquet
+      |           player_stats_defense_2000.parquet
+      |           player_stats_defense_2001.parquet
+      |           player_stats_defense_2002.parquet
+      |           player_stats_defense_2003.parquet
+      |           player_stats_defense_2004.parquet
+      |           player_stats_defense_2005.parquet
+      |           player_stats_defense_2006.parquet
+      |           player_stats_defense_2007.parquet
+      |           player_stats_defense_2008.parquet
+      |           player_stats_defense_2009.parquet
+      |           player_stats_defense_2010.parquet
+      |           player_stats_defense_2011.parquet
+      |           player_stats_defense_2012.parquet
+      |           player_stats_defense_2013.parquet
+      |           player_stats_defense_2014.parquet
+      |           player_stats_defense_2015.parquet
+      |           player_stats_defense_2016.parquet
+      |           player_stats_defense_2017.parquet
+      |           player_stats_defense_2018.parquet
+      |           player_stats_defense_2019.parquet
+      |           player_stats_defense_2020.parquet
+      |           player_stats_defense_2021.parquet
+      |           player_stats_defense_2022.parquet
+      |           player_stats_defense_2023.parquet
+      |           player_stats_defense_2024.parquet
+      |           player_stats_defense_2025.parquet
+      |           player_stats_defense_2026.parquet
+      |           player_stats_misc_1997.parquet
+      |           player_stats_misc_1998.parquet
+      |           player_stats_misc_1999.parquet
+      |           player_stats_misc_2000.parquet
+      |           player_stats_misc_2001.parquet
+      |           player_stats_misc_2002.parquet
+      |           player_stats_misc_2003.parquet
+      |           player_stats_misc_2004.parquet
+      |           player_stats_misc_2005.parquet
+      |           player_stats_misc_2006.parquet
+      |           player_stats_misc_2007.parquet
+      |           player_stats_misc_2008.parquet
+      |           player_stats_misc_2009.parquet
+      |           player_stats_misc_2010.parquet
+      |           player_stats_misc_2011.parquet
+      |           player_stats_misc_2012.parquet
+      |           player_stats_misc_2013.parquet
+      |           player_stats_misc_2014.parquet
+      |           player_stats_misc_2015.parquet
+      |           player_stats_misc_2016.parquet
+      |           player_stats_misc_2017.parquet
+      |           player_stats_misc_2018.parquet
+      |           player_stats_misc_2019.parquet
+      |           player_stats_misc_2020.parquet
+      |           player_stats_misc_2021.parquet
+      |           player_stats_misc_2022.parquet
+      |           player_stats_misc_2023.parquet
+      |           player_stats_misc_2024.parquet
+      |           player_stats_misc_2025.parquet
+      |           player_stats_misc_2026.parquet
+      |           player_stats_scoring_1997.parquet
+      |           player_stats_scoring_1998.parquet
+      |           player_stats_scoring_1999.parquet
+      |           player_stats_scoring_2000.parquet
+      |           player_stats_scoring_2001.parquet
+      |           player_stats_scoring_2002.parquet
+      |           player_stats_scoring_2003.parquet
+      |           player_stats_scoring_2004.parquet
+      |           player_stats_scoring_2005.parquet
+      |           player_stats_scoring_2006.parquet
+      |           player_stats_scoring_2007.parquet
+      |           player_stats_scoring_2008.parquet
+      |           player_stats_scoring_2009.parquet
+      |           player_stats_scoring_2010.parquet
+      |           player_stats_scoring_2011.parquet
+      |           player_stats_scoring_2012.parquet
+      |           player_stats_scoring_2013.parquet
+      |           player_stats_scoring_2014.parquet
+      |           player_stats_scoring_2015.parquet
+      |           player_stats_scoring_2016.parquet
+      |           player_stats_scoring_2017.parquet
+      |           player_stats_scoring_2018.parquet
+      |           player_stats_scoring_2019.parquet
+      |           player_stats_scoring_2020.parquet
+      |           player_stats_scoring_2021.parquet
+      |           player_stats_scoring_2022.parquet
+      |           player_stats_scoring_2023.parquet
+      |           player_stats_scoring_2024.parquet
+      |           player_stats_scoring_2025.parquet
+      |           player_stats_scoring_2026.parquet
+      |           player_stats_usage_1997.parquet
+      |           player_stats_usage_1998.parquet
+      |           player_stats_usage_1999.parquet
+      |           player_stats_usage_2000.parquet
+      |           player_stats_usage_2001.parquet
+      |           player_stats_usage_2002.parquet
+      |           player_stats_usage_2003.parquet
+      |           player_stats_usage_2004.parquet
+      |           player_stats_usage_2005.parquet
+      |           player_stats_usage_2006.parquet
+      |           player_stats_usage_2007.parquet
+      |           player_stats_usage_2008.parquet
+      |           player_stats_usage_2009.parquet
+      |           player_stats_usage_2010.parquet
+      |           player_stats_usage_2011.parquet
+      |           player_stats_usage_2012.parquet
+      |           player_stats_usage_2013.parquet
+      |           player_stats_usage_2014.parquet
+      |           player_stats_usage_2015.parquet
+      |           player_stats_usage_2016.parquet
+      |           player_stats_usage_2017.parquet
+      |           player_stats_usage_2018.parquet
+      |           player_stats_usage_2019.parquet
+      |           player_stats_usage_2020.parquet
+      |           player_stats_usage_2021.parquet
+      |           player_stats_usage_2022.parquet
+      |           player_stats_usage_2023.parquet
+      |           player_stats_usage_2024.parquet
+      |           player_stats_usage_2025.parquet
+      |           player_stats_usage_2026.parquet
+      |           standings_1997.parquet
+      |           standings_1998.parquet
+      |           standings_1999.parquet
+      |           standings_2000.parquet
+      |           standings_2001.parquet
+      |           standings_2002.parquet
+      |           standings_2003.parquet
+      |           standings_2004.parquet
+      |           standings_2005.parquet
+      |           standings_2006.parquet
+      |           standings_2007.parquet
+      |           standings_2008.parquet
+      |           standings_2009.parquet
+      |           standings_2010.parquet
+      |           standings_2011.parquet
+      |           standings_2012.parquet
+      |           standings_2013.parquet
+      |           standings_2014.parquet
+      |           standings_2015.parquet
+      |           standings_2016.parquet
+      |           standings_2017.parquet
+      |           standings_2018.parquet
+      |           standings_2019.parquet
+      |           standings_2020.parquet
+      |           standings_2021.parquet
+      |           standings_2022.parquet
+      |           standings_2023.parquet
+      |           standings_2024.parquet
+      |           standings_2025.parquet
+      |           standings_2026.parquet
+      |           team_master_1997.parquet
+      |           team_master_1998.parquet
+      |           team_master_1999.parquet
+      |           team_master_2000.parquet
+      |           team_master_2001.parquet
+      |           team_master_2002.parquet
+      |           team_master_2003.parquet
+      |           team_master_2004.parquet
+      |           team_master_2005.parquet
+      |           team_master_2006.parquet
+      |           team_master_2007.parquet
+      |           team_master_2008.parquet
+      |           team_master_2009.parquet
+      |           team_master_2010.parquet
+      |           team_master_2011.parquet
+      |           team_master_2012.parquet
+      |           team_master_2013.parquet
+      |           team_master_2014.parquet
+      |           team_master_2015.parquet
+      |           team_master_2016.parquet
+      |           team_master_2017.parquet
+      |           team_master_2018.parquet
+      |           team_master_2019.parquet
+      |           team_master_2020.parquet
+      |           team_master_2021.parquet
+      |           team_master_2022.parquet
+      |           team_master_2023.parquet
+      |           team_master_2024.parquet
+      |           team_master_2025.parquet
+      |           team_master_2026.parquet
+      |           team_stats_advanced_1997.parquet
+      |           team_stats_advanced_1998.parquet
+      |           team_stats_advanced_1999.parquet
+      |           team_stats_advanced_2000.parquet
+      |           team_stats_advanced_2001.parquet
+      |           team_stats_advanced_2002.parquet
+      |           team_stats_advanced_2003.parquet
+      |           team_stats_advanced_2004.parquet
+      |           team_stats_advanced_2005.parquet
+      |           team_stats_advanced_2006.parquet
+      |           team_stats_advanced_2007.parquet
+      |           team_stats_advanced_2008.parquet
+      |           team_stats_advanced_2009.parquet
+      |           team_stats_advanced_2010.parquet
+      |           team_stats_advanced_2011.parquet
+      |           team_stats_advanced_2012.parquet
+      |           team_stats_advanced_2013.parquet
+      |           team_stats_advanced_2014.parquet
+      |           team_stats_advanced_2015.parquet
+      |           team_stats_advanced_2016.parquet
+      |           team_stats_advanced_2017.parquet
+      |           team_stats_advanced_2018.parquet
+      |           team_stats_advanced_2019.parquet
+      |           team_stats_advanced_2020.parquet
+      |           team_stats_advanced_2021.parquet
+      |           team_stats_advanced_2022.parquet
+      |           team_stats_advanced_2023.parquet
+      |           team_stats_advanced_2024.parquet
+      |           team_stats_advanced_2025.parquet
+      |           team_stats_advanced_2026.parquet
+      |           team_stats_base_1997.parquet
+      |           team_stats_base_1998.parquet
+      |           team_stats_base_1999.parquet
+      |           team_stats_base_2000.parquet
+      |           team_stats_base_2001.parquet
+      |           team_stats_base_2002.parquet
+      |           team_stats_base_2003.parquet
+      |           team_stats_base_2004.parquet
+      |           team_stats_base_2005.parquet
+      |           team_stats_base_2006.parquet
+      |           team_stats_base_2007.parquet
+      |           team_stats_base_2008.parquet
+      |           team_stats_base_2009.parquet
+      |           team_stats_base_2010.parquet
+      |           team_stats_base_2011.parquet
+      |           team_stats_base_2012.parquet
+      |           team_stats_base_2013.parquet
+      |           team_stats_base_2014.parquet
+      |           team_stats_base_2015.parquet
+      |           team_stats_base_2016.parquet
+      |           team_stats_base_2017.parquet
+      |           team_stats_base_2018.parquet
+      |           team_stats_base_2019.parquet
+      |           team_stats_base_2020.parquet
+      |           team_stats_base_2021.parquet
+      |           team_stats_base_2022.parquet
+      |           team_stats_base_2023.parquet
+      |           team_stats_base_2024.parquet
+      |           team_stats_base_2025.parquet
+      |           team_stats_base_2026.parquet
+      |           team_stats_defense_1997.parquet
+      |           team_stats_defense_1998.parquet
+      |           team_stats_defense_1999.parquet
+      |           team_stats_defense_2000.parquet
+      |           team_stats_defense_2001.parquet
+      |           team_stats_defense_2002.parquet
+      |           team_stats_defense_2003.parquet
+      |           team_stats_defense_2004.parquet
+      |           team_stats_defense_2005.parquet
+      |           team_stats_defense_2006.parquet
+      |           team_stats_defense_2007.parquet
+      |           team_stats_defense_2008.parquet
+      |           team_stats_defense_2009.parquet
+      |           team_stats_defense_2010.parquet
+      |           team_stats_defense_2011.parquet
+      |           team_stats_defense_2012.parquet
+      |           team_stats_defense_2013.parquet
+      |           team_stats_defense_2014.parquet
+      |           team_stats_defense_2015.parquet
+      |           team_stats_defense_2016.parquet
+      |           team_stats_defense_2017.parquet
+      |           team_stats_defense_2018.parquet
+      |           team_stats_defense_2019.parquet
+      |           team_stats_defense_2020.parquet
+      |           team_stats_defense_2021.parquet
+      |           team_stats_defense_2022.parquet
+      |           team_stats_defense_2023.parquet
+      |           team_stats_defense_2024.parquet
+      |           team_stats_defense_2025.parquet
+      |           team_stats_defense_2026.parquet
+      |           team_stats_fourfactors_1997.parquet
+      |           team_stats_fourfactors_1998.parquet
+      |           team_stats_fourfactors_1999.parquet
+      |           team_stats_fourfactors_2000.parquet
+      |           team_stats_fourfactors_2001.parquet
+      |           team_stats_fourfactors_2002.parquet
+      |           team_stats_fourfactors_2003.parquet
+      |           team_stats_fourfactors_2004.parquet
+      |           team_stats_fourfactors_2005.parquet
+      |           team_stats_fourfactors_2006.parquet
+      |           team_stats_fourfactors_2007.parquet
+      |           team_stats_fourfactors_2008.parquet
+      |           team_stats_fourfactors_2009.parquet
+      |           team_stats_fourfactors_2010.parquet
+      |           team_stats_fourfactors_2011.parquet
+      |           team_stats_fourfactors_2012.parquet
+      |           team_stats_fourfactors_2013.parquet
+      |           team_stats_fourfactors_2014.parquet
+      |           team_stats_fourfactors_2015.parquet
+      |           team_stats_fourfactors_2016.parquet
+      |           team_stats_fourfactors_2017.parquet
+      |           team_stats_fourfactors_2018.parquet
+      |           team_stats_fourfactors_2019.parquet
+      |           team_stats_fourfactors_2020.parquet
+      |           team_stats_fourfactors_2021.parquet
+      |           team_stats_fourfactors_2022.parquet
+      |           team_stats_fourfactors_2023.parquet
+      |           team_stats_fourfactors_2024.parquet
+      |           team_stats_fourfactors_2025.parquet
+      |           team_stats_fourfactors_2026.parquet
+      |           team_stats_misc_1997.parquet
+      |           team_stats_misc_1998.parquet
+      |           team_stats_misc_1999.parquet
+      |           team_stats_misc_2000.parquet
+      |           team_stats_misc_2001.parquet
+      |           team_stats_misc_2002.parquet
+      |           team_stats_misc_2003.parquet
+      |           team_stats_misc_2004.parquet
+      |           team_stats_misc_2005.parquet
+      |           team_stats_misc_2006.parquet
+      |           team_stats_misc_2007.parquet
+      |           team_stats_misc_2008.parquet
+      |           team_stats_misc_2009.parquet
+      |           team_stats_misc_2010.parquet
+      |           team_stats_misc_2011.parquet
+      |           team_stats_misc_2012.parquet
+      |           team_stats_misc_2013.parquet
+      |           team_stats_misc_2014.parquet
+      |           team_stats_misc_2015.parquet
+      |           team_stats_misc_2016.parquet
+      |           team_stats_misc_2017.parquet
+      |           team_stats_misc_2018.parquet
+      |           team_stats_misc_2019.parquet
+      |           team_stats_misc_2020.parquet
+      |           team_stats_misc_2021.parquet
+      |           team_stats_misc_2022.parquet
+      |           team_stats_misc_2023.parquet
+      |           team_stats_misc_2024.parquet
+      |           team_stats_misc_2025.parquet
+      |           team_stats_misc_2026.parquet
+      |           team_stats_opponent_1997.parquet
+      |           team_stats_opponent_1998.parquet
+      |           team_stats_opponent_1999.parquet
+      |           team_stats_opponent_2000.parquet
+      |           team_stats_opponent_2001.parquet
+      |           team_stats_opponent_2002.parquet
+      |           team_stats_opponent_2003.parquet
+      |           team_stats_opponent_2004.parquet
+      |           team_stats_opponent_2005.parquet
+      |           team_stats_opponent_2006.parquet
+      |           team_stats_opponent_2007.parquet
+      |           team_stats_opponent_2008.parquet
+      |           team_stats_opponent_2009.parquet
+      |           team_stats_opponent_2010.parquet
+      |           team_stats_opponent_2011.parquet
+      |           team_stats_opponent_2012.parquet
+      |           team_stats_opponent_2013.parquet
+      |           team_stats_opponent_2014.parquet
+      |           team_stats_opponent_2015.parquet
+      |           team_stats_opponent_2016.parquet
+      |           team_stats_opponent_2017.parquet
+      |           team_stats_opponent_2018.parquet
+      |           team_stats_opponent_2019.parquet
+      |           team_stats_opponent_2020.parquet
+      |           team_stats_opponent_2021.parquet
+      |           team_stats_opponent_2022.parquet
+      |           team_stats_opponent_2023.parquet
+      |           team_stats_opponent_2024.parquet
+      |           team_stats_opponent_2025.parquet
+      |           team_stats_opponent_2026.parquet
+      |           team_stats_scoring_1997.parquet
+      |           team_stats_scoring_1998.parquet
+      |           team_stats_scoring_1999.parquet
+      |           team_stats_scoring_2000.parquet
+      |           team_stats_scoring_2001.parquet
+      |           team_stats_scoring_2002.parquet
+      |           team_stats_scoring_2003.parquet
+      |           team_stats_scoring_2004.parquet
+      |           team_stats_scoring_2005.parquet
+      |           team_stats_scoring_2006.parquet
+      |           team_stats_scoring_2007.parquet
+      |           team_stats_scoring_2008.parquet
+      |           team_stats_scoring_2009.parquet
+      |           team_stats_scoring_2010.parquet
+      |           team_stats_scoring_2011.parquet
+      |           team_stats_scoring_2012.parquet
+      |           team_stats_scoring_2013.parquet
+      |           team_stats_scoring_2014.parquet
+      |           team_stats_scoring_2015.parquet
+      |           team_stats_scoring_2016.parquet
+      |           team_stats_scoring_2017.parquet
+      |           team_stats_scoring_2018.parquet
+      |           team_stats_scoring_2019.parquet
+      |           team_stats_scoring_2020.parquet
+      |           team_stats_scoring_2021.parquet
+      |           team_stats_scoring_2022.parquet
+      |           team_stats_scoring_2023.parquet
+      |           team_stats_scoring_2024.parquet
+      |           team_stats_scoring_2025.parquet
+      |           team_stats_scoring_2026.parquet
+      |
+      |---lineups
+      |   `---parquet
+      |           lineups_2026.parquet
+      |
+      |---metric_curves
+      |   `---parquet
+      |           metric_curves_1997.parquet
+      |           metric_curves_1998.parquet
+      |           metric_curves_1999.parquet
+      |           metric_curves_2000.parquet
+      |           metric_curves_2001.parquet
+      |           metric_curves_2002.parquet
+      |           metric_curves_2003.parquet
+      |           metric_curves_2004.parquet
+      |           metric_curves_2005.parquet
+      |           metric_curves_2006.parquet
+      |           metric_curves_2007.parquet
+      |           metric_curves_2008.parquet
+      |           metric_curves_2009.parquet
+      |           metric_curves_2010.parquet
+      |           metric_curves_2011.parquet
+      |           metric_curves_2012.parquet
+      |           metric_curves_2013.parquet
+      |           metric_curves_2014.parquet
+      |           metric_curves_2015.parquet
+      |           metric_curves_2016.parquet
+      |           metric_curves_2017.parquet
+      |           metric_curves_2018.parquet
+      |           metric_curves_2019.parquet
+      |           metric_curves_2020.parquet
+      |           metric_curves_2021.parquet
+      |           metric_curves_2022.parquet
+      |           metric_curves_2023.parquet
+      |           metric_curves_2024.parquet
+      |           metric_curves_2025.parquet
+      |           metric_curves_2026.parquet
+      |
+      |---officials
+      |   `---parquet
+      |           officials_2004.parquet
+      |           officials_2005.parquet
+      |           officials_2006.parquet
+      |           officials_2007.parquet
+      |           officials_2008.parquet
+      |           officials_2009.parquet
+      |           officials_2010.parquet
+      |           officials_2011.parquet
+      |           officials_2012.parquet
+      |           officials_2013.parquet
+      |           officials_2014.parquet
+      |           officials_2015.parquet
+      |           officials_2016.parquet
+      |           officials_2017.parquet
+      |           officials_2018.parquet
+      |           officials_2019.parquet
+      |           officials_2020.parquet
+      |           officials_2021.parquet
+      |           officials_2022.parquet
+      |           officials_2023.parquet
+      |           officials_2024.parquet
+      |           officials_2025.parquet
+      |           officials_2026.parquet
+      |
+      |---pbp
+      |   |---json
+      |   |       1022500277.json
+      |   |       1022500280.json
+      |   |       1022500282.json
+      |   |       1022500283.json
+      |   |       1022500284.json
+      |   |       1022500285.json
+      |   |       1022500286.json
+      |   |       1022600001.json
+      |   |       1022600002.json
+      |   |       1022600003.json
+      |   |       1022600004.json
+      |   |       1022600005.json
+      |   |       1022600006.json
+      |   |       1022600007.json
+      |   |       1022600008.json
+      |   |       1022600009.json
+      |   |       1022600010.json
+      |   |       1022600011.json
+      |   |       1022600012.json
+      |   |       1022600013.json
+      |   |       1022600014.json
+      |   |       1022600015.json
+      |   |       1022600016.json
+      |   |       1022600017.json
+      |   |       1022600018.json
+      |   |       1022600019.json
+      |   |       1022600020.json
+      |   |       1022600021.json
+      |   |       1022600022.json
+      |   |       1022600023.json
+      |   |       1022600024.json
+      |   |       1022600025.json
+      |   |       1022600026.json
+      |   |       1022600027.json
+      |   |       1022600028.json
+      |   |       1022600029.json
+      |   |       1022600030.json
+      |   |       1022600031.json
+      |   |       1022600032.json
+      |   |       1022600033.json
+      |   |       1022600034.json
+      |   |       1022600035.json
+      |   |       1022600036.json
+      |   |       1022600037.json
+      |   |       1022600038.json
+      |   |       1022600039.json
+      |   |       1022600040.json
+      |   |       1022600041.json
+      |   |       1022600042.json
+      |   |       1022600043.json
+      |   |       1022600044.json
+      |   |       1022600045.json
+      |   |       1022600046.json
+      |   |       1022600047.json
+      |   |       1022600048.json
+      |   |       1022600049.json
+      |   |       1022600050.json
+      |   |       1022600051.json
+      |   |       1022600052.json
+      |   |       1022600053.json
+      |   |       1022600054.json
+      |   |       1022600055.json
+      |   |       1022600056.json
+      |   |       1022600057.json
+      |   |       1022600058.json
+      |   |       1022600059.json
+      |   |       1022600060.json
+      |   |       1022600061.json
+      |   |       1022600062.json
+      |   |       1022600063.json
+      |   |       1022600064.json
+      |   |       1022600065.json
+      |   |       1022600066.json
+      |   |       1022600067.json
+      |   |       1022600068.json
+      |   |       1022600069.json
+      |   |       1022600070.json
+      |   |       1022600071.json
+      |   |       1022600072.json
+      |   |       1022600073.json
+      |   |       1022600074.json
+      |   |       1022600075.json
+      |   |       1022600076.json
+      |   |       1022600077.json
+      |   |       1022600078.json
+      |   |       1022600079.json
+      |   |       1022600080.json
+      |   |       1022600081.json
+      |   |       1022600082.json
+      |   |       1022600083.json
+      |   |       1022600084.json
+      |   |       1022600085.json
+      |   |       1022600086.json
+      |   |       1022600087.json
+      |   |       1022600088.json
+      |   |       1022600089.json
+      |   |       1022600090.json
+      |   |       1022600091.json
+      |   |       1022600092.json
+      |   |       1022600093.json
+      |   |       1022600094.json
+      |   |       1022600095.json
+      |   |       1022600096.json
+      |   |       1022600097.json
+      |   |       1022600098.json
+      |   |       1022600099.json
+      |   |       1022600100.json
+      |   |       1022600101.json
+      |   |       1022600102.json
+      |   |       1022600103.json
+      |   |       1022600104.json
+      |   |       1022600105.json
+      |   |       1022600106.json
+      |   |       1022600107.json
+      |   |       1022600108.json
+      |   |       1022600109.json
+      |   |       1022600110.json
+      |   |       1022600111.json
+      |   |       1022600112.json
+      |   |       1022600113.json
+      |   |       1022600114.json
+      |   |       1022600115.json
+      |   |       1022600116.json
+      |   |       1022600117.json
+      |   |       1022600118.json
+      |   |       1022600119.json
+      |   |       1022600120.json
+      |   |       1022600121.json
+      |   |       1022600122.json
+      |   |       1022600123.json
+      |   |       1022600124.json
+      |   |       1022600125.json
+      |   |       1022600126.json
+      |   |       1022600127.json
+      |   |       1022600128.json
+      |   |       1022600129.json
+      |   |       1022600130.json
+      |   |       1022600131.json
+      |   |       1022600132.json
+      |   |       1022600133.json
+      |   |       1022600134.json
+      |   |       1022600135.json
+      |   |       1022600136.json
+      |   |       1022600137.json
+      |   |       1022600138.json
+      |   |       1022600139.json
+      |   |       1022600140.json
+      |   |       1022600141.json
+      |   |       1022600142.json
+      |   |       1022600143.json
+      |   |       1022600144.json
+      |   |
+      |   `---parquet
+      |           play_by_play_2026.parquet
+      |           wnba_play_by_play_1997.parquet
+      |           wnba_play_by_play_1998.parquet
+      |           wnba_play_by_play_1999.parquet
+      |           wnba_play_by_play_2000.parquet
+      |           wnba_play_by_play_2001.parquet
+      |           wnba_play_by_play_2002.parquet
+      |           wnba_play_by_play_2003.parquet
+      |           wnba_play_by_play_2004.parquet
+      |           wnba_play_by_play_2005.parquet
+      |           wnba_play_by_play_2006.parquet
+      |           wnba_play_by_play_2007.parquet
+      |           wnba_play_by_play_2008.parquet
+      |           wnba_play_by_play_2009.parquet
+      |           wnba_play_by_play_2010.parquet
+      |           wnba_play_by_play_2011.parquet
+      |           wnba_play_by_play_2012.parquet
+      |           wnba_play_by_play_2013.parquet
+      |           wnba_play_by_play_2014.parquet
+      |           wnba_play_by_play_2015.parquet
+      |           wnba_play_by_play_2016.parquet
+      |           wnba_play_by_play_2017.parquet
+      |           wnba_play_by_play_2018.parquet
+      |           wnba_play_by_play_2019.parquet
+      |           wnba_play_by_play_2020.parquet
+      |           wnba_play_by_play_2021.parquet
+      |           wnba_play_by_play_2022.parquet
+      |           wnba_play_by_play_2023.parquet
+      |           wnba_play_by_play_2024.parquet
+      |           wnba_play_by_play_2025.parquet
+      |           wnba_play_by_play_2026.parquet
+      |
+      |---player_boxscores
+      |   `---parquet
+      |           player_boxscores_2026.parquet
+      |
+      |---player_game_logs
+      |   |---json
+      |   |       player_game_logs_2025.json
+      |   |       player_game_logs_2026.json
+      |   |
+      |   `---parquet
+      |           player_game_logs_1997.parquet
+      |           player_game_logs_1998.parquet
+      |           player_game_logs_1999.parquet
+      |           player_game_logs_2000.parquet
+      |           player_game_logs_2001.parquet
+      |           player_game_logs_2002.parquet
+      |           player_game_logs_2003.parquet
+      |           player_game_logs_2004.parquet
+      |           player_game_logs_2005.parquet
+      |           player_game_logs_2006.parquet
+      |           player_game_logs_2007.parquet
+      |           player_game_logs_2008.parquet
+      |           player_game_logs_2009.parquet
+      |           player_game_logs_2010.parquet
+      |           player_game_logs_2011.parquet
+      |           player_game_logs_2012.parquet
+      |           player_game_logs_2013.parquet
+      |           player_game_logs_2014.parquet
+      |           player_game_logs_2015.parquet
+      |           player_game_logs_2016.parquet
+      |           player_game_logs_2017.parquet
+      |           player_game_logs_2018.parquet
+      |           player_game_logs_2019.parquet
+      |           player_game_logs_2020.parquet
+      |           player_game_logs_2021.parquet
+      |           player_game_logs_2022.parquet
+      |           player_game_logs_2023.parquet
+      |           player_game_logs_2024.parquet
+      |           player_game_logs_2025.parquet
+      |           player_game_logs_2026.parquet
+      |
+      |---player_impact
+      |   |   wnba_player_impact_card.json
+      |   |
+      |   `---parquet
+      |           wnba_player_impact_1997.parquet
+      |           wnba_player_impact_1998.parquet
+      |           wnba_player_impact_1999.parquet
+      |           wnba_player_impact_2000.parquet
+      |           wnba_player_impact_2001.parquet
+      |           wnba_player_impact_2002.parquet
+      |           wnba_player_impact_2003.parquet
+      |           wnba_player_impact_2004.parquet
+      |           wnba_player_impact_2005.parquet
+      |           wnba_player_impact_2006.parquet
+      |           wnba_player_impact_2007.parquet
+      |           wnba_player_impact_2008.parquet
+      |           wnba_player_impact_2009.parquet
+      |           wnba_player_impact_2010.parquet
+      |           wnba_player_impact_2011.parquet
+      |           wnba_player_impact_2012.parquet
+      |           wnba_player_impact_2013.parquet
+      |           wnba_player_impact_2014.parquet
+      |           wnba_player_impact_2015.parquet
+      |           wnba_player_impact_2016.parquet
+      |           wnba_player_impact_2017.parquet
+      |           wnba_player_impact_2018.parquet
+      |           wnba_player_impact_2019.parquet
+      |           wnba_player_impact_2020.parquet
+      |           wnba_player_impact_2021.parquet
+      |           wnba_player_impact_2022.parquet
+      |           wnba_player_impact_2023.parquet
+      |           wnba_player_impact_2024.parquet
+      |           wnba_player_impact_2025.parquet
+      |           wnba_player_impact_2026.parquet
+      |
+      |---player_season_stats
+      |   `---parquet
+      |           player_season_stats_2026.parquet
+      |
+      |---possessions
+      |   `---parquet
+      |           wnba_possessions_1997.parquet
+      |           wnba_possessions_1998.parquet
+      |           wnba_possessions_1999.parquet
+      |           wnba_possessions_2000.parquet
+      |           wnba_possessions_2001.parquet
+      |           wnba_possessions_2002.parquet
+      |           wnba_possessions_2003.parquet
+      |           wnba_possessions_2004.parquet
+      |           wnba_possessions_2005.parquet
+      |           wnba_possessions_2006.parquet
+      |           wnba_possessions_2007.parquet
+      |           wnba_possessions_2008.parquet
+      |           wnba_possessions_2009.parquet
+      |           wnba_possessions_2010.parquet
+      |           wnba_possessions_2011.parquet
+      |           wnba_possessions_2012.parquet
+      |           wnba_possessions_2013.parquet
+      |           wnba_possessions_2014.parquet
+      |           wnba_possessions_2015.parquet
+      |           wnba_possessions_2016.parquet
+      |           wnba_possessions_2017.parquet
+      |           wnba_possessions_2018.parquet
+      |           wnba_possessions_2019.parquet
+      |           wnba_possessions_2020.parquet
+      |           wnba_possessions_2021.parquet
+      |           wnba_possessions_2022.parquet
+      |           wnba_possessions_2023.parquet
+      |           wnba_possessions_2024.parquet
+      |           wnba_possessions_2025.parquet
+      |           wnba_possessions_2026.parquet
+      |
+      |---rolling_windows
+      |   `---parquet
+      |           rolling_windows_1997.parquet
+      |           rolling_windows_1998.parquet
+      |           rolling_windows_1999.parquet
+      |           rolling_windows_2000.parquet
+      |           rolling_windows_2001.parquet
+      |           rolling_windows_2002.parquet
+      |           rolling_windows_2003.parquet
+      |           rolling_windows_2004.parquet
+      |           rolling_windows_2005.parquet
+      |           rolling_windows_2006.parquet
+      |           rolling_windows_2007.parquet
+      |           rolling_windows_2008.parquet
+      |           rolling_windows_2009.parquet
+      |           rolling_windows_2010.parquet
+      |           rolling_windows_2011.parquet
+      |           rolling_windows_2012.parquet
+      |           rolling_windows_2013.parquet
+      |           rolling_windows_2014.parquet
+      |           rolling_windows_2015.parquet
+      |           rolling_windows_2016.parquet
+      |           rolling_windows_2017.parquet
+      |           rolling_windows_2018.parquet
+      |           rolling_windows_2019.parquet
+      |           rolling_windows_2020.parquet
+      |           rolling_windows_2021.parquet
+      |           rolling_windows_2022.parquet
+      |           rolling_windows_2023.parquet
+      |           rolling_windows_2024.parquet
+      |           rolling_windows_2025.parquet
+      |           rolling_windows_2026.parquet
+      |
+      |---rosters
+      |   `---parquet
+      |           rosters_1997.parquet
+      |           rosters_1998.parquet
+      |           rosters_1999.parquet
+      |           rosters_2000.parquet
+      |           rosters_2001.parquet
+      |           rosters_2002.parquet
+      |           rosters_2003.parquet
+      |           rosters_2004.parquet
+      |           rosters_2005.parquet
+      |           rosters_2006.parquet
+      |           rosters_2007.parquet
+      |           rosters_2008.parquet
+      |           rosters_2009.parquet
+      |           rosters_2010.parquet
+      |           rosters_2011.parquet
+      |           rosters_2012.parquet
+      |           rosters_2013.parquet
+      |           rosters_2014.parquet
+      |           rosters_2015.parquet
+      |           rosters_2016.parquet
+      |           rosters_2017.parquet
+      |           rosters_2018.parquet
+      |           rosters_2019.parquet
+      |           rosters_2020.parquet
+      |           rosters_2021.parquet
+      |           rosters_2022.parquet
+      |           rosters_2023.parquet
+      |           rosters_2024.parquet
+      |           rosters_2025.parquet
+      |           rosters_2026.parquet
+      |
+      |---schedules
+      |   `---parquet
+      |           wnba_schedule_1997.parquet
+      |           wnba_schedule_1998.parquet
+      |           wnba_schedule_1999.parquet
+      |           wnba_schedule_2000.parquet
+      |           wnba_schedule_2001.parquet
+      |           wnba_schedule_2002.parquet
+      |           wnba_schedule_2003.parquet
+      |           wnba_schedule_2004.parquet
+      |           wnba_schedule_2005.parquet
+      |           wnba_schedule_2006.parquet
+      |           wnba_schedule_2007.parquet
+      |           wnba_schedule_2008.parquet
+      |           wnba_schedule_2009.parquet
+      |           wnba_schedule_2010.parquet
+      |           wnba_schedule_2011.parquet
+      |           wnba_schedule_2012.parquet
+      |           wnba_schedule_2013.parquet
+      |           wnba_schedule_2014.parquet
+      |           wnba_schedule_2015.parquet
+      |           wnba_schedule_2016.parquet
+      |           wnba_schedule_2017.parquet
+      |           wnba_schedule_2018.parquet
+      |           wnba_schedule_2019.parquet
+      |           wnba_schedule_2020.parquet
+      |           wnba_schedule_2021.parquet
+      |           wnba_schedule_2022.parquet
+      |           wnba_schedule_2023.parquet
+      |           wnba_schedule_2024.parquet
+      |           wnba_schedule_2025.parquet
+      |           wnba_schedule_2026.parquet
+      |           wnba_stats_schedule_1997.parquet
+      |           wnba_stats_schedule_1998.parquet
+      |           wnba_stats_schedule_1999.parquet
+      |           wnba_stats_schedule_2000.parquet
+      |           wnba_stats_schedule_2001.parquet
+      |           wnba_stats_schedule_2002.parquet
+      |           wnba_stats_schedule_2003.parquet
+      |           wnba_stats_schedule_2004.parquet
+      |           wnba_stats_schedule_2005.parquet
+      |           wnba_stats_schedule_2006.parquet
+      |           wnba_stats_schedule_2007.parquet
+      |           wnba_stats_schedule_2008.parquet
+      |           wnba_stats_schedule_2009.parquet
+      |           wnba_stats_schedule_2010.parquet
+      |           wnba_stats_schedule_2011.parquet
+      |           wnba_stats_schedule_2012.parquet
+      |           wnba_stats_schedule_2013.parquet
+      |           wnba_stats_schedule_2014.parquet
+      |           wnba_stats_schedule_2015.parquet
+      |           wnba_stats_schedule_2016.parquet
+      |           wnba_stats_schedule_2017.parquet
+      |           wnba_stats_schedule_2018.parquet
+      |           wnba_stats_schedule_2019.parquet
+      |           wnba_stats_schedule_2020.parquet
+      |           wnba_stats_schedule_2021.parquet
+      |           wnba_stats_schedule_2022.parquet
+      |           wnba_stats_schedule_2023.parquet
+      |           wnba_stats_schedule_2024.parquet
+      |           wnba_stats_schedule_2025.parquet
+      |           wnba_stats_schedule_2026.parquet
+      |
+      |---shots
+      |   `---parquet
+      |           shots_1997.parquet
+      |           shots_1998.parquet
+      |           shots_1999.parquet
+      |           shots_2000.parquet
+      |           shots_2001.parquet
+      |           shots_2002.parquet
+      |           shots_2003.parquet
+      |           shots_2004.parquet
+      |           shots_2005.parquet
+      |           shots_2006.parquet
+      |           shots_2007.parquet
+      |           shots_2008.parquet
+      |           shots_2009.parquet
+      |           shots_2010.parquet
+      |           shots_2011.parquet
+      |           shots_2012.parquet
+      |           shots_2013.parquet
+      |           shots_2014.parquet
+      |           shots_2015.parquet
+      |           shots_2016.parquet
+      |           shots_2017.parquet
+      |           shots_2018.parquet
+      |           shots_2019.parquet
+      |           shots_2020.parquet
+      |           shots_2021.parquet
+      |           shots_2022.parquet
+      |           shots_2023.parquet
+      |           shots_2024.parquet
+      |           shots_2025.parquet
+      |           shots_2026.parquet
+      |
+      |---standings
+      |   `---parquet
+      |           standings_2026.parquet
+      |
+      |---team_boxscores
+      |   `---parquet
+      |           team_boxscores_2026.parquet
+      |
+      `---team_season_stats
+          `---parquet
+                  team_season_stats_2026.parquet
+\end{lstlisting}
+\endgroup
 \noindent\textbf{Descripción de la tabla.}
 La Tabla~\ref{tab:fuentes_wehoop} muestra la función prevista de cada familia de archivos, sin asumir que sus registros pueden unirse directamente. Los eventos y las posesiones servirían para construir observaciones temporales; las estadísticas agregadas se emplearían como referencias y las individuales permitirían caracterizar jugadoras. Los diccionarios oficiales disponibles en la documentación del repositorio respaldan las denominaciones de \texttt{pbp}, \texttt{lineups}, \texttt{player\_season\_stats} y \texttt{shots} \cite{wehoopPbp,wehoopLineups,wehoopPlayerSeason,wehoopShots}. Los esquemas de \texttt{game\_lineups} y \texttt{possessions} aún requieren inspección directa.
