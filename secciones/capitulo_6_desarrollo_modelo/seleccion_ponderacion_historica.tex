@@ -27,109 +27,119 @@ Mejor quinteto&
 \bottomrule
 \end{longtable}
 
-\subsection{Selección y ponderación de la información histórica para la fase 1}
-De antemano no podemos asegurar que el beneficio del historial supere sus riesgos, y los pesos deben elegirse para mejorar el desempeño predictivo fuera de muestra, no para minimizar directamente un sesgo que se desconoce.
+\subsection{Alternativas de ponderación de los datos}
+\label{subsec:alternativas-ponderacion}
+La elección de las temporadas delimita la información disponible, pero no determina por sí misma la influencia que debe tener cada antecedente en la caracterización de las jugadoras. En la fase 1 se considerarán alternativas que distingan la antigüedad de las observaciones, el macrorrol de las participantes y las características estadísticas empleadas. Su comparación permitirá establecer si una mayor diferenciación mejora la estabilidad de los perfiles y la predicción del rendimiento, sin asumir que la alternativa más compleja será superior.
 
-Con base en la comparación anterior, se utilizarán inicialmente tres temporadas 2024, 2025 y 2026 para construir la primera fase, mientras que el análisis colectivo de la segunda fase se concentrará en la temporada objetivo 2026. La incorporación del historial busca ampliar las observaciones disponibles para las parejas de jugadoras oponentes, particularmente cuando su participación simultánea en una sola temporada sea limitada.
+Se distinguirán tres operaciones: la ponderación de observaciones históricas, la comparación condicionada por posición y la ponderación de características para el agrupamiento. Aunque pueden combinarse, no son equivalentes. Separar modelos o utilizar referencias por posición constituye una forma de contextualización; solo representa una ponderación en sentido estricto cuando se modifica explícitamente la contribución de registros o variables. Asimismo, estandarizar las escalas no equivale a aprender la importancia predictiva de cada indicador \cite{bishop2006pattern,huang2005variableweighting}.
 
-Sin embargo, los registros de distintas temporadas no se considerarán equivalentes. El desempeño de una jugadora puede cambiar junto con su rol, equipo, compañeras y condiciones competitivas. Por ello, la información histórica se incorporará mediante ponderación temporal y regularización. La utilidad de esta estrategia se comprobará mediante validación temporal y se propondrán otras técnicas de validación.
+Esta distinción resulta relevante porque las exigencias estadísticas varían entre posiciones. Gómez Ruano et al. analizaron jugadoras de la WNBA de 2005 y encontraron diferencias entre bases y pívots en asistencias, triples, rebotes y tapones, con valores intermedios para las aleros \cite{gomez2007posicioneswnba}. Este antecedente justifica examinar referencias específicas por macrorrol, pero sus resultados no se trasladarán automáticamente a las temporadas del proyecto. Un registro elevado de rebotes para un ala podrá describirse como un rasgo de su perfil estadístico; no permitirá inferir su estatura ni una asignación defensiva concreta.
 
-Como buscamos obtener las ponderaciones que maximicen la aproximación a la realidad esto también se convierte en un problema de optimización de pesos
+La unidad de análisis continuará siendo una observación dirigida por partido, jugadora focal y jugadora rival, delimitada a los intervalos de coincidencia en cancha. Las dos perspectivas de una pareja permanecerán vinculadas al mismo partido. Los identificadores, la fecha y los nombres de equipos conservarán su función de identificación y contexto; no se multiplicarán por ponderaciones. Las métricas de entrada se construirán con antecedentes anteriores al momento de predicción. La ponderación no convertirá la coincidencia en cancha en evidencia de defensa directa.
 
-La propuesta se estructura en tres componentes: cálculo de métricas comparables por temporada, ponderación de su antigüedad y estabilización de las estimaciones cuando existan pocas observaciones.
+La Tabla~\ref{tab:tipos-ponderacion-fase1} sintetiza los tres ejes que originan las alternativas posteriores. En este apartado se presentan sus fundamentos y aplicación prevista; no se establecen todavía coeficientes definitivos ni expresiones de cálculo.
 
-Se identificarón tres formas de aproximar las cuales se describen a continuación.
-Elegiremos solo dos para comparar al final del modelo. ¿por qué esta decisión?
+\begin{table}[htbp]
+\centering
+\small
+\caption{Ejes considerados para el tratamiento diferenciado de la información en la fase 1.}
+\label{tab:tipos-ponderacion-fase1}
+\begin{tabularx}{\textwidth}{@{}p{2.35cm}X@{}}
+\toprule
+\textbf{Eje} & \textbf{Interpretación en el proyecto}\\
+\midrule
+Temporada & Modificar la influencia de las observaciones según su antigüedad, conservando su exposición y contexto.\\
+Posición & Establecer referencias o parámetros condicionados a Guard, Wing y Big, sin confundir macrorrol con perfil funcional.\\
+Variable & Diferenciar la contribución de características al clustering. Como experimento separado, evaluar descuentos temporales distintos por métrica.\\
+\bottomrule
+\end{tabularx}
+\end{table}
 
-Ponderación de cada año.
-Ponderación de la importancia de cada variable para el dataset en general.
-Ponderación de la importancia de cada variable de acuerdo a la posición de la jugadora.
+% La profundidad de numeración se amplía solo para las subdivisiones de 6.1.2.
+\edef\profundidadAntesPonderacion{\number\value{secnumdepth}}
+\setcounter{secnumdepth}{3}
 
-Formas de aproximación derivadas que involucrán 2 o más formas de aproximación:
-Ponderación segmentada por año e importancia de la variable en general.
-Ponderación segmentada por año e importancia de la variable de acuerdo a la posición de la jugadora.
+\subsubsection{Ponderación por temporada}
+\label{subsubsec:ponderacion-temporada}
+La información antigua puede aportar observaciones adicionales, pero también describir una etapa distinta de la jugadora. Se considerará, por ello, una reducción progresiva de su influencia. Como antecedente metodológico, Dixon y Coles incorporaron ponderación temporal en un modelo de resultados de fútbol \cite{dixon1997scores}. Se recupera el principio de descontar información antigua, no sus parámetros ni una eficacia demostrada para la WNBA. En baloncesto femenino, Chen et al. advierten que las composiciones y características de las alineaciones pueden variar entre torneos \cite{Chen17122023}.
 
-\subsubsection*{1. Definición de la métrica por pareja y temporada}
-Antes de asignar pesos, se definirá por separado cada indicador de desempeño. Para una métrica expresada como un promedio por posesión:
-\[
-\overline y_{ab,s}=\frac{\sum_{i=1}^{n_{ab,s}}y_{ab,s,i}}{n_{ab,s}},\qquad n_{ab,s}>0.
-\]
-Donde:
+En el dataset, la temporada y la fecha permitirán asignar una influencia temporal a los antecedentes de cada pareja focal--rival. Los conteos y sus denominadores se agregarán de forma consistente: los aciertos de tiro se relacionarán con intentos y las tasas por posesión con sus posesiones elegibles. No se promediarán porcentajes sin considerar su exposición. Esta alternativa utilizará inicialmente un criterio de recencia compartido, sin diferencias por posición o variable. La ausencia de historial requerirá un tratamiento de referencia separado; asignar pesos no crea observaciones inexistentes.
 
-\begin{description}
-\item[$a$:] jugadora cuyo desempeño se analiza.
-\item[$b$:] jugadora oponente que se encuentra simultáneamente en cancha.
-\item[$s$:] temporada de procedencia de los registros.
-\item[$i$:] índice de una posesión elegible.
-\item[$n_{ab,s}$:] número de posesiones elegibles de la pareja durante la temporada ($s$).
-\item[$y_{ab,s,i}$:] valor del indicador en la posesión ($i$).
-\item[$\overline y_{ab,s}$:] promedio observado del indicador para esa pareja y temporada.
-\end{description}
+\subsubsection{Tratamiento condicionado por posición}
+\label{subsubsec:ponderacion-posicion}
+Se considerará la posición para evitar que una referencia global oculte diferencias funcionales. El estudio de Gómez Ruano et al. aporta evidencia específica de diferencias estadísticas por puesto en la WNBA \cite{gomez2007posicioneswnba}. No demuestra que deba premiarse automáticamente el rebote de las interiores ni penalizarse su menor número de asistencias; fundamenta la comparación dentro de un contexto posicional.
 
-Por ejemplo, para medir la anotación de ($a$), pueden considerarse las posesiones ofensivas de su equipo durante las cuales ambas jugadoras están en cancha. En ese caso, ($y_{ab,s,i}$) representa los puntos anotados por ($a$) en esa posesión, incluyendo cero cuando no anota.
+Se incorporarán los macrorroles de la focal y de la rival como categorías diferenciadas. Se comparará una referencia común con referencias por Guard, Wing y Big; adicionalmente, podrá evaluarse un modelo con parámetros condicionados al macrorrol frente a modelos separados. No se adoptarán todas estas opciones simultáneamente. Esta configuración no introduce descuento temporal ni pesos de características adicionales. Los grupos con pocos registros recurrirán a referencias más generales. La correspondencia entre posiciones originales y macrorroles se documentará, sin asumir que las etiquetas originales sean idénticas a la clasificación propuesta.
 
-La definición del denominador dependerá de cada indicador: una proporción de aciertos de tiro utiliza intentos, no posesiones. Por tanto, no se aplicará un mismo denominador indiscriminadamente a todas las estadísticas ni se combinarán directamente indicadores con unidades diferentes.
+\subsubsection{Ponderación por variable}
+\label{subsubsec:ponderacion-variable}
+Las características utilizadas para agrupar jugadoras pueden presentar escalas, redundancias y capacidades de diferenciación distintas. Huang et al. propusieron una extensión de k-means que estima pesos de variables durante el agrupamiento \cite{huang2005variableweighting}. Este antecedente sustenta estudiar pesos de características, pero no prueba que esos pesos identifiquen la aportación causal de una estadística al rendimiento deportivo.
 
-Estas métricas describen el desempeño durante la coexistencia de dos rivales en cancha; no permiten afirmar, por sí solas, que una haya defendido directamente a la otra.
+Yamada y Fujii distinguieron perfiles de tiro y de rol ofensivo mediante conjuntos de características diferentes y posteriormente emplearon información de los grupos en modelos de eficiencia \cite{yamada2024offensivelineupanalysisbasketball}. En el presente proyecto se considerarán únicamente variables disponibles, sin presuponer acceso a tracking o a tipos de jugada anotados. Para caracterizar estilos individuales se construirá una vista por jugadora y fecha de corte, evitando que una actuación repetida en varias filas rivales se contabilice como evidencia individual independiente. El perfil resultante se incorporará después a las filas dirigidas de comparación.
 
-\subsubsection*{2. Ponderación por recencia}
-Se propone una ponderación exponencial por temporada:
-\[
-w_s=\lambda^{T-s},\qquad 0<\lambda\leq 1.
-\]
-Donde:
-\begin{description}
-\item[$w_s$:] peso asignado a una observación de la temporada ($s$).
-\item[$T$:] temporada objetivo, en este caso 2026.
-\item[$s$:] temporada de la observación.
-\item[$\lambda$:] factor de conservación del peso histórico.
-\end{description}
-Para las tres temporadas seleccionadas:
-\[
-w_{2026}=1,\qquad w_{2025}=\lambda,\qquad w_{2024}=\lambda^2.
-\]
-Cuando ($\lambda=1$), las observaciones reciben el mismo peso temporal. Cuando ($\lambda$) se aproxima a cero, disminuye la influencia de las temporadas anteriores. Como ejemplo ilustrativo, ($\lambda=0.7$) produciría pesos de ($1$), ($0.7$) y ($0.49$); estos valores no se adoptarán sin evaluación.
+Se contrastará el clustering con características estandarizadas y sin pesos adicionales frente a una selección acotada de pesos aprendidos. Esta operación no implica construir un indicador global de rendimiento ni ponderar la variable objetivo. El aprendizaje de relaciones en la regresión posterior seguirá siendo una decisión diferenciada.
 
-El propósito de esta función es representar la hipótesis de que la información reciente resulta más pertinente para describir el desempeño actual. La validez de esa hipótesis y la intensidad del descuento se determinarán mediante validación.
+\subsubsection{Combinación por temporada y posición}
+\label{subsubsec:ponderacion-temporada-posicion}
+Se evaluará si la información reciente conserva una pertinencia distinta según el macrorrol. La combinación reúne el antecedente de ponderación temporal y la evidencia de heterogeneidad posicional \cite{dixon1997scores,gomez2007posicioneswnba}; constituye una hipótesis del proyecto, no un procedimiento validado por esos trabajos para parejas rivales de la WNBA.
 
-\subsubsection*{3. Estabilización mediante una referencia}
-La ponderación temporal no resuelve por sí sola la escasez de observaciones. Una pareja puede tener pocos antecedentes incluso después de incorporar tres temporadas. Para evitar que su estimación dependa excesivamente de resultados ocasionales, se propone:
-\[
-\widehat\theta_{ab}=\frac{\sum_{s=2024}^{2026}w_s n_{ab,s}\overline y_{ab,s}+\kappa\mu_{ab}}{\sum_{s=2024}^{2026}w_s n_{ab,s}+\kappa},\qquad \kappa>0.
-\]
-Donde:
-\begin{description}
-\item[$\widehat\theta_{ab}$:] estimación estabilizada del indicador para la pareja.
-\item[$w_s$:] ponderación temporal.
-\item[$n_{ab,s}$:] cantidad de observaciones elegibles.
-\item[$\overline y_{ab,s}$:] promedio observado por temporada.
-\item[$\mu_{ab}$:] valor de referencia para esa pareja, obtenido a partir de información de jugadoras con perfiles comparables.
-\item[$\kappa$:] parámetro que determina la intensidad del acercamiento hacia la referencia.
-\end{description}
+Como primera configuración se aplicará un descuento temporal común y se construirán referencias condicionadas al macrorrol. Solo si la cobertura lo permite se compararán descuentos diferentes para Guard, Wing y Big. Las columnas de temporada, fecha y macrorroles de ambas participantes permitirán distinguir estos contextos, manteniendo unidos los registros de cada partido. La fragmentación de la muestra y el incremento de parámetros deberán justificarse mediante resultados de validación.
 
-El producto ($w_s n_{ab,s}$) combina recencia y exposición. Así, una temporada con pocas observaciones no recibe automáticamente la misma influencia que otra con abundante participación compartida. El parámetro ($\kappa$) actúa como una cantidad equivalente de observaciones de referencia dentro del procedimiento de suavizado; no representa posesiones realmente disputadas. Valores mayores producen estimaciones más cercanas a ($\mu_{ab}$).
+\subsubsection{Combinación por temporada y variable}
+\label{subsubsec:ponderacion-temporada-variable}
+Se examinará si todas las métricas requieren el mismo horizonte histórico o si algunas se describen mejor con información más reciente. Los antecedentes de ponderación temporal y de pesos de características motivan esta comparación, pero no establecen qué indicadores son más persistentes en los datos del proyecto \cite{dixon1997scores,huang2005variableweighting}.
 
-Para interpretar la fórmula, se define:
-\[
-N_{ab}^{(w)}=\sum_{s=2024}^{2026}w_s n_{ab,s}.
-\]
-Esta cantidad es la exposición ponderada, no un número de observaciones independientes. Cuando ($N_{ab}^{(w)}>0$), la estimación puede escribirse como:
-\[
-\widehat\theta_{ab}=\rho_{ab}\overline y_{ab}^{(w)}+(1-\rho_{ab})\mu_{ab},
-\qquad
-\overline y_{ab}^{(w)}=\frac{\sum_s w_s n_{ab,s}\overline y_{ab,s}}{N_{ab}^{(w)}}.
-\]
-Aquí, ($\rho_{ab}$) determina cuánto influye el historial específico de la pareja frente a la referencia. Si la exposición ponderada es amplia respecto a ($\kappa$), predomina el historial de la pareja. Si es reducida, aumenta la influencia de la referencia.
+Se distinguirán dos experimentos. El primero construirá características con un descuento temporal común y posteriormente ponderará su contribución al clustering. El segundo permitirá descuentos temporales diferentes para un conjunto reducido de métricas, sin añadir simultáneamente pesos de características libres. En las filas focal--rival se conservarán los numeradores y denominadores necesarios para calcular cada antecedente. Esta separación permitirá identificar qué modificación aporta una mejora y limitar la cantidad de parámetros ajustables.
 
-La temporada actual dominará únicamente cuando su exposición sea suficientemente grande respecto al historial ponderado y al término de regularización. No bastará con que existan algunas observaciones recientes.
+\subsubsection{Combinación por posición y variable}
+\label{subsubsec:ponderacion-posicion-variable}
+Se considerará que las características útiles para distinguir estilos pueden variar entre macrorroles. Las diferencias posicionales y la posibilidad de estimar pesos de características proporcionan antecedentes independientes para formular esta alternativa \cite{gomez2007posicioneswnba,huang2005variableweighting}. La asignación concreta de pesos deberá verificarse con los datos, sin imponer que una estadística sea importante únicamente por corresponder a una expectativa tradicional del puesto.
 
-\subsubsection*{4. Tratamiento de parejas sin historial}
-Se distinguirán los siguientes casos:
-\begin{longtable}{@{}p{6cm}p{7cm}@{}}
-\toprule \textbf{Información disponible}&\textbf{Tratamiento propuesto}\\\midrule\endhead
-Observaciones actuales e históricas&Combinar ambos periodos mediante ponderación temporal y suavizado.\\
-Sin observaciones actuales, pero con historial&Utilizar el historial descontado por antigüedad y estabilizado hacia la referencia.\\
-Sin historial de la pareja, pero con registros individuales&Utilizar una referencia construida con los perfiles de ambas jugadoras.\\
-Jugadora debutante con información insuficiente&Utilizar una referencia más general, basada en atributos disponibles o, en último término, en el promedio de la población de referencia.\\
+En la vista individual se comparará una representación común con otra que permita referencias o pesos de características por Guard, Wing y Big. Posteriormente, los perfiles de la focal y de la rival se incorporarán como categorías a cada comparación. Si el clustering se ajusta por separado en cada macrorrol, sus etiquetas se identificarán junto con el grupo de origen: un número de cluster no tendrá un significado universal ni un orden de calidad. Esta alternativa no incorporará descuento temporal adicional.
+
+\subsubsection{Combinación por temporada, posición y variable}
+\label{subsubsec:ponderacion-temporada-posicion-variable}
+La configuración conjunta permitirá estudiar si la caracterización mejora al considerar simultáneamente recencia, macrorrol y contribución de las características. Los antecedentes anteriores sustentan sus componentes por separado; la utilidad de integrarlos constituye una propuesta experimental del presente trabajo.
+
+Su evaluación quedará condicionada a que las alternativas simples demuestren una cobertura suficiente y un beneficio verificable. En el dataset se construirán antecedentes temporales por pareja, referencias posicionales y características individuales para el clustering. Los parámetros se compartirán entre grupos cuando resulte necesario y se limitarán las combinaciones ensayadas. No se ajustará un conjunto independiente de pesos para cada jugadora o pareja. Esta opción presenta la mayor carga de selección y podrá descartarse si sus mejoras son pequeñas o inestables.
+
+\subsubsection{Comparación y criterios de selección}
+\label{subsubsec:comparacion-ponderaciones}
+La Tabla~\ref{tab:comparacion-ponderaciones-fase1} presenta una valoración metodológica preliminar de las alternativas. Las categorías de riesgo y complejidad son relativas al número de parámetros y a la fragmentación prevista de la muestra; no constituyen resultados experimentales ni propiedades universales de cada método.
+
+\begingroup
+\small
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{longtable}{@{}p{2.4cm}p{2.85cm}p{1.95cm}p{2.05cm}p{3.15cm}@{}}
+\caption{Comparación preliminar de las alternativas de ponderación y contextualización.}\label{tab:comparacion-ponderaciones-fase1}\\
+\toprule
+\textbf{Alternativa} & \textbf{Propósito principal} & \textbf{Comple\-jidad} & \textbf{Riesgo de sobreajuste} & \textbf{Limitación principal}\\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Alternativa} & \textbf{Propósito principal} & \textbf{Comple\-jidad} & \textbf{Riesgo de sobreajuste} & \textbf{Limitación principal}\\
+\midrule
+\endhead
+Temporada & Priorizar antecedentes recientes. & Baja & Bajo relativo & Puede perder información útil al descontar registros antiguos.\\
+\midrule
+Posición & Comparar dentro de contextos funcionales. & Media & Medio & Puede fragmentar la muestra y ocultar jugadoras versátiles.\\
+\midrule
+Variable & Diferenciar características del clustering. & Media & Medio & Los pesos pueden adaptarse al ruido o a características redundantes.\\
+\midrule
+Temporada y posición & Combinar recencia y referencias posicionales. & Media & Medio a alto & Los descuentos por grupo requieren suficiente historial.\\
+\midrule
+Temporada y variable & Diferenciar representación o recencia por métrica. & Media a alta & Medio a alto & Aumenta el número de configuraciones y dificulta atribuir mejoras.\\
+\midrule
+Posición y variable & Distinguir características dentro de cada macrorrol. & Alta & Alto relativo & Puede producir perfiles poco comparables entre grupos pequeños.\\
+\midrule
+Temporada, posición y variable & Integrar los tres ejes. & Alta & Alto relativo & Requiere mayor cobertura, control de parámetros e interpretación.\\
 \bottomrule
 \end{longtable}
+\endgroup
+
+Se conservará como referencia un procedimiento con escalamiento común y sin ponderaciones adicionales. Las alternativas se incorporarán de manera incremental y se evaluarán mediante estabilidad e interpretación de perfiles, error predictivo y cobertura de parejas. Una mejora del clustering no se considerará suficiente si no aporta utilidad a la predicción posterior. La elección se realizará con bloques cronológicos de validación y se comprobará una sola vez en el conjunto de prueba reservado.
+
+Los parámetros de escalamiento, las referencias por posición, los pesos y el clustering se estimarán exclusivamente con información de entrenamiento anterior al momento de predicción \cite{sklearnCommonPitfallsPonderacion}. Esta restricción también se aplicará al enriquecimiento de la fase 2. El ajuste de hiperparámetros se desarrollará dentro de la etapa experimental prevista por la metodología en cascada y se documentará como parte de sus entregables.
+
+\setcounter{secnumdepth}{\profundidadAntesPonderacion}
