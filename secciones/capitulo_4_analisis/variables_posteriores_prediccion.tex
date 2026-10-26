@@ -1,0 +1,34 @@
+Las variables de este apartado describen lo que ocurrirá después del corte de predicción. En los datos históricos se conservarán para reconstruir actuaciones, calcular las respuestas y evaluar los modelos; su presencia retrospectiva no las convierte en entradas disponibles para una recomendación. Esta distinción es particularmente importante al buscar el quinteto con mayor Net Rating esperado.
+
+\begingroup
+\small
+\setstretch{1.0}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{5.0cm}>{\raggedright\arraybackslash}p{1.9cm}>{\raggedright\arraybackslash}p{7.7cm}@{}}
+\caption{Información posterior al corte: observaciones y respuestas, no entradas anticipadas.}\label{tab:variables_posteriores}\\
+\toprule\textbf{Variable}&\textbf{Tipo}&\textbf{Descripción}\\\midrule\endfirsthead
+\multicolumn{3}{l}{\small Continuación de la Tabla~\ref{tab:variables_posteriores}}\\
+\toprule\textbf{Variable}&\textbf{Tipo}&\textbf{Descripción}\\\midrule\endhead
+\midrule\multicolumn{3}{r}{\small Continúa en la siguiente página}\\\endfoot
+\bottomrule\endlastfoot
+\texttt{shared\_\allowbreak minutes} & Decimal & Tiempo que las dos jugadoras realmente compartirán durante el partido objetivo. Es exposición observada posterior; no se conoce antes del encuentro.\\
+\texttt{focal\_\allowbreak off\_\allowbreak poss, rival\_\allowbreak off\_\allowbreak poss} & Entero & Posesiones que realmente tendrán los equipos durante la coincidencia futura.\\
+\texttt{focal\_\allowbreak pts, rival\_\allowbreak pts} & Entero & Puntos individuales que se anotarán durante los intervalos futuros de coincidencia.\\
+\texttt{focal\_\allowbreak fgm, focal\_\allowbreak fga, rival\_\allowbreak fgm, rival\_\allowbreak fga} & Entero & Tiros de campo acertados e intentados en esos intervalos.\\
+\texttt{focal\_\allowbreak 3pm, focal\_\allowbreak 3pa, rival\_\allowbreak 3pm, rival\_\allowbreak 3pa} & Entero & Aciertos e intentos de triple futuros.\\
+\texttt{focal\_\allowbreak ftm, focal\_\allowbreak fta, rival\_\allowbreak ftm, rival\_\allowbreak fta} & Entero & Aciertos e intentos de tiro libre futuros.\\
+\texttt{focal\_\allowbreak ast, rival\_\allowbreak ast, focal\_\allowbreak tov, rival\_\allowbreak tov} & Entero & Asistencias y pérdidas que ocurrirán después del corte.\\
+\texttt{focal\_\allowbreak oreb, focal\_\allowbreak dreb, rival\_\allowbreak oreb, rival\_\allowbreak dreb} & Entero & Rebotes individuales futuros de ambas jugadoras.\\
+\texttt{focal\_\allowbreak stl, focal\_\allowbreak blk, focal\_\allowbreak pf, rival\_\allowbreak stl, rival\_\allowbreak blk, rival\_\allowbreak pf} & Entero & Robos, tapones y faltas que se registrarán durante la coincidencia futura.\\
+\texttt{focal\_\allowbreak 3p\_\allowbreak pct, rival\_\allowbreak 3p\_\allowbreak pct, focal\_\allowbreak efg\_\allowbreak pct, rival\_\allowbreak efg\_\allowbreak pct, focal\_\allowbreak ts\_\allowbreak pct, rival\_\allowbreak ts\_\allowbreak pct} & Decimal & Eficiencias calculadas con los resultados del propio encuentro objetivo, todavía desconocidos.\\
+\texttt{target\_\allowbreak gmsc\_\allowbreak adjusted, target\_\allowbreak delta\_\allowbreak gmsc\_\allowbreak adjusted} & Decimal & Respuestas individuales candidatas de la fase 1: se observan o calculan después del partido, aunque el modelo pueda predecirlas antes.\\
+\texttt{stint\_\allowbreak seconds, score\_\allowbreak margin\_\allowbreak end} & Numérico & Duración y diferencia de marcador al cierre del intervalo futuro del quinteto.\\
+\texttt{focal\_\allowbreak team\_\allowbreak pts, rival\_\allowbreak team\_\allowbreak pts} & Entero & Puntos colectivos del intervalo futuro que se desea evaluar.\\
+\texttt{target\_\allowbreak net\_\allowbreak rating} & Decimal & Respuesta colectiva observada de la fase 2. Su valor futuro es desconocido; el modelo estima una predicción con las características previas.\\
+\texttt{final\_\allowbreak score, game\_\allowbreak result} & Numérico / categoría & Marcador final y resultado del partido. Si se conservan para auditoría, no se utilizarán como entradas anticipadas.\\
+\end{longtable}
+\endgroup
+No se completarán estas variables futuras con medias para construir una supuesta actuación del encuentro. Se utilizarán características históricas con nombres diferenciados, obtenidas con datos anteriores, o predicciones de una fase precedente. Imputar una característica histórica ausente es una operación distinta de reemplazar por una media la respuesta futura que se busca predecir \cite{sklearnCommonPitfallsPonderacion}.
+
+La salida \texttt{predicted\_net\_rating} se distinguirá de \texttt{target\_net\_rating}: la primera es una estimación del modelo y la segunda un resultado observado utilizado para evaluación. El procedimiento comparará las estimaciones de los quintetos válidos, conservando restricciones de disponibilidad. Esta selección no vuelve observable el rendimiento de las combinaciones que nunca se utilizaron; la incertidumbre y la cobertura deberán reportarse. La definición de qué se conoce, qué se calcula y qué se predice quedará fijada en este diseño antes de ejecutar la preparación y los experimentos.

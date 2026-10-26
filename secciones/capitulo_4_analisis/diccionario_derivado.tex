@@ -1,56 +1,178 @@
-A diferencia de las variables de origen, los campos de las Tablas~\ref{tab:stints_wnba} y \ref{tab:coincidencias_wnba} forman parte del diseño de los datos procesados del proyecto. Se pretende generarlos mediante cruces y operaciones sobre registros históricos; por tanto, su presencia no está garantizada en los archivos Parquet originales.
+La tabla maestra conservará la información necesaria para describir las coincidencias entre rivales, verificar su procedencia y construir posteriormente las entradas de los modelos. No será una matriz que se entregue íntegramente a un algoritmo. Su granularidad será partido, jugadora focal y jugadora rival, con estadísticas restringidas a los intervalos en que ambas estuvieron simultáneamente en cancha. La clave compuesta será \texttt{game\_id}, \texttt{focal\_player\_id} y \texttt{rival\_player\_id}; la fecha se conservará como contexto y control temporal. Por pareja se admitirán las dos perspectivas dirigidas, sin que ello implique dos observaciones independientes ni una asignación defensiva directa.
 
-{\small
+Se utilizará \texttt{rival\_} para identificar a la oponente. En la implementación se homologará a esta convención el prefijo anterior \texttt{opponent\_}. Los nombres de jugadoras serán campos de consulta; las uniones se realizarán mediante identificadores. Los datos originales se preservarán y cada transformación se documentará. En la metodología en cascada, este apartado establece el diseño y los requisitos de información; su construcción y validación se ejecutarán en preprocesamiento, y los perfiles se aprenderán durante el desarrollo del modelo.
+
+\subsubsection*{Procedencia y enriquecimiento de los atributos}
+La revisión del repositorio de código incluyó la documentación y la lectura de cinco archivos Parquet de 2026: \texttt{rosters}, \texttt{player\_bio}, \texttt{play\_by\_play}, \texttt{wnba\_possessions} y \texttt{wnba\_stats\_schedule}. En la copia revisada, las plantillas contienen \texttt{height}, \texttt{birth\_date}, \texttt{age}, \texttt{exp} y \texttt{position}; la información biográfica también contiene \texttt{player\_height\_inches}. No se requiere un identificador de estatura: \texttt{size\_cm} será una magnitud numérica derivada, no una clave de origen \cite{repositorioDatosTT,datosTTRosters}.
+
+La estatura se convertirá a centímetros, multiplicando las pulgadas por 2.54 o interpretando pies y pulgadas de \texttt{height}. La edad se calculará en años cumplidos a la fecha del partido a partir del nacimiento, evitando trasladar una edad de cierre de temporada a partidos anteriores. La experiencia se representará como número entero de temporadas WNBA previas informado por la fuente: \texttt{R} se transformará en 0 y las cadenas numéricas en enteros. El valor 1 indicará una temporada previa, no que sea debutante. Esta variable no medirá continuidad de años calendario ni experiencia en otras ligas. La codificación numérica permite conservar su orden sin crear una categoría por cada año; no obliga a imponer una relación lineal con el rendimiento.
+
+En el archivo de plantillas de 2026 se observó una estatura nula. Los atributos biográficos faltantes se contrastarán primero con los otros conjuntos del repositorio y, si no pueden recuperarse, se completarán manualmente con una ficha oficial identificable, registrando fuente y fecha. No se inventarán valores ni se considerará que todas las temporadas presentan la misma cobertura. Los campos derivados se calcularán mediante procesamiento y los clusters mediante aprendizaje; ninguno se completará manualmente como si fuera una medición de origen.
+
+\begingroup
+\small
+\setstretch{1.0}
+\setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{1.15}
-\begin{longtable}{@{}p{3.8cm}p{1.7cm}p{6.9cm}@{}}
-\caption{Variables propuestas para identificar intervalos entre sustituciones.}\label{tab:stints_wnba}\\
-\toprule \textbf{Variable} & \textbf{Tipo} & \textbf{Procedimiento de obtención}\\\midrule\endfirsthead
-\multicolumn{3}{l}{\small Continuación de la Tabla~\ref{tab:stints_wnba}}\\
-\toprule\textbf{Variable}&\textbf{Tipo}&\textbf{Procedimiento de obtención}\\\midrule\endhead
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{5.0cm}>{\raggedright\arraybackslash}p{1.9cm}>{\raggedright\arraybackslash}p{7.7cm}@{}}
+\caption{Tabla maestra: identificación y contexto del encuentro.}\label{tab:maestra_identificacion}\\
+\toprule\textbf{Variable}&\textbf{Tipo}&\textbf{Descripción}\\\midrule\endfirsthead
+\multicolumn{3}{l}{\small Continuación de la Tabla~\ref{tab:maestra_identificacion}}\\
+\toprule\textbf{Variable}&\textbf{Tipo}&\textbf{Descripción}\\\midrule\endhead
 \midrule\multicolumn{3}{r}{\small Continúa en la siguiente página}\\\endfoot
 \bottomrule\endlastfoot
-\texttt{stint\_id}&Texto&Identificador generado para el intervalo en el que no cambia ninguno de los quintetos.\\
-\texttt{start\_clock}&Tiempo&Tiempo restante cuando inicia el intervalo.\\
-\texttt{end\_clock}&Tiempo&Tiempo restante al concluir el intervalo.\\
-\texttt{stint\_seconds}&Decimal&Duración, en segundos, después de normalizar el reloj y el periodo.\\
-\texttt{home\_team\_id}&ID&Equipo local del encuentro.\\
-\texttt{away\_team\_id}&ID&Equipo visitante del encuentro.\\
-\texttt{score\_margin\_start}&Entero&Diferencia entre marcadores al inicio.\\
-\texttt{score\_margin\_end}&Entero&Diferencia entre marcadores al cierre.\\
-\texttt{focal\_lineup}&Conjunto&Cinco identificadores del quinteto propio, cuando puedan reconstruirse.\\
-\texttt{opponent\_lineup}&Conjunto&Cinco identificadores de las rivales, cuando puedan reconstruirse.\\
+\texttt{game\_\allowbreak id} & Texto (ID) & Identificador original del partido; se conserva como texto para no perder ceros iniciales. Origen: eventos y calendario.\\
+\texttt{date} & Fecha & Fecha efectiva del encuentro, normalizada desde \texttt{game\_\allowbreak date} del calendario; no es la fecha de descarga.\\
+\texttt{season} & Entero & Año de la temporada, por ejemplo 2026. No representa experiencia.\\
+\texttt{matchup\_\allowbreak id} & Texto (ID) & Clave derivada de los dos equipos con orden local--visitante. Puede repetirse en distintos partidos; no sustituye a \texttt{game\_\allowbreak id}.\\
+\texttt{home\_\allowbreak team\_\allowbreak id} & ID & Equipo local, obtenido del calendario y contrastado con la localía de eventos.\\
+\texttt{away\_\allowbreak team\_\allowbreak id} & ID & Equipo visitante. Se adopta este nombre en lugar de \texttt{team\_\allowbreak away\_\allowbreak id} para mantener una convención única.\\
+\texttt{focal\_\allowbreak player\_\allowbreak id} & ID & Jugadora cuyo rendimiento describe la fila; procede de \texttt{player\_\allowbreak id} o \texttt{person\_\allowbreak id}, homologados.\\
+\texttt{rival\_\allowbreak player\_\allowbreak id} & ID & Jugadora del otro equipo que comparte cancha con la focal.\\
+\texttt{focal\_\allowbreak player\_\allowbreak name} & Texto & Nombre de consulta asociado al identificador focal; procede de plantillas o eventos.\\
+\texttt{rival\_\allowbreak player\_\allowbreak name} & Texto & Nombre de consulta asociado al identificador rival.\\
+\texttt{focal\_\allowbreak team\_\allowbreak id} & ID & Equipo de la focal en ese partido; se verifica con los registros del encuentro, considerando transferencias.\\
+\texttt{rival\_\allowbreak team\_\allowbreak id} & ID & Equipo de la rival en ese partido.\\
+\texttt{focal\_\allowbreak is\_\allowbreak home} & Binario & 1 si la focal pertenece al equipo local y 0 en caso contrario. No se añade \texttt{away\_\allowbreak game} redundante; la localía administrativa no garantiza ventaja en sedes neutrales.\\
+\texttt{focal\_\allowbreak rest\_\allowbreak days} & Entero & Días calendario completos sin partido desde el encuentro anterior de su equipo: diferencia de fechas menos uno, con mínimo cero. Derivado del calendario; no representa descanso individual efectivo.\\
+\texttt{rival\_\allowbreak rest\_\allowbreak days} & Entero & Misma definición para el equipo rival. Si no existe partido previo disponible se conserva como faltante.\\
 \end{longtable}
-}
+\endgroup
 
-\noindent\textbf{Descripción de la tabla.}
-La Tabla~\ref{tab:stints_wnba} define la estructura propuesta para analizar segmentos del partido durante los cuales se mantienen las mismas diez jugadoras. Esta unidad permitiría asociar marcador, duración y quintetos; sin embargo, su construcción depende de reconstruir correctamente sustituciones y otras interrupciones de juego. Los campos temporales y los identificadores de quinteto son derivados, no columnas documentadas como tales en \texttt{pbp} \cite{wehoopPbp}.
-
-\medskip
-
-{\small
+\begingroup
+\small
+\setstretch{1.0}
+\setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{1.15}
-\begin{longtable}{@{}p{3.8cm}p{1.7cm}p{6.9cm}@{}}
-\caption{Variables propuestas para coincidencias contextuales entre jugadoras rivales.}\label{tab:coincidencias_wnba}\\
-\toprule\textbf{Variable}&\textbf{Tipo}&\textbf{Procedimiento de obtención}\\\midrule\endfirsthead
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{5.0cm}>{\raggedright\arraybackslash}p{1.9cm}>{\raggedright\arraybackslash}p{7.7cm}@{}}
+\caption{Tabla maestra: atributos de las participantes y perfiles por aprender.}\label{tab:maestra_atributos}\\
+\toprule\textbf{Variable}&\textbf{Tipo}&\textbf{Descripción}\\\midrule\endfirsthead
+\multicolumn{3}{l}{\small Continuación de la Tabla~\ref{tab:maestra_atributos}}\\
+\toprule\textbf{Variable}&\textbf{Tipo}&\textbf{Descripción}\\\midrule\endhead
+\midrule\multicolumn{3}{r}{\small Continúa en la siguiente página}\\\endfoot
+\bottomrule\endlastfoot
+\texttt{focal\_\allowbreak birth\_\allowbreak date} & Fecha & Fecha de nacimiento de la jugadora focal, tomada de \texttt{birth\_\allowbreak date}; atributo auxiliar para calcular edad.\\
+\texttt{focal\_\allowbreak age} & Entero & Edad en años cumplidos de la jugadora focal a la fecha del partido, calculada a partir del nacimiento.\\
+\texttt{focal\_\allowbreak size\_\allowbreak cm} & Decimal & Estatura en centímetros de la jugadora focal, convertida desde height o \texttt{player\_\allowbreak height\_\allowbreak inches}. Recuperación manual documentada solo si falta en las fuentes disponibles.\\
+\texttt{focal\_\allowbreak experience\_\allowbreak years} & Entero & Temporadas WNBA previas de la jugadora focal, desde exp: R se convierte en 0. Los faltantes no se convierten automáticamente en debutantes.\\
+\texttt{focal\_\allowbreak position} & Categoría & Posición nominal de la jugadora focal registrada en position, incluidas etiquetas híbridas. Si falta, se consultará manualmente una ficha oficial.\\
+\texttt{focal\_\allowbreak role} & Categoría & Macrorrol Guard, Wing o Big de la jugadora focal. Se deriva de la posición mediante reglas documentadas; los casos ambiguos se revisarán manualmente sin usar el resultado del partido.\\
+\texttt{focal\_\allowbreak cluster} & Categoría, nullable & Perfil estadístico de la jugadora focal. Columna inicialmente vacía; se llenará después del clustering con antecedentes anteriores a la fecha de corte. La etiqueta no implica orden de calidad ni posición nominal.\\
+\texttt{rival\_\allowbreak birth\_\allowbreak date} & Fecha & Fecha de nacimiento de la jugadora rival, tomada de \texttt{birth\_\allowbreak date}; atributo auxiliar para calcular edad.\\
+\texttt{rival\_\allowbreak age} & Entero & Edad en años cumplidos de la jugadora rival a la fecha del partido, calculada a partir del nacimiento.\\
+\texttt{rival\_\allowbreak size\_\allowbreak cm} & Decimal & Estatura en centímetros de la jugadora rival, convertida desde height o \texttt{player\_\allowbreak height\_\allowbreak inches}. Recuperación manual documentada solo si falta en las fuentes disponibles.\\
+\texttt{rival\_\allowbreak experience\_\allowbreak years} & Entero & Temporadas WNBA previas de la jugadora rival, desde exp: R se convierte en 0. Los faltantes no se convierten automáticamente en debutantes.\\
+\texttt{rival\_\allowbreak position} & Categoría & Posición nominal de la jugadora rival registrada en position, incluidas etiquetas híbridas. Si falta, se consultará manualmente una ficha oficial.\\
+\texttt{rival\_\allowbreak role} & Categoría & Macrorrol Guard, Wing o Big de la jugadora rival. Se deriva de la posición mediante reglas documentadas; los casos ambiguos se revisarán manualmente sin usar el resultado del partido.\\
+\texttt{rival\_\allowbreak cluster} & Categoría, nullable & Perfil estadístico de la jugadora rival. Columna inicialmente vacía; se llenará después del clustering con antecedentes anteriores a la fecha de corte. La etiqueta no implica orden de calidad ni posición nominal.\\
+\end{longtable}
+\endgroup
+Se adoptan los nombres \texttt{focal\_cluster} y \texttt{rival\_cluster}. Cada campo almacena una etiqueta de perfil; no representa el algoritmo de clustering. El número de grupos no se fijará en el diccionario: se determinará en la etapa de modelado. Estos perfiles describirán estilos estadísticos, como creación o tendencia de tiro, cuando los grupos permitan esa interpretación; no se identificarán automáticamente con Guard, Wing o Big. Su significado deberá examinarse después del ajuste \cite{yamada2024offensivelineupanalysisbasketball}.
+
+\begingroup
+\small
+\setstretch{1.0}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{5.0cm}>{\raggedright\arraybackslash}p{1.9cm}>{\raggedright\arraybackslash}p{7.7cm}@{}}
+\caption{Tabla maestra: exposición compartida y control de coincidencias.}\label{tab:coincidencias_wnba}\\
+\toprule\textbf{Variable}&\textbf{Tipo}&\textbf{Descripción}\\\midrule\endfirsthead
 \multicolumn{3}{l}{\small Continuación de la Tabla~\ref{tab:coincidencias_wnba}}\\
-\toprule\textbf{Variable}&\textbf{Tipo}&\textbf{Procedimiento de obtención}\\\midrule\endhead
+\toprule\textbf{Variable}&\textbf{Tipo}&\textbf{Descripción}\\\midrule\endhead
 \midrule\multicolumn{3}{r}{\small Continúa en la siguiente página}\\\endfoot
 \bottomrule\endlastfoot
-\texttt{focal\_player\_id}&ID&Identificador de jugadora del equipo analizado presente en el intervalo.\\
-\texttt{opponent\_player\_id}&ID&Identificador de jugadora rival presente simultáneamente.\\
-\texttt{focal\_role}&Categoría&Perfil funcional Guard, Wing o Big asignado mediante el análisis.\\
-\texttt{opponent\_role}&Categoría&Perfil de la jugadora rival.\\
-\texttt{compatible\_roles}&Binario&Indicador de compatibilidad de perfiles según la regla que se valide.\\
-\texttt{focal\_starter}&Binario&Indica si la jugadora comenzó el encuentro, cuando pueda comprobarse.\\
-\texttt{opponent\_starter}&Binario&Titularidad de la jugadora rival.\\
-\texttt{shared\_seconds}&Decimal&Segundos de coincidencia dentro del intervalo.\\
-\texttt{shared\_possessions}&Entero&Posesiones reconstruidas mientras ambas están en cancha.\\
-\texttt{focal\_off\_possessions}&Entero&Posesiones ofensivas propias durante esa coincidencia.\\
-\texttt{focal\_def\_possessions}&Entero&Posesiones defensivas durante la coincidencia.\\
-\texttt{shared\_seconds\_game}&Decimal&Suma de segundos de coincidencia en un encuentro.\\
-\texttt{shared\_possessions\_game}&Entero&Suma de posesiones coincidentes en un encuentro.\\
+\texttt{shared\_\allowbreak minutes} & Decimal & Minutos de coincidencia acumulados en el partido; se derivan de intervalos reconstruidos, sin duplicar eventos ni tiempos.\\
+\texttt{focal\_\allowbreak off\_\allowbreak poss} & Entero & Posesiones ofensivas del equipo focal durante la coincidencia. Se parte de \texttt{offense\_\allowbreak team\_\allowbreak id} y \texttt{count\_\allowbreak as\_\allowbreak possession} del archivo de posesiones, verificando las sustituciones en sus límites.\\
+\texttt{rival\_\allowbreak off\_\allowbreak poss} & Entero & Posesiones ofensivas del equipo rival durante la coincidencia; corresponden a la exposición defensiva del equipo focal.\\
+\texttt{shared\_\allowbreak possessions} & Entero & Suma de \texttt{focal\_\allowbreak off\_\allowbreak poss} y \texttt{rival\_\allowbreak off\_\allowbreak poss} conforme a la convención de posesiones elegibles; no es un conteo de duelos defensivos individuales.\\
+\texttt{pair\_\allowbreak games\_\allowbreak observed} & Entero & Indicador auxiliar de auditoría de antecedentes: cantidad de partidos previos con coincidencia. Para usarlo como predictor se calculará antes de la fecha de corte.\\
 \end{longtable}
-}
+\endgroup
 
-\noindent\textbf{Descripción de la tabla.}
-La Tabla~\ref{tab:coincidencias_wnba} especifica las observaciones necesarias para una comparación contextual individual: cuánto tiempo coincidieron dos rivales y qué ocurrió durante ese periodo. La presencia simultánea no implica que una jugadora defendiera directamente a la otra. Los perfiles y la compatibilidad también deben calcularse; las estadísticas por intervalo no podrán tomarse de los totales de temporada sin procesar.
+\begingroup
+\small
+\setstretch{1.0}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{5.0cm}>{\raggedright\arraybackslash}p{1.9cm}>{\raggedright\arraybackslash}p{7.7cm}@{}}
+\caption{Tabla maestra: estadísticas observadas y respuestas candidatas.}\label{tab:maestra_observados}\\
+\toprule\textbf{Variable}&\textbf{Tipo}&\textbf{Descripción}\\\midrule\endfirsthead
+\multicolumn{3}{l}{\small Continuación de la Tabla~\ref{tab:maestra_observados}}\\
+\toprule\textbf{Variable}&\textbf{Tipo}&\textbf{Descripción}\\\midrule\endhead
+\midrule\multicolumn{3}{r}{\small Continúa en la siguiente página}\\\endfoot
+\bottomrule\endlastfoot
+\texttt{focal\_\allowbreak pts} & Entero & Puntos anotados. Conteo de la focal exclusivamente durante los intervalos compartidos. Derivado de eventos, no copiado del total de partido o temporada.\\
+\texttt{focal\_\allowbreak fgm} & Entero & Tiros de campo acertados, incluidos triples. Conteo de la focal exclusivamente durante los intervalos compartidos. Derivado de eventos, no copiado del total de partido o temporada.\\
+\texttt{focal\_\allowbreak fga} & Entero & Intentos de tiro de campo, incluidos triples. Conteo de la focal exclusivamente durante los intervalos compartidos. Derivado de eventos, no copiado del total de partido o temporada.\\
+\texttt{focal\_\allowbreak 3pm} & Entero & Triples acertados. Conteo de la focal exclusivamente durante los intervalos compartidos. Derivado de eventos, no copiado del total de partido o temporada.\\
+\texttt{focal\_\allowbreak 3pa} & Entero & Intentos de triple. Conteo de la focal exclusivamente durante los intervalos compartidos. Derivado de eventos, no copiado del total de partido o temporada.\\
+\texttt{focal\_\allowbreak ftm} & Entero & Tiros libres acertados. Conteo de la focal exclusivamente durante los intervalos compartidos. Derivado de eventos, no copiado del total de partido o temporada.\\
+\texttt{focal\_\allowbreak fta} & Entero & Intentos de tiro libre. Conteo de la focal exclusivamente durante los intervalos compartidos. Derivado de eventos, no copiado del total de partido o temporada.\\
+\texttt{focal\_\allowbreak ast} & Entero & Asistencias identificables en los eventos. Conteo de la focal exclusivamente durante los intervalos compartidos. Derivado de eventos, no copiado del total de partido o temporada.\\
+\texttt{focal\_\allowbreak tov} & Entero & Pérdidas atribuidas a la jugadora. Conteo de la focal exclusivamente durante los intervalos compartidos. Derivado de eventos, no copiado del total de partido o temporada.\\
+\texttt{focal\_\allowbreak oreb} & Entero & Rebotes ofensivos individuales. Conteo de la focal exclusivamente durante los intervalos compartidos. Derivado de eventos, no copiado del total de partido o temporada.\\
+\texttt{focal\_\allowbreak dreb} & Entero & Rebotes defensivos individuales. Conteo de la focal exclusivamente durante los intervalos compartidos. Derivado de eventos, no copiado del total de partido o temporada.\\
+\texttt{focal\_\allowbreak stl} & Entero & Robos atribuidos a la jugadora. Conteo de la focal exclusivamente durante los intervalos compartidos. Derivado de eventos, no copiado del total de partido o temporada.\\
+\texttt{focal\_\allowbreak blk} & Entero & Tapones atribuidos a la jugadora. Conteo de la focal exclusivamente durante los intervalos compartidos. Derivado de eventos, no copiado del total de partido o temporada.\\
+\texttt{focal\_\allowbreak pf} & Entero & Faltas personales atribuidas a la jugadora. Conteo de la focal exclusivamente durante los intervalos compartidos. Derivado de eventos, no copiado del total de partido o temporada.\\
+\texttt{focal\_\allowbreak 3p\_\allowbreak pct} & Decimal & Proporción de triples acertados sobre intentos de triple. Se deriva de los conteos compartidos; un denominador nulo produce un faltante, no un cero. Las proporciones se almacenarán en escala de 0 a 1.\\
+\texttt{focal\_\allowbreak efg\_\allowbreak pct} & Decimal & Eficiencia de tiro de campo que incorpora el valor adicional de los triples. Se deriva de los conteos compartidos; un denominador nulo produce un faltante, no un cero. Las proporciones se almacenarán en escala de 0 a 1.\\
+\texttt{focal\_\allowbreak ts\_\allowbreak pct} & Decimal & Eficiencia de anotación que combina puntos, intentos de campo y tiros libres; se documentará la convención de cálculo. Se deriva de los conteos compartidos; un denominador nulo produce un faltante, no un cero. Las proporciones se almacenarán en escala de 0 a 1.\\
+\texttt{rival\_\allowbreak pts} & Entero & Puntos anotados. Conteo de la rival exclusivamente durante los intervalos compartidos. Derivado de eventos, no copiado del total de partido o temporada.\\
+\texttt{rival\_\allowbreak fgm} & Entero & Tiros de campo acertados, incluidos triples. Conteo de la rival exclusivamente durante los intervalos compartidos. Derivado de eventos, no copiado del total de partido o temporada.\\
+\texttt{rival\_\allowbreak fga} & Entero & Intentos de tiro de campo, incluidos triples. Conteo de la rival exclusivamente durante los intervalos compartidos. Derivado de eventos, no copiado del total de partido o temporada.\\
+\texttt{rival\_\allowbreak 3pm} & Entero & Triples acertados. Conteo de la rival exclusivamente durante los intervalos compartidos. Derivado de eventos, no copiado del total de partido o temporada.\\
+\texttt{rival\_\allowbreak 3pa} & Entero & Intentos de triple. Conteo de la rival exclusivamente durante los intervalos compartidos. Derivado de eventos, no copiado del total de partido o temporada.\\
+\texttt{rival\_\allowbreak ftm} & Entero & Tiros libres acertados. Conteo de la rival exclusivamente durante los intervalos compartidos. Derivado de eventos, no copiado del total de partido o temporada.\\
+\texttt{rival\_\allowbreak fta} & Entero & Intentos de tiro libre. Conteo de la rival exclusivamente durante los intervalos compartidos. Derivado de eventos, no copiado del total de partido o temporada.\\
+\texttt{rival\_\allowbreak ast} & Entero & Asistencias identificables en los eventos. Conteo de la rival exclusivamente durante los intervalos compartidos. Derivado de eventos, no copiado del total de partido o temporada.\\
+\texttt{rival\_\allowbreak tov} & Entero & Pérdidas atribuidas a la jugadora. Conteo de la rival exclusivamente durante los intervalos compartidos. Derivado de eventos, no copiado del total de partido o temporada.\\
+\texttt{rival\_\allowbreak oreb} & Entero & Rebotes ofensivos individuales. Conteo de la rival exclusivamente durante los intervalos compartidos. Derivado de eventos, no copiado del total de partido o temporada.\\
+\texttt{rival\_\allowbreak dreb} & Entero & Rebotes defensivos individuales. Conteo de la rival exclusivamente durante los intervalos compartidos. Derivado de eventos, no copiado del total de partido o temporada.\\
+\texttt{rival\_\allowbreak stl} & Entero & Robos atribuidos a la jugadora. Conteo de la rival exclusivamente durante los intervalos compartidos. Derivado de eventos, no copiado del total de partido o temporada.\\
+\texttt{rival\_\allowbreak blk} & Entero & Tapones atribuidos a la jugadora. Conteo de la rival exclusivamente durante los intervalos compartidos. Derivado de eventos, no copiado del total de partido o temporada.\\
+\texttt{rival\_\allowbreak pf} & Entero & Faltas personales atribuidas a la jugadora. Conteo de la rival exclusivamente durante los intervalos compartidos. Derivado de eventos, no copiado del total de partido o temporada.\\
+\texttt{rival\_\allowbreak 3p\_\allowbreak pct} & Decimal & Proporción de triples acertados sobre intentos de triple. Se deriva de los conteos compartidos; un denominador nulo produce un faltante, no un cero. Las proporciones se almacenarán en escala de 0 a 1.\\
+\texttt{rival\_\allowbreak efg\_\allowbreak pct} & Decimal & Eficiencia de tiro de campo que incorpora el valor adicional de los triples. Se deriva de los conteos compartidos; un denominador nulo produce un faltante, no un cero. Las proporciones se almacenarán en escala de 0 a 1.\\
+\texttt{rival\_\allowbreak ts\_\allowbreak pct} & Decimal & Eficiencia de anotación que combina puntos, intentos de campo y tiros libres; se documentará la convención de cálculo. Se deriva de los conteos compartidos; un denominador nulo produce un faltante, no un cero. Las proporciones se almacenarán en escala de 0 a 1.\\
+\texttt{target\_\allowbreak gmsc\_\allowbreak adjusted} & Decimal & Respuesta candidata: Game Score de la focal calculado durante la coincidencia y normalizado por una exposición definida. Su fórmula y denominador se fijarán antes de experimentar; no es una columna original ni una corrección integral de la defensa.\\
+\texttt{target\_\allowbreak delta\_\allowbreak gmsc\_\allowbreak adjusted} & Decimal & Respuesta alternativa: diferencia entre las tasas de Game Score de ambas jugadoras, bajo la misma convención. Se comparará con la respuesta principal, sin utilizar ambas como predictores de sí mismas.\\
+\end{longtable}
+\endgroup
+La conservación de conteos y tasas permite auditar y recalcular los indicadores; no implica introducirlos todos como predictores. Algunas características son matemáticamente dependientes o redundantes. La selección de entradas evitará duplicaciones y se ajustará exclusivamente con entrenamiento. Tampoco se asumirán disponibles desvíos, defensora asignada o tiros concedidos por una marca concreta: esos campos no aparecen en los esquemas de eventos revisados.
+
+\subsubsection*{Tabla auxiliar de intervalos}
+La tabla maestra por pareja y partido se construirá a partir de una tabla auxiliar de intervalos con quintetos constantes. Esta relación conservará el detalle necesario para agregar las coincidencias de la fase 1 y calcular respuestas colectivas de la fase 2. Los archivos de posesiones revisados contienen identificadores de cinco atacantes y cinco defensoras por registro; su presencia facilita la reconstrucción, pero no garantiza que una sustitución intermedia o una frontera de posesión pueda ignorarse. Se contrastarán esos identificadores con la secuencia de eventos \cite{repositorioDatosTT,datosTTPbp}.
+
+\begingroup
+\small
+\setstretch{1.0}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{5.0cm}>{\raggedright\arraybackslash}p{1.9cm}>{\raggedright\arraybackslash}p{7.7cm}@{}}
+\caption{Relación auxiliar de intervalos para reconstrucción y evaluación colectiva.}\label{tab:stints_wnba}\\
+\toprule\textbf{Variable}&\textbf{Tipo}&\textbf{Descripción}\\\midrule\endfirsthead
+\multicolumn{3}{l}{\small Continuación de la Tabla~\ref{tab:stints_wnba}}\\
+\toprule\textbf{Variable}&\textbf{Tipo}&\textbf{Descripción}\\\midrule\endhead
+\midrule\multicolumn{3}{r}{\small Continúa en la siguiente página}\\\endfoot
+\bottomrule\endlastfoot
+\texttt{game\_\allowbreak id} & Texto (ID) & Partido al que pertenece el intervalo.\\
+\texttt{stint\_\allowbreak id} & Texto (ID) & Clave generada para un intervalo sin cambios en ninguno de los dos quintetos.\\
+\texttt{period} & Entero & Periodo del partido; permite distinguir relojes iguales de cuartos diferentes.\\
+\texttt{start\_\allowbreak clock} & Tiempo & Reloj del periodo al inicio del intervalo.\\
+\texttt{end\_\allowbreak clock} & Tiempo & Reloj al cierre del intervalo.\\
+\texttt{stint\_\allowbreak seconds} & Decimal & Duración del intervalo tras normalizar reloj y periodo.\\
+\texttt{home\_\allowbreak team\_\allowbreak id} & ID & Equipo local del encuentro.\\
+\texttt{away\_\allowbreak team\_\allowbreak id} & ID & Equipo visitante del encuentro.\\
+\texttt{score\_\allowbreak margin\_\allowbreak start} & Entero & Marcador focal menos rival al inicio del intervalo; es información del partido en curso.\\
+\texttt{score\_\allowbreak margin\_\allowbreak end} & Entero & Diferencia de marcador al cierre; todavía desconocida al recomendar el intervalo.\\
+\texttt{focal\_\allowbreak lineup} & Conjunto de ID & Cinco identificadores del quinteto propio.\\
+\texttt{opponent\_\allowbreak lineup} & Conjunto de ID & Cinco identificadores rivales; se conserva el nombre de la relación auxiliar existente.\\
+\texttt{focal\_\allowbreak off\_\allowbreak poss} & Entero & Posesiones ofensivas propias elegibles del intervalo.\\
+\texttt{rival\_\allowbreak off\_\allowbreak poss} & Entero & Posesiones ofensivas rivales elegibles del intervalo.\\
+\texttt{focal\_\allowbreak team\_\allowbreak pts} & Entero & Puntos del equipo focal en el intervalo.\\
+\texttt{rival\_\allowbreak team\_\allowbreak pts} & Entero & Puntos del rival en el intervalo.\\
+\texttt{target\_\allowbreak net\_\allowbreak rating} & Decimal & Diferencia entre eficiencias ofensiva y defensiva por 100 posesiones del intervalo. Se calcula después de observarlo; requiere denominadores positivos.\\
+\end{longtable}
+\endgroup
+Los datos biográficos completados manualmente conservarán, en una relación auxiliar por jugadora y atributo, \texttt{player\_id}, \texttt{attribute\_name}, \texttt{attribute\_value}, \texttt{source\_url}, \texttt{retrieved\_at} y \texttt{valid\_from}, cuando esta última pueda establecerse. La misma trazabilidad se aplicará a decisiones manuales de macrorrol. No se asignarán manualmente clusters ni resultados de rendimiento. Las correcciones no se propagarán automáticamente a temporadas para las que no exista respaldo.

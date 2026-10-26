@@ -1,0 +1,82 @@
+La tabla de entrada a la fase 1 será una vista temporal derivada de la tabla maestra. Mantendrá una fila por partido objetivo, jugadora focal y jugadora rival, pero separará tres componentes: claves de trazabilidad, matriz de características disponibles antes de la predicción y respuesta observada utilizada solo para entrenar o evaluar. Las filas nuevas de recomendación no tendrán respuesta conocida. La fecha de corte será anterior al inicio del partido en la primera versión estática.
+
+Se conservarán los identificadores para unir datos y devolver resultados; no se tratarán como magnitudes continuas. La inclusión de identidades o equipos como predictores categóricos requerirá una decisión de modelado explícita y manejo de categorías nuevas. Las variables históricas, identificadas con \texttt{hist\_}, se construirán exclusivamente con encuentros anteriores al corte y con la ponderación descrita en el capítulo 6. No serán las estadísticas que la jugadora terminará obteniendo en el partido objetivo.
+
+\begingroup
+\small
+\setstretch{1.0}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{5.0cm}>{\raggedright\arraybackslash}p{1.9cm}>{\raggedright\arraybackslash}p{7.7cm}@{}}
+\caption{Tabla de la fase 1: claves y atributos previos al encuentro.}\label{tab:entrada_fase1_atributos}\\
+\toprule\textbf{Variable}&\textbf{Tipo}&\textbf{Descripción}\\\midrule\endfirsthead
+\multicolumn{3}{l}{\small Continuación de la Tabla~\ref{tab:entrada_fase1_atributos}}\\
+\toprule\textbf{Variable}&\textbf{Tipo}&\textbf{Descripción}\\\midrule\endhead
+\midrule\multicolumn{3}{r}{\small Continúa en la siguiente página}\\\endfoot
+\bottomrule\endlastfoot
+\texttt{game\_\allowbreak id} & Texto (ID) & Clave de trazabilidad y agrupación de todas las filas del partido al separar entrenamiento, validación y prueba; no es un predictor numérico.\\
+\texttt{date} & Fecha & Fecha del partido objetivo para orden temporal; no se multiplica por pesos.\\
+\texttt{feature\_\allowbreak cutoff} & Fecha y hora & Momento hasta el cual se admite información. Toda característica debe poder reconstruirse con datos anteriores a este corte.\\
+\texttt{season} & Entero & Temporada objetivo utilizada como contexto y referencia del descuento histórico.\\
+\texttt{focal\_\allowbreak player\_\allowbreak id} & ID & Identifica a la candidata y vincula la predicción con su ficha.\\
+\texttt{rival\_\allowbreak player\_\allowbreak id} & ID & Identifica a la rival evaluada; la fila inversa permanece en la misma partición.\\
+\texttt{focal\_\allowbreak team\_\allowbreak id} & ID & Equipo de la candidata en el escenario evaluado.\\
+\texttt{rival\_\allowbreak team\_\allowbreak id} & ID & Equipo rival del escenario.\\
+\texttt{focal\_\allowbreak is\_\allowbreak home} & Binario & Localía conocida, sin añadir su complemento redundante.\\
+\texttt{focal\_\allowbreak rest\_\allowbreak days} & Entero & Descanso de calendario del equipo focal, disponible al corte.\\
+\texttt{rival\_\allowbreak rest\_\allowbreak days} & Entero & Descanso de calendario del equipo rival, disponible al corte.\\
+\texttt{focal\_\allowbreak age} & Entero & Edad a la fecha del encuentro. Atributo de la focal.\\
+\texttt{focal\_\allowbreak size\_\allowbreak cm} & Decimal & Estatura registrada y convertida a centímetros. Atributo de la focal.\\
+\texttt{focal\_\allowbreak experience\_\allowbreak years} & Entero & Temporadas WNBA previas, con 0 para debutante. Atributo de la focal.\\
+\texttt{focal\_\allowbreak role} & Categoría & Macrorrol obtenido mediante reglas documentadas. Atributo de la focal.\\
+\texttt{focal\_\allowbreak cluster} & Categoría & Perfil aprendido con antecedentes disponibles al corte. Se reserva vacío en la construcción inicial y se incorpora después del clustering; no representa una posición ni una puntuación ordinal. Atributo de la focal.\\
+\texttt{rival\_\allowbreak age} & Entero & Edad a la fecha del encuentro. Atributo de la rival.\\
+\texttt{rival\_\allowbreak size\_\allowbreak cm} & Decimal & Estatura registrada y convertida a centímetros. Atributo de la rival.\\
+\texttt{rival\_\allowbreak experience\_\allowbreak years} & Entero & Temporadas WNBA previas, con 0 para debutante. Atributo de la rival.\\
+\texttt{rival\_\allowbreak role} & Categoría & Macrorrol obtenido mediante reglas documentadas. Atributo de la rival.\\
+\texttt{rival\_\allowbreak cluster} & Categoría & Perfil aprendido con antecedentes disponibles al corte. Se reserva vacío en la construcción inicial y se incorpora después del clustering; no representa una posición ni una puntuación ordinal. Atributo de la rival.\\
+\end{longtable}
+\endgroup
+
+\begingroup
+\small
+\setstretch{1.0}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{5.0cm}>{\raggedright\arraybackslash}p{1.9cm}>{\raggedright\arraybackslash}p{7.7cm}@{}}
+\caption{Tabla de la fase 1: antecedentes y respuestas separadas.}\label{tab:entrada_fase1_historial}\\
+\toprule\textbf{Variable}&\textbf{Tipo}&\textbf{Descripción}\\\midrule\endfirsthead
+\multicolumn{3}{l}{\small Continuación de la Tabla~\ref{tab:entrada_fase1_historial}}\\
+\toprule\textbf{Variable}&\textbf{Tipo}&\textbf{Descripción}\\\midrule\endhead
+\midrule\multicolumn{3}{r}{\small Continúa en la siguiente página}\\\endfoot
+\bottomrule\endlastfoot
+\texttt{hist\_\allowbreak focal\_\allowbreak pts\_\allowbreak per\_\allowbreak poss} & Decimal & Puntos por posesión ofensiva elegible del equipo. Antecedente individual de la focal calculado con su historial previo, sin volver a contar una actuación por cada rival con la que coincidió.\\
+\texttt{hist\_\allowbreak focal\_\allowbreak 3pa\_\allowbreak per\_\allowbreak poss} & Decimal & Intentos de triple por posesión ofensiva elegible. Antecedente individual de la focal calculado con su historial previo, sin volver a contar una actuación por cada rival con la que coincidió.\\
+\texttt{hist\_\allowbreak focal\_\allowbreak ast\_\allowbreak per\_\allowbreak poss} & Decimal & Asistencias por posesión ofensiva elegible. Antecedente individual de la focal calculado con su historial previo, sin volver a contar una actuación por cada rival con la que coincidió.\\
+\texttt{hist\_\allowbreak focal\_\allowbreak tov\_\allowbreak per\_\allowbreak poss} & Decimal & Pérdidas por posesión ofensiva elegible. Antecedente individual de la focal calculado con su historial previo, sin volver a contar una actuación por cada rival con la que coincidió.\\
+\texttt{hist\_\allowbreak focal\_\allowbreak oreb\_\allowbreak per\_\allowbreak poss} & Decimal & Rebotes ofensivos por posesión ofensiva elegible. Antecedente individual de la focal calculado con su historial previo, sin volver a contar una actuación por cada rival con la que coincidió.\\
+\texttt{hist\_\allowbreak focal\_\allowbreak dreb\_\allowbreak per\_\allowbreak poss} & Decimal & Rebotes defensivos por posesión defensiva elegible. Antecedente individual de la focal calculado con su historial previo, sin volver a contar una actuación por cada rival con la que coincidió.\\
+\texttt{hist\_\allowbreak focal\_\allowbreak stl\_\allowbreak per\_\allowbreak poss} & Decimal & Robos por posesión defensiva elegible. Antecedente individual de la focal calculado con su historial previo, sin volver a contar una actuación por cada rival con la que coincidió.\\
+\texttt{hist\_\allowbreak focal\_\allowbreak blk\_\allowbreak per\_\allowbreak poss} & Decimal & Tapones por posesión defensiva elegible. Antecedente individual de la focal calculado con su historial previo, sin volver a contar una actuación por cada rival con la que coincidió.\\
+\texttt{hist\_\allowbreak focal\_\allowbreak ts\_\allowbreak pct} & Decimal & Eficiencia histórica de tiro verdadero, calculada con numeradores y denominadores acumulados, no como media simple de porcentajes. Antecedente individual de la focal calculado con su historial previo, sin volver a contar una actuación por cada rival con la que coincidió.\\
+\texttt{hist\_\allowbreak rival\_\allowbreak pts\_\allowbreak per\_\allowbreak poss} & Decimal & Puntos por posesión ofensiva elegible del equipo. Antecedente individual de la rival calculado con su historial previo, sin volver a contar una actuación por cada rival con la que coincidió.\\
+\texttt{hist\_\allowbreak rival\_\allowbreak 3pa\_\allowbreak per\_\allowbreak poss} & Decimal & Intentos de triple por posesión ofensiva elegible. Antecedente individual de la rival calculado con su historial previo, sin volver a contar una actuación por cada rival con la que coincidió.\\
+\texttt{hist\_\allowbreak rival\_\allowbreak ast\_\allowbreak per\_\allowbreak poss} & Decimal & Asistencias por posesión ofensiva elegible. Antecedente individual de la rival calculado con su historial previo, sin volver a contar una actuación por cada rival con la que coincidió.\\
+\texttt{hist\_\allowbreak rival\_\allowbreak tov\_\allowbreak per\_\allowbreak poss} & Decimal & Pérdidas por posesión ofensiva elegible. Antecedente individual de la rival calculado con su historial previo, sin volver a contar una actuación por cada rival con la que coincidió.\\
+\texttt{hist\_\allowbreak rival\_\allowbreak oreb\_\allowbreak per\_\allowbreak poss} & Decimal & Rebotes ofensivos por posesión ofensiva elegible. Antecedente individual de la rival calculado con su historial previo, sin volver a contar una actuación por cada rival con la que coincidió.\\
+\texttt{hist\_\allowbreak rival\_\allowbreak dreb\_\allowbreak per\_\allowbreak poss} & Decimal & Rebotes defensivos por posesión defensiva elegible. Antecedente individual de la rival calculado con su historial previo, sin volver a contar una actuación por cada rival con la que coincidió.\\
+\texttt{hist\_\allowbreak rival\_\allowbreak stl\_\allowbreak per\_\allowbreak poss} & Decimal & Robos por posesión defensiva elegible. Antecedente individual de la rival calculado con su historial previo, sin volver a contar una actuación por cada rival con la que coincidió.\\
+\texttt{hist\_\allowbreak rival\_\allowbreak blk\_\allowbreak per\_\allowbreak poss} & Decimal & Tapones por posesión defensiva elegible. Antecedente individual de la rival calculado con su historial previo, sin volver a contar una actuación por cada rival con la que coincidió.\\
+\texttt{hist\_\allowbreak rival\_\allowbreak ts\_\allowbreak pct} & Decimal & Eficiencia histórica de tiro verdadero, calculada con numeradores y denominadores acumulados, no como media simple de porcentajes. Antecedente individual de la rival calculado con su historial previo, sin volver a contar una actuación por cada rival con la que coincidió.\\
+\texttt{hist\_\allowbreak pair\_\allowbreak focal\_\allowbreak gmsc\_\allowbreak rate} & Decimal & Tasa histórica de Game Score de la focal durante coincidencias previas con esa rival; no incluye el encuentro objetivo. Su exposición y fórmula se fijarán junto con la respuesta.\\
+\texttt{hist\_\allowbreak pair\_\allowbreak rival\_\allowbreak gmsc\_\allowbreak rate} & Decimal & Tasa histórica de la rival durante coincidencias previas con la focal, bajo la misma convención.\\
+\texttt{hist\_\allowbreak pair\_\allowbreak shared\_\allowbreak poss} & Decimal & Exposición histórica ponderada de la pareja. Puede ser fraccionaria por el descuento; no representa posesiones independientes.\\
+\texttt{hist\_\allowbreak pair\_\allowbreak games} & Entero & Número sin ponderar de partidos previos con coincidencia de la pareja.\\
+\texttt{pair\_\allowbreak history\_\allowbreak available} & Binario & 1 si hay coincidencias previas elegibles y 0 si no. Las métricas indefinidas de una pareja sin historial no se sustituyen por rendimiento cero.\\
+\texttt{target\_\allowbreak gmsc\_\allowbreak adjusted} & Decimal, nullable & Respuesta principal propuesta, calculada con el partido observado. Se separa de las entradas; estará vacía al recomendar.\\
+\texttt{target\_\allowbreak delta\_\allowbreak gmsc\_\allowbreak adjusted} & Decimal, nullable & Respuesta alternativa para comparación experimental. No se incorpora como característica ni se utiliza simultáneamente para reconstruir la respuesta principal.\\
+\end{longtable}
+\endgroup
+La lista define características candidatas, no la obligación de incluirlas todas en cada algoritmo. Se controlará la redundancia entre tasas, eficiencias y atributos; las transformaciones e imputaciones se aprenderán solo con entrenamiento. Los datos ausentes por falta de historial tendrán un tratamiento documentado a partir de información individual o una referencia de entrenamiento. Los totales del encuentro objetivo, sus minutos compartidos y sus posesiones realizadas no se introducirán como entradas anticipadas \cite{sklearnCommonPitfallsPonderacion}.
+
+Para construir los perfiles se generará una vista auxiliar por jugadora y fecha de corte, evitando que las filas dirigidas multipliquen artificialmente sus actuaciones. Los clusters se incorporarán después a ambas participantes. En validación y prueba se asignarán perfiles con el procedimiento entrenado en el pasado. La salida de la fase 1 será una puntuación numérica por candidata y rival, acompañada de identificadores y cobertura histórica. La fase 2 recibirá esas puntuaciones para los pares del quinteto candidato y rival; en su entrenamiento deberán proceder de predicciones temporales fuera de muestra.

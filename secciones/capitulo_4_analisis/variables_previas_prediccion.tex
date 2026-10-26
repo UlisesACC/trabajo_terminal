@@ -1,0 +1,36 @@
+Se considerará disponible una variable cuando su valor pueda conocerse en el momento de emitir la recomendación, no simplemente porque aparezca en una base histórica completada al terminar la temporada. La primera versión utilizará un corte previo al partido y permitirá consultar escenarios de quintetos y sustituciones con el modelo ya entrenado. Un cambio en las jugadoras de entrada modificará la predicción sin implicar aprendizaje en tiempo real.
+
+\begingroup
+\small
+\setstretch{1.0}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{5.0cm}>{\raggedright\arraybackslash}p{1.9cm}>{\raggedright\arraybackslash}p{7.7cm}@{}}
+\caption{Información disponible antes del partido y entradas de los escenarios de recomendación.}\label{tab:variables_previas}\\
+\toprule\textbf{Variable}&\textbf{Tipo}&\textbf{Descripción}\\\midrule\endfirsthead
+\multicolumn{3}{l}{\small Continuación de la Tabla~\ref{tab:variables_previas}}\\
+\toprule\textbf{Variable}&\textbf{Tipo}&\textbf{Descripción}\\\midrule\endhead
+\midrule\multicolumn{3}{r}{\small Continúa en la siguiente página}\\\endfoot
+\bottomrule\endlastfoot
+\texttt{game\_\allowbreak id, date, season} & Clave & Partido programado, fecha y temporada conocidos al corte. Los aplazamientos se reflejarán en la fecha efectiva disponible.\\
+\texttt{home\_\allowbreak team\_\allowbreak id, away\_\allowbreak team\_\allowbreak id} & ID & Equipos local y visitante conocidos a partir del calendario.\\
+\texttt{focal\_\allowbreak player\_\allowbreak id, rival\_\allowbreak player\_\allowbreak id} & ID & Participantes del escenario cuya comparación se solicita; deben pertenecer a las plantillas y estar habilitadas según la información disponible.\\
+\texttt{focal\_\allowbreak team\_\allowbreak id, rival\_\allowbreak team\_\allowbreak id} & ID & Equipos de las participantes al momento de la consulta; no se infieren a partir de un equipo futuro de la jugadora.\\
+\texttt{focal\_\allowbreak is\_\allowbreak home} & Binario & Localía derivada del equipo focal y el calendario.\\
+\texttt{focal\_\allowbreak rest\_\allowbreak days, rival\_\allowbreak rest\_\allowbreak days} & Entero & Descanso del calendario de los equipos calculado con partidos anteriores.\\
+\texttt{focal\_\allowbreak age, rival\_\allowbreak age} & Entero & Edades calculadas con las fechas de nacimiento y la fecha objetivo.\\
+\texttt{focal\_\allowbreak size\_\allowbreak cm, rival\_\allowbreak size\_\allowbreak cm} & Decimal & Estaturas respaldadas por las fichas consultadas; recuperación manual si faltan.\\
+\texttt{focal\_\allowbreak experience\_\allowbreak years, rival\_\allowbreak experience\_\allowbreak years} & Entero & Experiencia WNBA anterior a la temporada de corte.\\
+\texttt{focal\_\allowbreak position, rival\_\allowbreak position} & Categoría & Posiciones nominales documentadas; sirven de base al macrorrol, sin confundirlas con el cluster.\\
+\texttt{focal\_\allowbreak role, rival\_\allowbreak role} & Categoría & Macrorroles fijados con reglas y atributos conocidos.\\
+\texttt{focal\_\allowbreak cluster, rival\_\allowbreak cluster} & Categoría & Etiquetas disponibles después del ajuste y asignación de perfiles con información previa. Su disponibilidad es computacional y depende de haber ejecutado el clustering.\\
+\texttt{hist\_\allowbreak focal\_\allowbreak *, hist\_\allowbreak rival\_\allowbreak *} & Decimal & Características históricas de ambas jugadoras construidas antes del corte, con el procedimiento de ponderación seleccionado.\\
+\texttt{hist\_\allowbreak pair\_\allowbreak *, pair\_\allowbreak history\_\allowbreak available} & Numérico / binario & Historial previo de la pareja y su disponibilidad, con cobertura explícita.\\
+\texttt{candidate\_\allowbreak lineup, rival\_\allowbreak lineup} & Conjuntos de ID & Quintetos proporcionados como escenario de la fase 2; el propio es una combinación por evaluar, no una alineación futura observada.\\
+\texttt{phase1\_\allowbreak pair\_\allowbreak scores} & Vector o matriz & Puntuaciones predichas por la fase 1 para las comparaciones del quinteto candidato frente al rival. Son resultados del modelo disponibles para la fase 2, no estadísticas observadas del encuentro.\\
+\texttt{hist\_\allowbreak lineup\_\allowbreak features} & Vector & Antecedentes colectivos del quinteto o de sus componentes, construidos antes del corte y con cobertura identificada. No se utilizará un agregado de cierre de temporada como si hubiera sido conocido antes.\\
+\end{longtable}
+\endgroup
+La notación \texttt{*} en los nombres históricos representa las columnas con ese prefijo definidas en el apartado anterior; no agrega una columna literal. Los identificadores del quinteto propio candidato y del rival deberán mantenerse en la salida para interpretar qué combinación se evaluó.
+
+Si se consulta el modelo durante un partido, las jugadoras actualmente en cancha pueden suministrarse como parte del escenario. Marcador actual, reloj, faltas acumuladas o disponibilidad por lesión serían datos conocidos en ese instante únicamente si se proporcionan y se incorporan de la misma manera al entrenamiento. No se consideran entradas automáticas de esta primera versión ni se presume una API en vivo. Una disponibilidad faltante no se interpretará como autorización para alinear a la jugadora; se requerirá confirmación manual del escenario.

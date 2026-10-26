@@ -236,6 +236,8 @@ En este proyecto\ldots
 % ============================================================
 % ÍNDICES (generados automáticamente)
 % ============================================================
+% Incluir en el índice apartados y subapartados; se regenera al compilar.
+\setcounter{tocdepth}{3}
 \tableofcontents
 \listoftables
 \listoffigures
@@ -360,8 +362,18 @@ El presente capitulo describe los recursos analíticos, el modelo de datos previ
 \input{secciones/capitulo_4_analisis/fuentes_datos}
 \subsection{Diccionario de datos originales}
 \input{secciones/capitulo_4_analisis/diccionario_origen}
-\subsection{Variables derivadas para el modelo}
+\subsection{Tabla maestra de coincidencias entre jugadoras}
+\label{subsec:tabla-maestra}
 \input{secciones/capitulo_4_analisis/diccionario_derivado}
+\subsection{Tabla de entrada al modelo de la fase 1}
+\label{subsec:tabla-entrada-fase1}
+\input{secciones/capitulo_4_analisis/tabla_entrada_fase1}
+\subsection{Información disponible al emitir una recomendación}
+\label{subsec:informacion-previa}
+\input{secciones/capitulo_4_analisis/variables_previas_prediccion}
+\subsection{Información posterior al corte de predicción}
+\label{subsec:informacion-posterior}
+\input{secciones/capitulo_4_analisis/variables_posteriores_prediccion}
 \subsection{Validación y limitaciones de los datos}
 \input{secciones/capitulo_4_analisis/validacion_datos}
 
