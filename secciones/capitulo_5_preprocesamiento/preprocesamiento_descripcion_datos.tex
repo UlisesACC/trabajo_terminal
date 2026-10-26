@@ -1,5 +1,7 @@
 Se utilizarán conjuntos de estadísticas de la WNBA publicados por el proyecto wehoop \cite{wehoopRepositorio}. La documentación distingue registros de eventos \textit{play-by-play} \cite{wehoopPbp}, estadísticas individuales por temporada \cite{wehoopPlayerSeason}, tiros \cite{wehoopShots} y métricas agregadas de alineaciones \cite{wehoopLineups}. De manera complementaria se examinarán los archivos de alineaciones por partido, posesiones, registros de encuentro y plantillas.
 
+\textit{*Nota: Como mencionamos anteriormente el conjunto de datos podria cambiarse en caso de que presenten alguno de los riesgos que definimos con anterioridad en la tabla \ref{tab:riesgos_proyecto}.}
+
 La unidad de observación no será única para todas las fuentes: una fila puede representar un evento, un partido, una jugadora o un resumen de alineación. Esta diferencia exige definir previamente las claves de integración y la granularidad de cada tabla. El conjunto de entrenamiento que se propone construir tendrá como unidad principal el intervalo de coincidencia entre un quinteto propio y otro rival, siempre que ambos puedan reconstruirse de forma verificable.
 
 Las tablas del Capítulo 4 distinguen los campos publicados por la fuente y las variables derivadas que se pretenden calcular. No se asumirá que estas últimas existen como columnas nativas.
