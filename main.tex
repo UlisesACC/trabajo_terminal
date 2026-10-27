@@ -9,6 +9,8 @@
 \usepackage[T1]{fontenc}           % Codificación de fuentes
 \usepackage[spanish,es-tabla]{babel} % Idioma español (títulos, fechas, "Tabla" en vez de "Cuadro")
 \usepackage{geometry}              % Márgenes de página
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
 \usepackage{graphicx}              % Inserción de imágenes
 \usepackage{xcolor}                % Colores
 \usepackage{booktabs}              % Tablas de calidad profesional
@@ -425,10 +427,14 @@ El presente capitulo describe los recursos analíticos, el modelo de datos previ
 % ============================================================
 \chapter{Desarrollo y evaluación del modelo}
 En este capitulo se identifica un diseño preliminar de el modelo a desarrollar, esto se debe a que se requiere un mayor análisis de los datos que se tienen.
-\section{Desarrollo del proyecto}
+\section{Desarrollo de la fase 1 del proyecto}
 \input{secciones/capitulo_6_desarrollo_modelo/procedimiento_modelo}
 \input{secciones/capitulo_6_desarrollo_modelo/seleccion_ponderacion_historica}
 \input{secciones/capitulo_6_desarrollo_modelo/comparacion_contextual_perfiles}
+\input{secciones/capitulo_6_desarrollo_modelo/clustering_perfiles}
+
+\section{Desarrollo de la fase 2 del proyecto}
+\label{sec:desarrollo-fase2}
 \input{secciones/capitulo_6_desarrollo_modelo/fase2_pdf_criterios_evaluacion}
 
 \section{Evaluación experimental}
@@ -523,3 +529,4 @@ Se documentarán la validación temporal, los métodos de referencia y las métr
 %  para la comprensión del proyecto (p. ej. instrumento de encuesta completo).}
 
 \end{document}
+

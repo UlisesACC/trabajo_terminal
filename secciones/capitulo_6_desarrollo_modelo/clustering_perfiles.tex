@@ -1,0 +1,122 @@
+\subsection{Clustering para la caracterización de perfiles estadísticos de juego}
+\label{subsec:clustering-perfiles}
+El clustering es una técnica de aprendizaje no supervisado que agrupa observaciones según su similitud, sin requerir una etiqueta de clase previamente asignada. En este proyecto se utilizará como enriquecimiento opcional de la descripción individual: una jugadora conservará su posición nominal y macrorrol, y podrá recibir una etiqueta adicional que resuma tendencias de su juego. Se adopta la expresión perfil estadístico en lugar de perfil no técnico, pues los datos disponibles describen acciones de juego y no permiten medir personalidad, liderazgo ni otras cualidades ajenas a esos registros.
+
+Como antecedente, Yamada y Fujii construyeron perfiles de tiro y rol ofensivo e incorporaron información de esos grupos en modelos de eficiencia de alineaciones \cite{yamada2024offensivelineupanalysisbasketball}. El presente trabajo retoma la posibilidad de representar estilos y estudiar su complementariedad; no reproducirá sus características de tracking ni sus tipos de jugada anotados, que no forman parte de los datos confirmados. Que el antecedente utilice perfiles no demuestra que estos mejoren la predicción en la muestra WNBA del proyecto. Esa aportación se tratará como hipótesis y se verificará en la fase 2.
+
+\subsubsection*{Unidad de análisis y construcción de la vista individual}
+Se utilizará la tabla maestra como fuente de trazabilidad, pero no se entregarán directamente sus filas focal--rival al algoritmo de agrupamiento ni se utilizará íntegramente la tabla que alimenta la regresión. Una misma actuación puede aparecer en varias coincidencias rivales; agrupar esas filas daría más representación a una jugadora por el número de oponentes con las que compartió cancha.
+
+Se construirá una vista auxiliar con una fila por jugadora y fecha de corte, identificada mediante \texttt{player\_\allowbreak id} y \texttt{feature\_\allowbreak cutoff}. Sus estadísticas se recuperarán de los eventos individuales depurados que originan la tabla maestra y de las posesiones correspondientes a su presencia en cancha. Cada evento individual se contará una sola vez, utilizando su clave de partido y acción, antes de realizar agregaciones por jugadora. No se intentará eliminar duplicados solo por el identificador de partido en la tabla de parejas, porque sus intervalos compartidos pueden ser diferentes. Las posesiones ofensivas y defensivas se conservarán como denominadores distintos \cite{datosTTPbp,repositorioDatosTT}.
+
+La vista resumirá las temporadas disponibles dentro de la ventana histórica de la fase 1, siempre anteriores al corte. Las jugadoras sin denominadores positivos para alguna característica se identificarán como casos de información incompleta. No se supondrá que una jugadora sin intentos de tiro presenta un estilo de tiro equivalente a cero intentos relativos observados con exposición suficiente.
+
+\subsubsection*{Características numéricas y ponderación temporal}
+El primer ensayo utilizará ocho características numéricas. Las tasas se calcularán antes de estandarizar y conservarán su exposición de respaldo. Los nombres de la Tabla~\ref{tab:variables-clustering} corresponden a la vista auxiliar, no a nuevas mediciones originales.
+
+\begingroup
+\small
+\setstretch{1.0}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{4.5cm}>{\raggedright\arraybackslash}p{1.6cm}>{\raggedright\arraybackslash}p{8.0cm}@{}}
+\caption{Características propuestas para describir perfiles estadísticos individuales.}\label{tab:variables-clustering}\\
+\toprule\textbf{Variable}&\textbf{Tipo}&\textbf{Descripción y propósito}\\\midrule\endfirsthead
+\toprule\textbf{Variable}&\textbf{Tipo}&\textbf{Descripción y propósito}\\\midrule\endhead
+\bottomrule\endlastfoot
+\texttt{profile\_\allowbreak 3pa\_\allowbreak share}&Decimal&Intentos de triple respecto a intentos de campo. Describe la proporción de lanzamientos exteriores, sin confundirla con su porcentaje de acierto.\\
+\texttt{profile\_\allowbreak fta\_\allowbreak per\_\allowbreak fga}&Decimal&Intentos de tiro libre por intento de campo. Describe frecuencia relativa de tiros libres; no identifica por sí sola penetraciones ni faltas provocadas.\\
+\texttt{profile\_\allowbreak ast\_\allowbreak per\_\allowbreak poss}&Decimal&Asistencias por posesión ofensiva del equipo durante la presencia de la jugadora. Describe participación en creación registrada.\\
+\texttt{profile\_\allowbreak tov\_\allowbreak per\_\allowbreak poss}&Decimal&Pérdidas por posesión ofensiva elegible. Describe frecuencia de pérdidas, sin medir directamente dificultad de las decisiones.\\
+\texttt{profile\_\allowbreak oreb\_\allowbreak per\_\allowbreak poss}&Decimal&Rebotes ofensivos por posesión ofensiva elegible. Describe actividad de rebote ofensivo; no es porcentaje de oportunidades de rebote.\\
+\texttt{profile\_\allowbreak dreb\_\allowbreak per\_\allowbreak poss}&Decimal&Rebotes defensivos por posesión defensiva elegible. Describe actividad de rebote defensivo registrada.\\
+\texttt{profile\_\allowbreak stl\_\allowbreak per\_\allowbreak poss}&Decimal&Robos por posesión defensiva elegible. Describe una parte de la actividad defensiva observable.\\
+\texttt{profile\_\allowbreak blk\_\allowbreak per\_\allowbreak poss}&Decimal&Tapones por posesión defensiva elegible. Describe acciones de bloqueo registradas, sin representar toda la protección del aro.\\
+\end{longtable}
+\endgroup
+
+Esta selección es una propuesta operativa basada en acciones disponibles, no una taxonomía deportiva ya validada. No se incorporarán a la distancia identificadores, nombres, equipo, fecha, localía, descanso, edad, experiencia, estatura ni posición. Estos campos permanecerán disponibles para contextualizar e interpretar los grupos y para los modelos predictivos. Excluir posición y estatura del primer agrupamiento permitirá examinar perfiles estadísticos sin imponer directamente esas categorías. No se utilizarán la respuesta de Game Score, su diferencia ni el Net Rating para formar grupos. Tampoco se añadirán inicialmente porcentajes de acierto, totales de puntos y minutos: se buscará describir tendencias mediante tasas, sin convertir el agrupamiento en una clasificación explícita de calidad o volumen.
+
+La vista sí utilizará ponderación por temporada: cada numerador y su denominador se agregarán con el mismo descuento $w_s(\lambda)$ definido en 6.1.3. Por ejemplo, la proporción histórica de triples se obtendrá relacionando intentos de triple ponderados e intentos de campo ponderados, no promediando porcentajes anuales sin exposición. Esta decisión mantiene el mismo horizonte de recencia que las otras características históricas. El antecedente deportivo de descuento temporal sustenta examinar recencia; no demuestra que una ponderación concreta sea óptima para clustering \cite{dixon1997scores}.
+
+Dentro de la búsqueda de $\lambda$ se reconstruirá también esta vista y se volverá a ajustar el agrupamiento exclusivamente con el entrenamiento del corte. No se utilizará un descuento elegido con datos posteriores ni se aplicará una segunda ponderación a las filas o una importancia diferente por variable. Cada jugadora contribuirá una vez al ajuste en la fecha de corte. La estandarización igualará escalas y será distinta de ponderar características por importancia. La necesidad de escalar variables con dispersiones diferentes está documentada para los procedimientos basados en distancias \cite{sklearnScalerPerfiles}.
+
+Los resúmenes de entrenamiento de la regresión conservarán información previa a cada partido; los de validación respetarán el corte congelado previsto en 6.1.3. La construcción de la vista no autoriza utilizar el cierre de temporada para describir partidos anteriores. No se abrirá un experimento adicional de clustering sin descuento en esta primera etapa; $\lambda=1$ ya proporcionará el caso de igual influencia temporal dentro de la búsqueda prevista.
+
+\subsubsection*{Comparación de algoritmos y selección inicial}
+El número de clusters no se fijará de antemano en el ensayo principal. Sin embargo, identificarlo a partir de densidad no elimina la selección de hiperparámetros: las reglas de vecindad, tamaño mínimo y extracción afectan a los grupos obtenidos. Por ello, no se describirá ningún método como una clasificación completamente automática y libre de decisiones \cite{hdbscanParametrosPerfiles}.
+
+\begingroup
+\small
+\setstretch{1.0}
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{2.2cm}>{\raggedright\arraybackslash}p{2.6cm}>{\raggedright\arraybackslash}p{4.5cm}>{\raggedright\arraybackslash}p{5.3cm}@{}}
+\caption{Alternativas para el agrupamiento de perfiles individuales.}\label{tab:algoritmos-clustering-perfiles}\\
+\toprule\textbf{Algoritmo}&\textbf{Número de grupos}&\textbf{Aportación potencial}&\textbf{Limitación y asignación posterior}\\\midrule\endfirsthead
+\toprule\textbf{Algoritmo}&\textbf{Número de grupos}&\textbf{Aportación potencial}&\textbf{Limitación y asignación posterior}\\\midrule\endhead
+\bottomrule\endlastfoot
+HDBSCAN&Se extrae de una jerarquía de densidad; no exige $k$.&Puede detectar grupos de densidades diferentes y observaciones sin grupo.&Depende de tamaño mínimo y densidad; puede dejar muchas jugadoras sin perfil. La biblioteca \texttt{hdbscan} ofrece asignación aproximada con grupos congelados.\\
+DBSCAN&Surge de vecindades y puntos densos; no exige $k$.&Reglas explícitas de radio y densidad; reconoce ruido.&Un radio común puede ser insuficiente para densidades distintas. No ofrece \texttt{predict} directo en scikit-learn; requerirá una regla adicional para nuevas jugadoras.\\
+OPTICS&Extrae grupos de una estructura de alcanzabilidad; no exige $k$.&Permite estudiar estructura a distintas escalas de densidad.&La extracción sigue dependiendo de parámetros. Su implementación habitual no proporciona asignación predictiva directa; requeriría un procedimiento adicional.\\
+K-means&Requiere definir $k$.&Centroides y asignación posterior sencilla a grupos existentes.&Favorece grupos compactos y asigna cada punto a alguno. Se conserva como referencia conceptual, no como ensayo prioritario.\\
+\end{longtable}
+\endgroup
+
+Las diferencias generales de estos métodos están documentadas en la guía de clustering y en la API de DBSCAN; la posibilidad de asignación aproximada de HDBSCAN corresponde específicamente a la biblioteca \texttt{hdbscan}, no se presupone para cualquier implementación con el mismo nombre \cite{sklearnClusteringPerfiles,sklearnDBSCANPerfiles,hdbscanPrediccionPerfiles}.
+
+Se probará primero HDBSCAN, por la combinación de selección de grupos sin $k$ y la posibilidad de conservar casos sin pertenencia definida. Se trata de una elección de diseño compatible con los requisitos del proyecto, no de una superioridad comprobada sobre los otros algoritmos. La implementación de McInnes, Healy y Astels proporciona el algoritmo en Python \cite{mcinnes2017hdbscan}.
+
+\subsubsection*{Procedimiento de ajuste y presupuesto experimental}
+La implementación se realizará en Python con \texttt{pandas}, transformadores de \texttt{scikit-learn} y la biblioteca \texttt{hdbscan}. Se documentarán versiones y parámetros. El procedimiento será el siguiente:
+\begin{enumerate}
+\item \textbf{Preparar la vista individual.} Se recuperarán eventos y posesiones anteriores al corte, se evitarán duplicaciones por rival y se construirán las ocho tasas con el descuento candidato. Se registrarán los partidos y la exposición de cada jugadora.
+\item \textbf{Controlar cobertura y redundancia.} Para el primer ajuste se utilizarán jugadoras con denominadores positivos en todas las características. Se conservarán las demás como casos de historial insuficiente, sin forzarles una etiqueta. Se eliminarán columnas constantes en entrenamiento. Si dos características presentan correlación absoluta superior a 0.90, se conservará la primera según el orden de la tabla y se documentará la exclusión. Ese umbral es una regla inicial del proyecto, no una garantía de independencia. La misma selección de columnas se aplicará después a los nuevos registros.
+\item \textbf{Estandarizar.} Se ajustará \texttt{StandardScaler} con la vista de entrenamiento para centrar y escalar cada característica según su media y desviación. Los datos posteriores recibirán esa misma transformación. Se examinarán valores extremos y denominadores pequeños; una tasa extrema con escasa exposición no se interpretará automáticamente como un estilo excepcional \cite{sklearnScalerPerfiles}.
+\item \textbf{Ajustar HDBSCAN.} Se utilizará distancia euclidiana sobre las características escaladas, extracción \texttt{eom} y \texttt{prediction\_\allowbreak data=True}. Se iniciará con \texttt{min\_\allowbreak cluster\_\allowbreak size=5} y \texttt{min\_\allowbreak samples=3}. El primero establece el tamaño mínimo de un grupo; el segundo regula el requisito local de densidad. Los valores son puntos de partida y no resultados obtenidos \cite{hdbscanAPIPerfiles}.
+\item \textbf{Comprobar la sensibilidad.} El presupuesto máximo inicial será la combinación de tamaños mínimos 5 y 10 con requisitos de densidad 3 y 5: hasta cuatro configuraciones, limitadas a las compatibles con la cantidad de jugadoras. Esa cantidad corresponde a configuraciones, no al número de clusters. Si la población no permite al menos dos grupos del tamaño mínimo, no se forzará una solución. Se registrarán cantidad de grupos, proporción de ruido, tamaños y persistencia, entendida como estabilidad de los grupos en la jerarquía de densidad \cite{hdbscanParametrosPerfiles}.
+\end{enumerate}
+
+El ajuste de estas configuraciones quedará dentro del entrenamiento, con cortes temporales internos cuando se compare su aportación predictiva. No se cruzará automáticamente toda la malla del clustering con nuevas familias de modelos o variables. Para mantener acotado el componente, se comenzará con la primera configuración y solo se ampliará ante resultados degenerados, cobertura insuficiente o sensibilidad marcada. Si no se obtiene una estructura interpretable y útil, podrá ensayarse DBSCAN como única segunda familia, o descartarse el enriquecimiento. OPTICS y K-means no implican experimentos obligatorios.
+
+En el segundo ensayo se mantendrán las mismas características, escalamiento y cortes. Se limitará la búsqueda a \texttt{min\_\allowbreak samples} de 3 y 5 y a tres radios derivados de los cuantiles 0.50, 0.75 y 0.90 de las distancias al vecino correspondiente en entrenamiento. Este diseño permite hasta seis configuraciones y evita fijar radios con resultados de prueba. No garantiza agrupamientos adecuados; su propósito es acotar el ensayo opcional. Un porcentaje alto de ruido o un único grupo no justificará seguir ampliando indefinidamente la búsqueda.
+
+\subsubsection*{Interpretación, persistencia y llenado de las etiquetas}
+Los números de cluster serán categorías nominales sin orden: una etiqueta mayor no indicará mejor rendimiento. La interpretación se realizará comparando los resúmenes de las características en cada grupo con la población de entrenamiento. Solo si esos patrones lo respaldan se añadirán nombres descriptivos, como tendencia exterior o mayor actividad de rebote. No se atribuirán tareas tácticas específicas ni defensa directa a partir de estas etiquetas.
+
+Se guardará una relación auxiliar de perfiles. Sus campos serán \texttt{player\_\allowbreak id}, \texttt{feature\_\allowbreak cutoff}, \texttt{cluster\_\allowbreak label} y \texttt{profile\_\allowbreak version}. Se conservarán también la exposición y el estado de cobertura. El paquete de la versión incluirá las características seleccionadas, el descuento, el escalador, el agrupamiento y sus parámetros. Las etiquetas permanecerán congeladas durante la evaluación o consulta de esa versión; no se reentrenará el clustering al solicitar cada recomendación.
+
+Las columnas inicialmente vacías \texttt{focal\_\allowbreak cluster} y \texttt{rival\_\allowbreak cluster} se completarán mediante dos uniones con la relación auxiliar: la primera por el identificador focal y la segunda por el rival, utilizando en ambas el mismo corte y versión. Se comprobará que cada jugadora tenga como máximo una etiqueta por corte y que las uniones no multipliquen filas. La focal recibirá su propio perfil, no el perfil de la pareja; la misma regla se aplicará a la rival.
+
+HDBSCAN puede marcar ruido con la etiqueta $-1$. Se conservará como categoría de pertenencia no definida y se distinguirá del estado \texttt{SIN\_\allowbreak HISTORIAL}, reservado a jugadoras sin información suficiente. No se asignará el grupo 0 para llenar vacíos. Las etiquetas se codificarán como categorías para la regresión, por ejemplo mediante indicadores binarios, sin tratarlas como una magnitud continua.
+
+Para una jugadora nueva con estadísticas suficientes se utilizará el escalador guardado y \texttt{approximate\_\allowbreak predict} del paquete \texttt{hdbscan}. Esta función asigna respecto a la estructura ya ajustada y puede devolver ruido; no descubre grupos nuevos ni equivale a reentrenar con la jugadora incorporada \cite{hdbscanPrediccionPerfiles}. En el ensayo opcional DBSCAN se definiría una regla propia de asignación al punto núcleo más cercano dentro del radio entrenado; si no existe, se mantendría sin grupo. Los empates se resolverían por distancia y después por identificador interno. Esta sería una extensión de consulta del proyecto, no un método \texttt{predict} nativo de DBSCAN.
+
+Las etiquetas podrán diferir entre reentrenamientos y no se interpretarán como códigos universales de estilos. Cada corte temporal tendrá su versión ajustada con el pasado disponible; se conservará la correspondencia entre perfil y modelo predictivo. Una actualización del clustering requerirá generar y evaluar una nueva versión del conjunto, sin reemplazar las etiquetas de una versión congelada de forma aislada.
+
+\begin{figure}[p]
+\centering
+\begin{tikzpicture}[node distance=0.65cm, every node/.style={font=\small},
+ paso/.style={draw,rounded corners,align=center,text width=11cm,minimum height=0.9cm,inner sep=5pt},
+ rama/.style={draw,rounded corners,align=center,text width=5.0cm,minimum height=1.1cm,inner sep=5pt},
+ flecha/.style={-{Stealth},thick}]
+\node[paso] (datos) {Eventos y posesiones que originan la tabla maestra\\Solo información anterior al corte};
+\node[paso,below=of datos] (vista) {Vista individual por jugadora y fecha de corte\\Sin repetir actuaciones por cada rival};
+\node[paso,below=of vista] (tasas) {Ocho características numéricas\\Ponderación temporal y control de cobertura};
+\node[paso,below=of tasas] (modelo) {Entrenamiento: ajustar escalador y HDBSCAN\\Consulta: cargar la versión congelada y asignar};
+\node[paso,below=of modelo] (perfiles) {Relación de perfiles por identificador, corte y versión\\Etiqueta, ruido o historial insuficiente};
+\node[rama,below=0.8cm of perfiles,xshift=-3cm] (focal) {Unión por \texttt{focal\_\allowbreak player\_\allowbreak id}\\Completar \texttt{focal\_\allowbreak cluster}};
+\node[rama,below=0.8cm of perfiles,xshift=3cm] (rival) {Unión por \texttt{rival\_\allowbreak player\_\allowbreak id}\\Completar \texttt{rival\_\allowbreak cluster}};
+\node[paso,below=2.45cm of perfiles] (salida) {Tabla de entrada de la fase 1 enriquecida\\Mismas filas, dos categorías adicionales};
+\draw[flecha] (datos)--(vista);\draw[flecha] (vista)--(tasas);
+\draw[flecha] (tasas)--(modelo);\draw[flecha] (modelo)--(perfiles);
+\draw[flecha] (perfiles.south)-|(focal.north);\draw[flecha] (perfiles.south)-|(rival.north);
+\draw[flecha] (focal.south)--([xshift=-3cm]salida.north);\draw[flecha] (rival.south)--([xshift=3cm]salida.north);
+\end{tikzpicture}
+\caption{Flujo previsto para completar las categorías de perfil de focal y rival.}
+\label{fig:flujo-etiquetas-clustering}
+\end{figure}
+
+\subsubsection*{Criterio para conservar el enriquecimiento}
+El clustering será un componente auxiliar y no el objetivo principal del trabajo. La interpretación de los grupos y su cobertura serán diagnósticos necesarios, pero no bastarán para justificar su permanencia. Se compararán dos variantes de la cadena completa: una sin las categorías de perfil y otra que incorpore ambas etiquetas en la fase 1. La fase 2 recibirá las puntuaciones individuales resultantes de cada variante junto con las mismas características colectivas.
+
+La decisión se basará en la mejora de predicción del Net Rating en la validación temporal de la fase 2, utilizando los mismos partidos, métricas y presupuesto de ajuste. Se examinarán el error absoluto por partido, su variación entre bloques y la cobertura; una diferencia pequeña o inestable no se presentará como mejora concluyente. Para atribuir la comparación al enriquecimiento se mantendrán iguales las demás entradas y configuraciones del par comparado, incluido el descuento, seleccionado sin utilizar la validación colectiva. Si los perfiles no aportan una mejora respaldada por esos resultados, se excluirán de la versión final, aunque los grupos sean descriptivamente interesantes.
+
+Las puntuaciones de la fase 1 empleadas para entrenar el modelo colectivo se generarán fuera de muestra, con la selección de pesos, preprocesamiento, clustering y regresión limitados al pasado de cada corte. La inclusión o exclusión del enriquecimiento se decidirá con datos de desarrollo, antes de abrir la prueba final; esta última se utilizará para evaluar la configuración cerrada, no para escoger retrospectivamente la variante ganadora \cite{sklearnCommonPitfallsPonderacion,cawley2010selection}. No se afirmará una mejora experimental antes de ejecutar esta comparación.
