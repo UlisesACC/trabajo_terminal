@@ -1,0 +1,48 @@
+\subsection{Construcción de la tabla maestra y derivación de las entradas del modelo}
+\label{subsec:construccion-tablas-fase2}
+La estructura del apartado~\ref{subsec:tabla-maestra-fase2}, presentada en las Tablas~\ref{tab:fase2-identificacion}--\ref{tab:fase2-predicciones}, será la base para preparar esta fase. Se distinguirá entre conservar evidencia del encuentro y disponer de información para recomendar una alineación antes de observar su rendimiento. Esta separación evita utilizar como entrada el resultado que se pretende estimar \cite{sklearnCommonPitfallsPonderacion}.
+
+\paragraph*{Reconstrucción y agregación de las coincidencias.}
+Se ordenarán los eventos de cada partido y se reconstruirán las cinco integrantes de cada equipo mediante alineaciones iniciales y sustituciones. Se verificarán eventos con el mismo reloj, cambios simultáneos, periodos y correcciones del registro. Cada intervalo deberá contener cinco identificadores distintos por equipo. Si la identidad de alguna participante no puede determinarse con evidencia suficiente, se marcará el intervalo y no se completará suponiendo una alineación.
+
+Se asignarán a cada intervalo puntos, tiros, pérdidas, rebotes y demás eventos verificables. La atribución de posesiones que atraviesen sustituciones y de tiros libres con cambios simultáneos requerirá una convención explícita, aplicada por igual a ambos equipos. No se duplicará una posesión completa en dos intervalos ni se deducirá su titular únicamente a partir del tiempo transcurrido. Los casos no resolubles permanecerán identificados como incompletos.
+
+Los intervalos válidos se agruparán por partido y pareja dirigida de quintetos. La duración y los conteos se sumarán; las eficiencias se recalcularán con los totales, en lugar de promediar tasas de intervalos de distinta exposición. Los identificadores de alineación se construirán con los mismos cinco nombres canónicos aunque cambie el orden de los eventos. Esta identificación no representará posiciones tácticas.
+
+\paragraph*{Cálculo de respuesta y antecedentes.}
+El Net Rating observado se calculará con los puntos y posesiones de la coincidencia exacta. Si alguna exposición necesaria es cero o inválida, la respuesta quedará indefinida: no se imputará ni se convertirá en cero. Los límites de exposición para entrenar y evaluar se establecerán en desarrollo y se aplicarán con la misma regla a todas las alternativas.
+
+Los antecedentes colectivos se reconstruirán antes de cada corte utilizando únicamente la temporada seleccionada. Se distinguirán el historial del quinteto frente al conjunto de rivales y el historial frente al quinteto contrario exacto. Un encuentro del quinteto contra varias alineaciones aportará sus intervalos una sola vez al agregado general, y se contará como un partido, no como varios. Se conservarán los denominadores y la cantidad de partidos para informar cuánto respaldo tienen las tasas.
+
+Una alineación nunca observada no tendrá un Net Rating histórico propio. Se mantendrán sus indicadores de ausencia y se prepararán características de composición y resúmenes históricos individuales como respaldo. Estas características permitirán construir una entrada, pero no equivaldrán a sinergias medidas entre sus cinco integrantes. Tampoco se registrará una fila histórica con resultados inventados para ese quinteto.
+
+\paragraph*{Incorporación de las comparaciones de fase 1.}
+Se consultarán las parejas mediante identificadores, fecha y contexto, vinculando cada puntuación con las posiciones canónicas de sus participantes. Se completarán las 25 columnas posibles y sus estados. Las parejas incompatibles quedarán sin puntuación; una pareja comparable sin historial directo podrá recibir una predicción global, acompañada de su cobertura. Un rol desconocido impedirá aplicar la regla de comparabilidad y se registrará con una causa diferente.
+
+Las puntuaciones de una fila histórica se obtendrán con modelos y decisiones ajustados solo al pasado disponible para esa fila. No se reconstruirán retrospectivamente todas las predicciones con el modelo final entrenado en el cierre de temporada. Esta precaución incluirá la selección de descuentos, perfiles y configuraciones \cite{cawley2010selection,sklearnCommonPitfallsPonderacion}. Si no existe entrenamiento previo suficiente para producir una puntuación, se registrará su ausencia, en lugar de utilizar el resultado observado como sustituto.
+
+Después se calcularán media, mínimo, máximo y coberturas por macrorrol focal. Una media se obtendrá exclusivamente de scores válidos; si no existe ninguno, permanecerá vacía y su contador será cero. Los resúmenes se recalcularán al cambiar integrantes, aun cuando cuatro compañeras permanezcan en cancha.
+
+\paragraph*{Tabla derivada que alimentará al predictor.}
+La vista predictiva conservará una fila por escenario de partido y pareja de quintetos. Los campos se separarán de la siguiente forma:
+\begin{itemize}
+\item \textbf{Claves de trazabilidad:} partido, fecha, corte, equipos, quintetos y versiones. Permitirán unir registros y devolver resultados; no se tratarán como magnitudes continuas.
+\item \textbf{Entradas conocidas:} localía, descanso, composición por rol, antecedentes de quintetos y de su pareja, resúmenes individuales, indicadores de historial y resúmenes de las predicciones de fase 1.
+\item \textbf{Respuesta separada:} \texttt{target\_net\_rating}, disponible únicamente para entrenamiento y evaluación de enfrentamientos observados.
+\end{itemize}
+
+Las estadísticas realizadas del encuentro, sus minutos y sus posesiones no se introducirán como predictores anticipados. Las 25 puntuaciones y los identificadores individuales se conservarán en la maestra para trazabilidad; inicialmente se utilizarán sus resúmenes invariantes al orden. La lista final de características se fijará en desarrollo, controlando redundancias entre ratings, tasas y diferenciales.
+
+Si posteriormente se ensaya un grafo o hipergrafo, la misma evidencia permitirá derivar nodos, relaciones y atributos; no se enviará sin transformación la tabla al algoritmo. Una relación colectiva requerirá representar también al rival y respetar el corte temporal. Los trabajos revisados sobre contribuciones de grupos justifican explorar representaciones colectivas, pero no establecen que cualquier grafo supere a un predictor tabular \cite{josephs2025hypergraphadjustedplusminus}.
+
+\paragraph*{Tratamiento de faltantes y controles especiales.}
+Se distinguirán ausencias estructurales de valores desconocidos. Un score no comparable no se rellenará con un promedio para convertirlo en emparejamiento válido. Un cero real de tiros o pérdidas se conservará como cero; un porcentaje sin intentos quedará indefinido. La ausencia de historial de un quinteto no se interpretará como mal rendimiento.
+
+La imputación de predictores numéricos que requiera el estimador se ajustará solo con entrenamiento, utilizando una referencia documentada y conservando indicadores de ausencia. No se imputarán identificadores críticos, integrantes desconocidas o respuestas. Las categorías nuevas o pendientes recibirán tratamiento explícito, sin asignarles un orden numérico ficticio. Se informará la cobertura de datos excluidos y se verificará que una sustituta con pocos antecedentes no obtenga una recomendación favorable únicamente por un valor de relleno.
+
+\paragraph*{Utilidad para seleccionar la alineación y límites.}
+Ante un quinteto rival fijo se generará una fila de consulta por cada quinteto propio permitido. Se recuperarán antecedentes al corte y salidas de fase 1, mientras que los resultados futuros quedarán vacíos. El predictor estimará el Net Rating y la selección comparará las alternativas elegibles, incluida la alineación actual. Así se combinarán evidencia colectiva y compatibilidad estadística individual sin elegir por separado una ganadora para cada rival.
+
+La estructura permite auditar las predicciones, distinguir cobertura de rendimiento y reutilizar los registros para representaciones diferentes. Sus límites serán la escasez de coincidencias exactas, la variabilidad de tasas en poca exposición, errores de reconstrucción y diferencias de contexto entre encuentros. Agregar los intervalos del partido perderá su secuencia interna; por ello, se conservará una tabla auxiliar de intervalos y eventos vinculada a la fila agregada. La primera versión no modelará efectos específicos de fatiga o marcador de cada intervalo.
+
+La mejora de la recomendación no quedará garantizada por disponer de más columnas. Se contrastará el predictor colectivo con y sin información de fase 1, sobre las mismas particiones. La selección combinatoria identificará la mejor alternativa según el modelo y las restricciones, sin observar los resultados contrafactuales de quintetos no utilizados. La estructura de ambas tablas podrá revisarse durante la recopilación y exploración; sus cambios y reglas quedarán documentados antes de la comparación experimental.
