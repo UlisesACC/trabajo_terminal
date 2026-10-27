@@ -118,7 +118,7 @@
 \newcommand{\autorUno}{Ulises Abdiel Cabello Cardenas}
 \newcommand{\autorDos}{Fernanda Madariaga Villanueva}
 \newcommand{\directorUno}{Dr. Benjamín Cruz Torres}
-\newcommand{\directorDos}{Grado y nombre completo}
+\newcommand{\directorDos}{María Magdalena Saldivar Almorejo}
 \newcommand{\mesAnio}{Mes y año}
 
 \begin{document}
@@ -129,13 +129,23 @@
 \begin{titlepage}
 \begin{center}
 
-\begin{minipage}{0.2\textwidth}
-    %\includegraphics[width=\linewidth]{} 
-\end{minipage}
-\begin{minipage}{0.75\textwidth}
+\noindent
+\begin{minipage}[c]{0.19\textwidth}
+    \centering
+    \IfFileExists{imagenes/preliminares/logo_ipn.png}{%
+        \includegraphics[height=2.6cm,keepaspectratio]{imagenes/preliminares/logo_ipn.png}%
+    }{}
+\end{minipage}%
+\begin{minipage}[c]{0.62\textwidth}
     \centering
     {\Large \bfseries INSTITUTO POLITÉCNICO NACIONAL}\\[4pt]
     {\large \bfseries ESCUELA SUPERIOR DE CÓMPUTO}
+\end{minipage}%
+\begin{minipage}[c]{0.19\textwidth}
+    \centering
+    \IfFileExists{imagenes/preliminares/logo_escom.png}{%
+        \includegraphics[width=\linewidth,keepaspectratio]{imagenes/preliminares/logo_escom.png}%
+    }{}
 \end{minipage}
 
 \vspace{1cm}
@@ -157,14 +167,11 @@
 
 \vspace{2cm}
 {\itshape Directores}\\[6pt]
-{\bfseries \directorUno \quad \directorDos}
+{\bfseries \directorUno}\\[4pt]
+{\bfseries \directorDos}
 
 \vfill
 
-\begin{minipage}{0.2\textwidth}
-    % \includegraphics[width=\linewidth]{logo_escom.png} % Reemplazar con el logo real
-\end{minipage}
-\hfill
 {\itshape \mesAnio}
 
 \end{center}
@@ -216,7 +223,7 @@
 En este proyecto\ldots
 
 \vspace{0.5cm}
-\noindent \textbf{Palabras clave:} , , ,
+\noindent \textbf{Palabras clave:} WNBA, optimización de alineaciones, análisis de emparejamientos, aprendizaje automático, analítica deportiva.
 
 \end{titlepage}
 
