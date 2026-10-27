@@ -1,0 +1,100 @@
+\subsection{Selección y comparación de la variable objetivo}
+\label{subsec:variable-objetivo-fase1}
+Una vez definidos los antecedentes y los perfiles estadísticos, se requiere precisar qué resultado deberá predecir el modelo supervisado. La fase 1 tendrá como propósito generar puntuaciones para ordenar jugadoras de posiciones o roles comparables frente a una rival determinada. Dichas puntuaciones se incorporarán a la fase 2 como información complementaria para evaluar quintetos. Se distinguirán tres métricas: Game Score (GmSc) tradicional, Game Score normalizado por exposición y diferencia entre los Game Score normalizados de ambas jugadoras. El primero se conservará como referencia; las dos últimas constituirán las alternativas principales de respuesta. La selección definitiva permanecerá pendiente de la evaluación experimental.
+
+\subsubsection*{Game Score tradicional}
+El Game Score resume estadísticas individuales mediante una combinación ponderada de acciones registradas. La definición publicada por Basketball-Reference es \cite{basketballReferenceGameScore}:
+\begin{equation}
+\begin{split}
+G={}&PTS+0.4FGM-0.7FGA-0.4(FTA-FTM)\\
+&+0.7OREB+0.3DREB+STL+0.7AST\\
+&+0.7BLK-0.4PF-TOV.
+\end{split}
+\label{eq:gmsc-615}
+\end{equation}
+Aquí, $PTS$ representa puntos; $FGM$ y $FGA$, tiros de campo acertados e intentados; $FTM$ y $FTA$, tiros libres acertados e intentados; $OREB$ y $DREB$, rebotes ofensivos y defensivos; $STL$, robos; $AST$, asistencias; $BLK$, bloqueos; $PF$, faltas personales; y $TOV$, pérdidas.
+
+En este proyecto se aplicará la fórmula a los eventos individuales de los intervalos compartidos por la focal $a$ y la rival $b$ en el partido $g$. Esta restricción constituye una adaptación operativa del proyecto: no equivale al Game Score del partido completo ni acredita que ambas se hayan defendido directamente. Se agregarán primero los eventos elegibles de todos los intervalos compartidos y después se calculará $G_{a\mid b,g}$.
+
+Su utilidad será establecer una referencia reproducible de producción acumulada. Sin embargo, dos actuaciones con distinta duración no representan las mismas oportunidades de acumular estadísticas. Por ello, un valor mayor no se interpretará automáticamente como un emparejamiento más favorable.
+
+\subsubsection*{Game Score ajustado por exposición}
+La expresión Game Score ajustado se utilizará únicamente para identificar una normalización definida en este proyecto; no se presentará como una fórmula estándar que elimine todos los sesgos del indicador. Como primera formulación se propone:
+\begin{equation}
+R_{a\mid b,g}=100\,\frac{G_{a\mid b,g}}{P_{ab,g}},
+\qquad
+P_{ab,g}=\frac{P^{(a)}_{ab,g}+P^{(b)}_{ab,g}}{2}.
+\label{eq:gmsc-normalizado-615}
+\end{equation}
+Los términos $P^{(a)}_{ab,g}$ y $P^{(b)}_{ab,g}$ serán las posesiones ofensivas elegibles de los equipos de $a$ y $b$, respectivamente, durante los mismos intervalos. Su promedio definirá una exposición común para ambas jugadoras. El resultado se expresará en unidades de Game Score por 100 posesiones de exposición común; no será un Net Rating ni una estimación de puntos aportados. El uso de ese denominador es una decisión metodológica propuesta que deberá verificarse con la reconstrucción de posesiones.
+
+La normalización permitirá comparar producción relativa a una exposición equivalente. No se promediarán directamente tasas de intervalos: se sumarán sus numeradores y denominadores antes de dividir. Cuando no pueda reconstruirse una exposición válida, la respuesta se marcará como no disponible. El umbral mínimo de exposición se fijará con el conjunto de desarrollo y se documentará antes de la evaluación final. Una tasa por minuto podrá estudiarse como alternativa si la reconstrucción de posesiones no resulta fiable, manteniendo unidades homogéneas en cada experimento.
+
+La división reduce la dependencia directa de la duración, pero puede amplificar la variabilidad de actuaciones breves. Tampoco modifica los coeficientes originales ni incorpora acciones ausentes de la fórmula. En consecuencia, se conservarán las posesiones y los minutos compartidos para informar la cobertura y analizar la estabilidad de las predicciones.
+
+\subsubsection*{Diferencia de Game Score ajustado}
+La tercera métrica comparará la producción normalizada de ambas jugadoras:
+\begin{equation}
+D_{ab,g}=R_{a\mid b,g}-R_{b\mid a,g}.
+\label{eq:diferencia-gmsc-615}
+\end{equation}
+Un valor positivo indicará mayor producción de la focal según el indicador; uno negativo, mayor producción de la rival; y cero, igualdad entre ambas puntuaciones. Al utilizar la misma exposición, se cumplirá $D_{ba,g}=-D_{ab,g}$. Esta propiedad corresponde a las respuestas observadas; dos predicciones independientes no necesariamente la cumplirán, por lo que se comprobará su consistencia.
+
+La diferencia permitirá representar una ventaja estadística relativa, en lugar de describir únicamente la actuación de la focal. No se restarán Game Score brutos obtenidos en exposiciones distintas. Tampoco se interpretará la resta como un control experimental: los resultados seguirán dependiendo de las compañeras, las demás rivales, el uso ofensivo y el contexto del partido.
+
+\subsubsection*{Comparación de las alternativas}
+La Tabla~\ref{tab:comparacion-objetivos-fase1} sintetiza las implicaciones de las tres métricas. Las limitaciones se derivan de sus fórmulas y de la unidad de observación propuesta; no constituyen resultados experimentales ya comprobados.
+
+\begingroup
+\small
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{longtable}{@{}p{2.3cm}p{3.55cm}p{3.55cm}p{3.55cm}@{}}
+\caption{Comparación de variables objetivo para la fase 1.}
+\label{tab:comparacion-objetivos-fase1}\\
+\toprule
+\textbf{Criterio} & \textbf{GmSc tradicional} & \textbf{GmSc ajustado} & \textbf{Diferencia ajustada}\\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Criterio} & \textbf{GmSc tradicional} & \textbf{GmSc ajustado} & \textbf{Diferencia ajustada}\\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+Qué representa & Producción acumulada de la focal durante la coincidencia. & Producción de la focal por exposición común. & Ventaja de producción normalizada de la focal respecto a la rival.\\
+Ventaja principal & Cálculo directo y referencia interpretable a partir de conteos. & Comparación de actuaciones con distinta exposición. & Comparación explícita de las dos participantes.\\
+Limitación principal & Confunde oportunidades de acumulación con diferencias de rendimiento. & Las tasas con poca exposición pueden ser inestables. & Combina dos producciones: una diferencia favorable no implica baja producción rival.\\
+Sesgos y contexto & Depende del rol, volumen y categorías incluidas en la fórmula. & Conserva la composición del indicador y las diferencias de rol. & Conserva esas limitaciones y la influencia contextual sobre ambas jugadoras.\\
+Aporte posible a fase 2 & Referencia de volumen, dependiente de la duración prevista. & Característica de producción individual esperada ante una rival. & Característica de ventaja relativa entre candidatas y rivales.\\
+Desventaja para fase 2 & Puede favorecer quintetos por volumen histórico de sus integrantes. & No describe por sí sola la producción de la rival ni la complementariedad colectiva. & Puede ocultar si ambas producen mucho o poco; pierde el nivel de las dos tasas originales.\\
+Datos adicionales & Conteos individuales restringidos a la coincidencia. & Los mismos conteos y posesiones compartidas reconstruidas. & Conteos de ambas y la misma exposición.\\
+Costo de obtención & Operaciones aritméticas constantes una vez agregados los eventos. & Mayor preparación por reconstrucción y validación de posesiones. & Una resta adicional si ambas tasas ya están calculadas.\\
+Papel experimental & Referencia de comparación. & Candidata principal para estimar producción focal. & Candidata principal para ordenar ventaja relativa.\\
+\end{longtable}
+\endgroup
+
+El costo dominante será identificar correctamente las jugadoras en cancha, segmentar los intervalos y agregar eventos y posesiones. Una vez disponibles esas cantidades, las tres fórmulas tendrán costo aritmético constante por fila; no existe fundamento para afirmar que el diferencial requiera un modelo computacionalmente más complejo. El tiempo de entrenamiento dependerá del estimador, las características y la búsqueda de hiperparámetros.
+
+\subsubsection*{Interpretación y dirección del ranking}
+Para una rival fija $b$, las candidatas propias se ordenarán de mayor a menor $\widehat R_{a\mid b}$ si interesa su producción esperada, o de mayor a menor $\widehat D_{ab}$ si interesa la ventaja relativa. La segunda formulación corresponde más directamente al criterio de superioridad estadística entre las dos participantes, por definición de la resta; su utilidad predictiva deberá comprobarse.
+
+Si se fija a Paige Bueckers como focal y se ordenan rivales para identificar ante cuál se espera una situación menos favorable para ella, el orden será ascendente en $\widehat R_{\mathrm{Paige}\mid b}$ o en $\widehat D_{\mathrm{Paige},b}$. El primer criterio señalará menor producción esperada de Paige; el segundo, menor ventaja relativa. Estos órdenes pueden diferir: una rival podría producir mucho sin coincidir con una reducción importante de la producción de Paige. Los nombres del ejemplo no establecerán un orden real antes de entrenar y evaluar.
+
+Por tanto, ninguna métrica identificará por sí sola a la mejor defensora directa. El ranking describirá condiciones de coincidencia y dependerá de cuál de las dos preguntas anteriores se adopte. La segmentación por posición o rol comparable mejorará la delimitación del análisis, pero no garantizará eliminar las diferencias de función dentro del equipo.
+
+\subsubsection*{Alcance defensivo y medidas de mitigación}
+La fórmula original incluye robos, bloqueos, rebotes defensivos y penalización por faltas, pero no contiene términos específicos para defensa posicional, tiros contestados o asignaciones de marcaje \cite{basketballReferenceGameScore}. Normalizarla no incorporará esas acciones. Asimismo, agregar predictores defensivos históricos podrá ayudar a anticipar la respuesta, pero no cambiará lo que la respuesta mide.
+
+Se abordará esta limitación mediante tres medidas. Primero, se incorporarán únicamente antecedentes defensivos que puedan obtenerse y validarse en las fuentes disponibles, sin suponer la existencia de desvíos o porcentajes permitidos frente a una marca identificada. Segundo, se contrastará la tasa focal con el diferencial, que incorpora también la producción de la rival, conservando la advertencia de que esta última no es producción necesariamente permitida por la focal. Tercero, la fase 2 incorporará información colectiva de las alineaciones, dado que la contribución conjunta requiere una representación adicional a la suma de indicadores individuales \cite{josephs2025hypergraphadjustedplusminus}.
+
+Estas medidas complementarán el análisis, pero no resolverán por completo la cobertura defensiva del Game Score. Construir un índice defensivo adicional o cambiar sus coeficientes constituiría otra variable objetivo y requeriría justificación y validación propias; no se añadirá de manera implícita al ajuste por exposición.
+
+\subsubsection*{Criterio de selección y continuidad metodológica}
+Se evaluarán las alternativas mediante los cortes temporales definidos previamente: entrenamiento con pasado y validación con partidos posteriores \cite{sklearnTemporal613}. Los conteos y posesiones del partido que definen la respuesta no se utilizarán como predictores de ese mismo partido. Cada alternativa conservará su experimento de ponderación y sus reglas de exposición; el GmSc tradicional servirá como referencia y no ampliará automáticamente la búsqueda principal a una tercera familia de modelos.
+
+No se seleccionará la respuesta por comparar directamente errores absolutos expresados en escalas distintas. Se examinarán el error frente a referencias de cada objetivo, la estabilidad del orden, la cobertura y el comportamiento con poca exposición. La correlación de rangos podrá describir concordancia con el orden observado según la propia métrica, sin presentarse como validación de superioridad defensiva.
+
+La fase 2 recibirá las puntuaciones numéricas de todas las candidatas, sus identificadores, la rival y la cobertura histórica, no únicamente una lista de nombres ni la primera posición. Sus entradas de entrenamiento se generarán fuera de muestra y respetando el tiempo. La comparación colectiva con y sin estas puntuaciones permitirá valorar su aportación a la predicción del Net Rating. No se sumarán los Game Score como si fueran Net Rating ni se asumirá que la candidata mejor situada integra necesariamente el mejor quinteto.
+
+En correspondencia con la metodología en cascada, este apartado establece las respuestas y los criterios de comparación antes de ejecutar los experimentos. La elección entre producción focal normalizada y ventaja relativa permanecerá abierta hasta completar la validación de desarrollo; la prueba final quedará reservada para evaluar la configuración seleccionada \cite{cawley2010selection}. Con esta definición se dará paso a la propuesta de modelos supervisados capaces de estimar cada respuesta.
