@@ -167,3 +167,86 @@ Si el desempeño colectivo de desarrollo resulta insuficiente o no mejora al añ
 Esta ampliación se decidirá exclusivamente con validación de desarrollo. Un resultado desfavorable de la prueba final se reportará como limitación y no se utilizará para cambiar algoritmos y reutilizar la misma prueba como evaluación independiente \cite{cawley2010selection}. Se conservará la configuración más sencilla que aporte evidencia favorable dentro de las comparaciones realizadas. La secuencia respetará los entregables de la metodología en cascada: preparación verificada, especificación del modelo, entrenamiento y validación, construcción de salidas e integración colectiva.
 
 \endgroup
+
+\subsubsection{Validación temporal y métricas de evaluación del modelo}
+\label{subsubsec:validacion-modelo-fase1}
+La evaluación comprobará dos aspectos: qué tan cercanas son las puntuaciones predichas a las observadas y qué tan bien conservan el orden entre candidatas. Se distinguirán entrenamiento, validación y prueba final. La predicción será la operación de estimar una respuesta todavía no utilizada por el modelo; no constituirá una cuarta partición.
+
+\paragraph*{Separación cronológica de los datos.}
+Se mantendrá el diseño temporal del apartado de ponderación histórica, para que la elección de pesos y la evaluación del regresor utilicen el mismo criterio. Se entrenará con el pasado y se predecirán partidos posteriores, evitando que resultados futuros intervengan en la preparación del modelo \cite{sklearnTemporal613}. Los porcentajes se aplicarán a fechas únicas elegibles de 2026, no a filas mezcladas al azar.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Particiones previstas para evaluar el modelo global de la fase 1.}
+\label{tab:particiones-modelo-6161}
+\begin{tabularx}{\textwidth}{@{}p{2.3cm}XX@{}}
+\toprule
+\textbf{Uso} & \textbf{Periodo previsto} & \textbf{Función}\\
+\midrule
+Entrena\-miento inicial & 2024--2025 y primer 60\% de fechas de 2026. & Aprender las relaciones entre antecedentes y respuesta.\\
+Validación, corte 1 & Siguiente 10\% de fechas de 2026. & Comparar configuraciones con predicciones posteriores al entrenamiento.\\
+Validación, corte 2 & Siguiente 10\% de fechas de 2026. & Repetir la comparación incorporando el bloque anterior al entrenamiento.\\
+Prueba final & Último 20\% de fechas de 2026. & Evaluar una sola vez la configuración ya elegida, reajustada con el 80\% de desarrollo y el historial anterior.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Los límites se fijarán por fechas completas y se documentarán antes de comparar resultados. Todas las filas de un partido, incluidas las perspectivas inversas de una pareja, permanecerán juntas. Si la cobertura disponible no permite esas proporciones, se redefinirán los cortes antes de seleccionar modelos y se conservará un periodo final independiente. El número de filas no se interpretará como cantidad de partidos independientes.
+
+Los antecedentes de cada fila de entrenamiento solo utilizarán información anterior a su propio encuentro. Durante cada bloque de evaluación, el modelo y la información histórica empleada en los predictores quedarán congelados al inicio del bloque, de acuerdo con el protocolo estático previo. Imputación, escalamiento, codificación y clustering se ajustarán dentro del entrenamiento. Los cortes temporales internos para seleccionar penalizaciones u otros hiperparámetros también quedarán contenidos en ese entrenamiento \cite{sklearnCommonPitfallsPonderacion,cawley2010selection}.
+
+\paragraph*{Métricas de error de las puntuaciones.}
+Se utilizará el error absoluto medio (MAE) como criterio principal, acompañado por la raíz del error cuadrático medio (RMSE) y el coeficiente de determinación ($R^2$). Las dos primeras medidas cuantificarán distancia respecto a la respuesta observada; la tercera aportará una referencia relativa a su variabilidad \cite{sklearnMetricas6161}. No se utilizarán exactitud de clasificación o AUC como medidas principales, porque se predice una cantidad numérica y no una clase.
+
+Para evitar que los partidos con más parejas dominen únicamente por generar más filas, se asignará a cada fila $i$ del partido $g$ el peso de evaluación:
+\[
+ \omega_i=\frac{1}{|G|\,n_g}.
+\]
+Aquí, $G$ será el conjunto de partidos del bloque, $|G|$ su cantidad y $n_g$ el número de filas elegibles de ese partido. Los pesos sumarán uno y darán la misma importancia total a cada encuentro. No serán descuentos por temporada ni pesos para entrenar; solo definirán cómo se resumen los errores.
+
+Con $y_i$ como respuesta observada y $\widehat y_i$ como predicción, se calcularán:
+\begin{align}
+ MAE &= \sum_i\omega_i|y_i-\widehat y_i|,\\
+ RMSE &= \sqrt{\sum_i\omega_i(y_i-\widehat y_i)^2},\\
+ R^2 &=1-\frac{\sum_i\omega_i(y_i-\widehat y_i)^2}
+ {\sum_i\omega_i(y_i-\overline y_\omega)^2},
+ \qquad \overline y_\omega=\sum_i\omega_i y_i.
+\end{align}
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Interpretación y finalidad de las métricas de puntuación.}
+\label{tab:metricas-modelo-6161}
+\begin{tabularx}{\textwidth}{@{}p{1.6cm}XX@{}}
+\toprule
+\textbf{Métrica} & \textbf{Justificación} & \textbf{Interpretación}\\
+\midrule
+MAE & Expresa la magnitud media del error sin cancelar errores positivos con negativos. Mantiene el criterio establecido para elegir descuentos. & Menor es mejor; cero indica coincidencia perfecta. Un MAE de 2 significa una desviación absoluta media de 2 unidades de la respuesta, no 2\% de error.\\
+RMSE & Da mayor influencia a errores grandes mediante el cuadrado, permitiendo detectar fallos que el MAE resume con menor énfasis. & Menor es mejor; utiliza las mismas unidades de la respuesta. Un RMSE muy superior al MAE sugiere errores de magnitud desigual y exige revisar sus casos.\\
+$R^2$ & Compara el error cuadrático con el de una predicción constante igual a la media ponderada del bloque evaluado. & 1 indica ajuste perfecto; 0 equivale a esa referencia; un valor negativo indica mayor error. No es un porcentaje de predicciones correctas.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Estas interpretaciones proceden de las definiciones de las métricas \cite{sklearnMetricas6161}. Si la respuesta observada es constante, el denominador de $R^2$ será cero y se reportará como no definido, sin sustituirlo por una puntuación favorable. Para Game Score normalizado y diferencial, MAE y RMSE se expresarán en unidades de Game Score por 100 posesiones de exposición común; para el indicador bruto, en unidades de Game Score. No se elegirá entre objetivos distintos solo porque uno tenga menor error numérico.
+
+\paragraph*{Evaluación del orden entre candidatas.}
+La correlación de rangos de Spearman complementará los errores, porque la salida se utilizará para construir un ranking. Se compararán las posiciones asignadas por las puntuaciones observadas y predichas, no únicamente sus magnitudes. Spearman varía entre $-1$ y $1$: valores próximos a $1$ indican concordancia de orden; próximos a $-1$, orden inverso; y próximos a cero, ausencia de una asociación monotónica clara \cite{scipySpearman6161}. Una buena correlación no garantiza puntuaciones bien calibradas, por lo que no sustituirá al MAE.
+
+Como evaluación inicial se agruparán filas del mismo partido, con la misma rival y el mismo macrorrol comparable de las focales. Se calculará Spearman cuando existan al menos tres candidatas observadas elegibles y ninguno de los dos conjuntos de puntuaciones sea constante. Los empates recibirán rangos promedio. Se promediarán primero las correlaciones válidas dentro de cada partido y después entre partidos; se informarán también la distribución de resultados y la cantidad de grupos excluidos. El mínimo de tres será una regla operativa del proyecto, no una garantía de estabilidad estadística.
+
+Solo podrán compararse candidatas que efectivamente participaron y tienen una respuesta calculable. No se conocerá el rendimiento que habría obtenido una suplente que nunca ingresó; por tanto, esta evaluación no validará todo el vector hipotético ni todas las sustituciones posibles. Además, las candidatas observadas pueden haber coincidido con la rival en intervalos y contextos diferentes. La concordancia medirá el orden de producción observada bajo esas condiciones, no superioridad defensiva causal.
+
+\paragraph*{Referencias de comparación y cobertura.}
+Se incluirá una predicción constante igual a la mediana de las respuestas del entrenamiento, como referencia sencilla para el MAE, y otra basada en la mediana histórica de la focal, con respaldo poblacional cuando no exista historial suficiente. Ambas se calcularán solo con el pasado permitido y se evaluarán sobre las mismas filas que el modelo. Para el diferencial se añadirá la referencia cero, que representa ausencia de ventaja predicha; no se supondrá que sea el resultado verdadero.
+
+Se reportarán partidos, filas elegibles, exposición y porcentaje de parejas sin historial directo. También se presentarán errores por macrorrol y disponibilidad de historial, indicando el tamaño de cada grupo. Las respuestas indefinidas por exposición inválida se excluirán mediante una regla común previa y se contabilizarán; no se excluirán selectivamente para favorecer un algoritmo. No se fijará un MAE universalmente aceptable sin conocer la escala y la variabilidad de los datos.
+
+\paragraph*{Implementación y decisión final.}
+En Python se generará una tabla de predicciones con fecha, partido, focal, rival, respuesta observada, predicción, exposición y versión del modelo. MAE, RMSE y $R^2$ se calcularán con \texttt{scikit-learn}, proporcionando los pesos de evaluación; Spearman se calculará con \texttt{scipy.stats.spearmanr} \cite{sklearnMetricas6161,scipySpearman6161}. Se desactivará el reemplazo automático de resultados no finitos de $R^2$ cuando la implementación lo ofrezca y se verificarán sus casos no definidos.
+
+La elección se basará principalmente en el promedio del MAE de los dos cortes temporales, manteniendo la misma respuesta y filas elegibles. RMSE, $R^2$, Spearman, cobertura y costos permitirán examinar las limitaciones de esa elección, sin cambiar retrospectivamente el criterio para favorecer un resultado. Se conservarán los valores por corte para identificar diferencias entre periodos; las filas del mismo encuentro no se tratarán como repeticiones independientes para justificar significancia.
+
+Después de cerrar objetivo, algoritmo, variables y configuraciones, se reajustará el procedimiento con los datos de desarrollo y se aplicará al bloque final reservado. La utilidad para la fase 2 se comprobará posteriormente comparando su predicción colectiva con y sin las puntuaciones individuales, sobre las mismas particiones. Un error individual bajo o un ranking concordante no garantizará por sí solo una mejora del Net Rating. Cualquier revisión motivada por la prueba final se declarará como desarrollo posterior y requerirá otra evaluación independiente \cite{cawley2010selection}.
