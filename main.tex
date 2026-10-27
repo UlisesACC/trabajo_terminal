@@ -253,8 +253,30 @@ En este proyecto\ldots
 \textbf{Término} & \textbf{Definición} \\
 \midrule
 \endhead
-Algoritmo & Conjunto ordenado y finito de operaciones que permite hallar la solución de un problema. \\
-Almacenamiento virtual & Técnica que simula más memoria que la que realmente existe y permite a la computadora ejecutar varios programas simultáneamente. \\
+Algoritmo & Conjunto finito de instrucciones o reglas para realizar una tarea o resolver un problema. \\
+Alineación & Conjunto de cinco jugadoras que participan simultáneamente por un equipo durante el partido. \\
+Análisis exploratorio de datos & Estudio inicial de la distribución, calidad y relaciones entre las variables de un conjunto de datos. \\
+Aprendizaje automático & Métodos computacionales que ajustan modelos a partir de datos para describir patrones o generar predicciones. \\
+Aprendizaje no supervisado & Familia de métodos que identifica estructuras o grupos a partir de datos sin etiquetas objetivo predeterminadas. \\
+Clasificación & Tarea predictiva que asigna observaciones a categorías o estima su probabilidad de pertenencia. \\
+Coincidencia en cancha & Intervalo durante el cual dos jugadoras se encuentran simultáneamente participando en un partido; no implica una asignación defensiva directa. \\
+Emparejamiento & Relación contextual entre jugadoras consideradas en un análisis; una coincidencia temporal no demuestra por sí sola un marcaje individual. \\
+Función objetivo & Expresión matemática utilizada para valorar las soluciones y determinar qué cantidad se desea maximizar o minimizar. \\
+Jugadora focal & Jugadora tomada como referencia para describir sus estadísticas y coincidencias con integrantes del equipo rival. \\
+Jugadora rival & Integrante del equipo contrario que coincide en cancha con una jugadora focal durante un intervalo. \\
+Métrica de rendimiento & Medida cuantitativa empleada para describir o comparar el desempeño individual o colectivo. \\
+Optimización combinatoria & Búsqueda de una configuración que maximice o minimice una función objetivo dentro de un conjunto discreto de alternativas. \\
+Parquet & Formato de almacenamiento de datos tabulares orientado por columnas, utilizado para conservar conjuntos de estadísticas históricas. \\
+Perfil funcional & Caracterización de una jugadora mediante sus comportamientos y estadísticas de juego, que puede diferir de su posición nominal. \\
+Play-by-play & Registro cronológico de eventos de un partido, como anotaciones, rebotes, faltas y sustituciones. \\
+Posesión & Unidad de análisis que describe una oportunidad ofensiva en la que un equipo controla el balón, según el criterio de segmentación empleado. \\
+Quinteto & Alineación de cinco jugadoras pertenecientes a un mismo equipo. \\
+Regularización & Conjunto de técnicas que limita la complejidad de un modelo o estabiliza sus estimaciones para reducir el sobreajuste. \\
+Restricción & Condición que debe cumplir una solución para ser considerada factible dentro de un problema de optimización. \\
+Sinergia & Efecto de interacción entre integrantes de una alineación que no se describe completamente mediante contribuciones individuales aisladas. \\
+Sustitución & Cambio de una jugadora que participa en cancha por otra integrante elegible de su equipo. \\
+Validación temporal & Estrategia de evaluación que respeta la secuencia cronológica, usando información anterior para estimar resultados posteriores. \\
+Variable derivada & Característica obtenida a partir de cálculos o transformaciones aplicados a datos originales. \\
 \bottomrule
 \end{longtable}
 
@@ -329,20 +351,6 @@ En el capítulo 4, se analizan \ldots
 \input{secciones/capitulo_3_marco_teorico/Estadistica_aplicada_al_baloncesto}
 \section{Optimización matemática de alineaciones}
 \input{secciones/capitulo_3_marco_teorico/Optimizacion_matematica_alineaciones}
-\section{Web Scraping}
-\input{secciones/capitulo_3_marco_teorico/web_scrapping}
-\section{Criptografía}
-De acuerdo con \cite{ejemploX} la palabra criptografía proviene del latín \ldots
-
-\subsection{Algoritmos criptográficos}
-Según \cite{ejemploZ} se pueden clasificar los algoritmos \ldots
-
-\subsubsection{DES}
-El primer algoritmo criptográfico, de acuerdo con \cite{ejemploY}, es \ldots
-
-\section{Lenguaje de programación}
-En \cite{ejemploW} se define a un lenguaje de programación como \ldots
-
 % ============================================================
 % CAPÍTULO 4. ANÁLISIS
 % ============================================================
@@ -430,71 +438,74 @@ Se documentarán la validación temporal, los métodos de referencia y las métr
 % CAPÍTULO 7. PRUEBAS
 % ============================================================
 \chapter{Pruebas}
-
-\section{Generación del plan de pruebas}
-
-\begin{table}[H]
-\centering
-\caption{Registro de revisiones}
-\begin{tabular}{@{}p{1.3cm}p{2.2cm}p{2.7cm}p{2.7cm}p{4.5cm}@{}}
-\toprule
-\textbf{Versión} & \textbf{Fecha} & \textbf{Autor} & \textbf{Revisor} & \textbf{Observaciones} \\
-\midrule
-1.0 & dd/mm/aaaa & Nombre (estudiante) & Nombre (director/a) & Desarrollo del módulo de inicio de sesión y conexión con la base de datos \\
-1.1 & dd/mm/aaaa & Nombre (estudiante) & Nombre (director/a) & Desarrollo del módulo de gestión de perfil del usuario \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\subsection{Construcción y ejecución de pruebas}
-
-\begin{table}[H]
-\centering
-\caption{Componentes probados}
-\begin{tabular}{@{}ll@{}}
-\toprule
-\textbf{Componentes que se probaron} & \textbf{Tipo de prueba que se realizó} \\
-\midrule
-Módulo de registro de usuario         & Funcional \\
-Módulo de inicio de sesión            & Funcional, de seguridad \\
-Módulo de recuperación de contraseña  & Integral \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\subsection{Creación de casos y escenarios de prueba al sistema}
-
-\begin{table}[H]
-\centering
-\caption{Nomenclatura de casos de prueba}
-\begin{tabular}{@{}p{6.5cm}p{6.5cm}@{}}
-\toprule
-\textbf{Nombre del documento} & \textbf{Nombre del caso de prueba} \\
-\midrule
-PR-01-Pruebas\_funcionales-Inicio de sesión & PR-M/01-CU/02-Inicio de sesión \\
-PR-02-Pruebas\_de\_seguridad-Inicio de sesión & PR-M/01-CU/02-Seguridad del Inicio de sesión \\
-PR-03-Pruebas\_funcionales-Registro de usuario & PR-M/01-CU/01-Registro de usuarios \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\subsection{Ejecución de casos y escenarios de prueba al sistema}
-
-\begin{longtable}{@{}p{2.3cm}p{3.3cm}p{2.2cm}p{1.6cm}p{2.8cm}p{1.5cm}p{1.4cm}@{}}
-\toprule
-\textbf{ID} & \textbf{Acción} & \textbf{Datos de entrada} & \textbf{Tipo} & \textbf{Resultado esperado} & \textbf{Resultado} & \textbf{Corrección} \\
-\midrule
-\endhead
-PR-M/01-CU/01-ECP/01-C01 & Iniciar sesión con usuario registrado y contraseña correcta & Usuario: benji@ipn.mx / Contraseña: miPassword123 & Optimista & Mensaje de bienvenida & Correcto & NO APLICA \\
-PR-M/01-CU/01-ECP/01-C02 & Iniciar sesión con usuario registrado y contraseña incorrecta & Usuario: benji@ipn.mx / Contraseña: OtroPassword789 & No Optimista & Mensaje de error, sin acceso & Correcto & NO APLICA \\
-PR-M/01-CU/01-ECP/01-C03 & Iniciar sesión con usuario no registrado & Usuario: nadie@ipn.mx / Contraseña: miPassword567 & No Optimista & Mensaje de error, sin acceso & Correcto & NO APLICA \\
-\bottomrule
-\end{longtable}
-
-% ============================================================
+% Contenido del capitulo 7 reservado para una etapa posterior del TT.
+% 
+% \section{Generación del plan de pruebas}
+% 
+% \begin{table}[H]
+% \centering
+% \caption{Registro de revisiones}
+% \begin{tabular}{@{}p{1.3cm}p{2.2cm}p{2.7cm}p{2.7cm}p{4.5cm}@{}}
+% \toprule
+% \textbf{Versión} & \textbf{Fecha} & \textbf{Autor} & \textbf{Revisor} & \textbf{Observaciones} \\
+% \midrule
+% 1.0 & dd/mm/aaaa & Nombre (estudiante) & Nombre (director/a) & Desarrollo del módulo de inicio de sesión y conexión con la base de datos \\
+% 1.1 & dd/mm/aaaa & Nombre (estudiante) & Nombre (director/a) & Desarrollo del módulo de gestión de perfil del usuario \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
+% 
+% \subsection{Construcción y ejecución de pruebas}
+% 
+% \begin{table}[H]
+% \centering
+% \caption{Componentes probados}
+% \begin{tabular}{@{}ll@{}}
+% \toprule
+% \textbf{Componentes que se probaron} & \textbf{Tipo de prueba que se realizó} \\
+% \midrule
+% Módulo de registro de usuario         & Funcional \\
+% Módulo de inicio de sesión            & Funcional, de seguridad \\
+% Módulo de recuperación de contraseña  & Integral \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
+% 
+% \subsection{Creación de casos y escenarios de prueba al sistema}
+% 
+% \begin{table}[H]
+% \centering
+% \caption{Nomenclatura de casos de prueba}
+% \begin{tabular}{@{}p{6.5cm}p{6.5cm}@{}}
+% \toprule
+% \textbf{Nombre del documento} & \textbf{Nombre del caso de prueba} \\
+% \midrule
+% PR-01-Pruebas\_funcionales-Inicio de sesión & PR-M/01-CU/02-Inicio de sesión \\
+% PR-02-Pruebas\_de\_seguridad-Inicio de sesión & PR-M/01-CU/02-Seguridad del Inicio de sesión \\
+% PR-03-Pruebas\_funcionales-Registro de usuario & PR-M/01-CU/01-Registro de usuarios \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
+% 
+% \subsection{Ejecución de casos y escenarios de prueba al sistema}
+% 
+% \begin{longtable}{@{}p{2.3cm}p{3.3cm}p{2.2cm}p{1.6cm}p{2.8cm}p{1.5cm}p{1.4cm}@{}}
+% \toprule
+% \textbf{ID} & \textbf{Acción} & \textbf{Datos de entrada} & \textbf{Tipo} & \textbf{Resultado esperado} & \textbf{Resultado} & \textbf{Corrección} \\
+% \midrule
+% \endhead
+% PR-M/01-CU/01-ECP/01-C01 & Iniciar sesión con usuario registrado y contraseña correcta & Usuario: benji@ipn.mx / Contraseña: miPassword123 & Optimista & Mensaje de bienvenida & Correcto & NO APLICA \\
+% PR-M/01-CU/01-ECP/01-C02 & Iniciar sesión con usuario registrado y contraseña incorrecta & Usuario: benji@ipn.mx / Contraseña: OtroPassword789 & No Optimista & Mensaje de error, sin acceso & Correcto & NO APLICA \\
+% PR-M/01-CU/01-ECP/01-C03 & Iniciar sesión con usuario no registrado & Usuario: nadie@ipn.mx / Contraseña: miPassword567 & No Optimista & Mensaje de error, sin acceso & Correcto & NO APLICA \\
+% \bottomrule
+% \end{longtable}
+% 
+% % ============================================================
 % CAPÍTULO 8. CONCLUSIONES Y TRABAJO A FUTURO
 % ============================================================
 \chapter{Conclusiones y trabajo a futuro}
+% El contenido de este capitulo se completara con los resultados del TT.
+
 % {Revisión reflexiva de los resultados, no un resumen del proyecto.}
 
 % ============================================================
