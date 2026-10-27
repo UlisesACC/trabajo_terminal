@@ -1,132 +1,40 @@
-Ante un quinteto rival determinado, el modelo recomendará la combinación de cinco jugadoras del equipo propio que maximice una función de desempeño esperado, sin garantizar la victoria del partido.
+La fase 2 trasladará el análisis desde las coincidencias individuales hacia el rendimiento de las alineaciones completas. Su finalidad será estimar el Net Rating de un quinteto del equipo focal frente a un quinteto rival determinado y utilizar esa estimación para comparar las combinaciones permitidas. La decisión considerará conjuntamente a las cinco integrantes, de modo que la candidata mejor situada en la fase 1 no tendrá que formar parte, necesariamente, del quinteto con mejor rendimiento colectivo esperado.
 
-\subsubsection*{Qué ocurre cuando cambia el rival}
-El flujo que se plantea es el siguiente:
+Esta distinción responde al carácter colectivo del problema. Los trabajos sobre alineaciones revisados estudian la composición de los grupos y sus interacciones, además de las características individuales de sus integrantes \cite{josephs2025hypergraphadjustedplusminus,yamada2024offensivelineupanalysisbasketball}. En este proyecto, esos antecedentes sustentarán la separación entre una primera fase que aporta información por pareja y una segunda que evalúa la combinación completa. No se supondrá que el desempeño de un quinteto sea igual a la suma de las puntuaciones individuales.
 
-\begin{center}
-Sustitución rival $\longrightarrow$ Nuevo quinteto rival $\longrightarrow$ Modelo 1 vs 1 $\longrightarrow$ Evaluación de quintetos propios $\longrightarrow$ Quinteto recomendado
-\end{center}
+\paragraph*{Alcance temporal y fuentes de entrada.}
+Conforme al alcance establecido para esta fase, las estadísticas colectivas procederán de una sola temporada, denominada temporada uno en la delimitación del proyecto, y se complementarán con las salidas predictivas de la fase 1. Esta denominación identificará la temporada seleccionada para el análisis colectivo y no el conjunto de varias temporadas utilizado para construir antecedentes individuales. Su año y sus límites de fechas deberán registrarse expresamente en la preparación de la tabla maestra.
 
-\subsubsection*{6. ¿Cómo se hace la recomendación final?}
-La recomendación final se hace a nivel de quinteto completo, no asignando secuencialmente una jugadora de B para cada jugadora de A.
+La restricción a una temporada será una decisión de alcance que permitirá estudiar las alineaciones dentro de un mismo periodo de competencia; no se presentará como garantía de homogeneidad, pues podrán existir cambios de plantilla, funciones o disponibilidad dentro de ese periodo. Tampoco se añadirán directamente estadísticas colectivas de temporadas anteriores. Las predicciones individuales podrán incorporar el historial multitemporada autorizado en la fase 1, siempre que se haya calculado antes de la fecha que se pretende predecir. Por tanto, la restricción de una temporada se aplicará a los registros colectivos de la fase 2 y no eliminará retrospectivamente el historial utilizado por la fase 1.
 
-Por ejemplo, que sucedería si por ejemplo tenemos dos equipos A y B.
+\paragraph*{Análisis de quintetos frente a quintetos.}
+Se estudiarán intervalos en los que permanezcan identificadas las cinco jugadoras del equipo focal y las cinco del rival. Cada cambio en cualquiera de las alineaciones delimitará un nuevo intervalo de coincidencia. Sobre esa base se obtendrán estadísticas de producción y de exposición, como puntos a favor y en contra, posesiones y duración, así como los indicadores colectivos que se definan en la tabla maestra. La utilización de alineaciones como unidad de consulta es consistente con las herramientas oficiales de estadísticas de quintetos \cite{wnbaStatsLineupsTool}.
 
-A \{A1, A2, A3, \ldots, An\}
+El interés no se limitará al promedio general de una alineación frente a todos sus oponentes. Se conservará la identidad del quinteto rival para estudiar cómo cambia el rendimiento según la composición de ambos equipos. Sin embargo, se distinguirán los enfrentamientos observados de las combinaciones posibles: el registro histórico solo proporcionará una respuesta real para las alineaciones que efectivamente coincidieron. Una combinación nunca observada podrá ser evaluada mediante el modelo si sus entradas pueden construirse, pero su predicción tendrá menor respaldo directo y requerirá informar esa limitación.
 
-B \{B1, B2, B2, \ldots, Bn\}
-
-El equipo contrario hace una sustitución y entra jugadora A2 a la cancha entonces nuestro modelo dice “la mejor jugadora para hacer frente a esa jugadora que acaba de entrar es B1; ¿qué sucede y cómo se maneja el hecho de que B1 ya se encuentre jugando en la cancha, entonces quién entraría para hacerle frente a la sustitución del equipo contrario? o ¿acaso se quedaría la misma alineación que ya se encuentra en cancha?
-
-En este ejemplo si B1 parece ser la mejor respuesta para A2, A3, A4 y A5, eso no significa que deba seleccionarse varias veces. Significa que B1 es una jugadora muy valiosa frente a ese quinteto rival. El optimizador la incluye una sola vez y busca qué otras cuatro jugadoras complementan mejor su presencia.
-
-La decisión sería:
+El indicador colectivo principal será el Net Rating, definido como la diferencia entre eficiencia ofensiva y defensiva \cite{nbaGlosarioFase2}:
 \[
-Q_B^*=\underset{Q_B\subseteq R_B,\;|Q_B|=5}{\arg\max}f(Q_B,Q_A,\text{contexto}).
+ NetRtg=ORtg-DRtg.
 \]
-donde:
-\begin{itemize}
-\item $Q_A$: quinteto rival actual.
-\item $R_B$: jugadoras disponibles del equipo B.
-\item $Q_B$: quinteto candidato.
-\item $f$: desempeño esperado considerando enfrentamiento, cohesión, ataque y defensa.
-\end{itemize}
-Con variables binarias:
-\[
-x_i=\begin{cases}1&\text{si la jugadora }B_i\text{ integra el quinteto}\\0&\text{en otro caso}\end{cases}
-\qquad \sum_i x_i=5.
-\]
-Como $x_{B1}$ sólo puede valer 0 o 1, B1 nunca puede duplicarse.
+La eficiencia ofensiva expresará los puntos anotados por 100 posesiones ofensivas elegibles y la defensiva, los puntos recibidos por 100 posesiones ofensivas elegibles del rival, dentro de los mismos intervalos. Se documentará la reconstrucción de posesiones y no se supondrá que ambos conteos sean idénticos. Un Net Rating positivo indicará una ventaja de eficiencia observada; uno negativo, una desventaja. El valor predicho representará una estimación de ese balance, no una probabilidad de victoria ni una garantía del resultado del partido.
 
-\subsubsection*{Si B1 ya está jugando}
-Cuando A2 entra al partido, no se debe preguntar: ¿Quién es la mejor sustituta para enfrentar a A2?
+\paragraph*{Enriquecimiento con las salidas de la fase 1.}
+Para cada integrante del quinteto focal se recuperará su vector de predicciones y se acotará a las rivales presentes que cumplan las reglas de comparación por macrorrol. De esta manera, la entrada colectiva conservará información sobre las cinco jugadoras propias, pero descartará de esa consulta las comparaciones con rivales ajenas al quinteto evaluado. Se utilizarán las puntuaciones numéricas asociadas a sus identificadores, no únicamente el orden de nombres.
 
-Más bien: Dado que A2 entró y B1 ya está jugando, ¿cuál es ahora el mejor quinteto factible de B?
+Según la respuesta seleccionada en la fase 1, cada puntuación describirá producción focal normalizada o ventaja relativa de producción frente a una rival. Estas comparaciones se organizarán en las submatrices pertinentes y se resumirán mediante las reglas previstas en el apartado anterior, incluyendo indicadores de cobertura. Una comparación no elegible o sin información no se interpretará como rendimiento cero.
 
-El modelo puede concluir:
-\begin{itemize}
-\item Mantener a B1 y no hacer ningún cambio.
-\item Mantener a B1 y sustituir a otra jugadora.
-\item Sacar a B1 si otra combinación completa tiene mayor rendimiento esperado.
-\end{itemize}
-Si se quiere recomendar solamente un cambio cada vez, se restringen los quintetos candidatos a aquellos que difieran del actual en máximo una jugadora. Después se comparan todas las sustituciones permitidas y se selecciona la que produzca la mayor mejora:
-\[
-\Delta=f(Q_B^{\mathrm{nuevo}},Q_A)-f(Q_B^{\mathrm{actual}},Q_A).
-\]
+La incorporación de esas salidas tendrá una finalidad complementaria. Las estadísticas colectivas describirán antecedentes del funcionamiento conjunto, mientras que las predicciones individuales podrán aportar diferencias entre las características de las integrantes y las rivales presentes. Esa información podría resultar útil cuando el historial de una combinación exacta sea escaso; no reemplazará la evidencia de juego colectivo ni demostrará cómo rendiría un quinteto nunca observado.
 
-\subsubsection*{7. ¿Qué modelos proponemos? Y ¿por qué?}
-Proponemos usar 3 diferentes algoritmos:
-\begin{enumerate}
-\item Modelo de enfrentamiento y perfiles
-\item Modelo predictivo de quintetos
-\item Optimizador -> gradiente, interpolación, aprendizaje máquina
-\end{enumerate}
-3.1 seleccionar 4-5 optimizadores y fundamentar el por qué los elegimos.
+Por ejemplo, una candidata A podría presentar una ventaja individual mayor frente a una guard rival, mientras que una candidata B formaría una alineación con antecedentes colectivos más favorables junto a las cuatro compañeras restantes. El modelo de la fase 2 evaluaría ambas combinaciones y podría asignar mayor Net Rating esperado a la segunda. Este ejemplo ilustra el mecanismo de decisión y no anticipa un resultado experimental.
 
-Exactamente. Deben distinguir entre:
-\begin{itemize}
-\item Variable objetivo: qué significa que un quinteto sea bueno.
-\item Métrica de evaluación: cómo medirán si el modelo acertó.
-\end{itemize}
-Los puntos totales son inadecuados porque dependen de minutos, ritmo y número de posesiones.
+El antecedente de Yamada y Fujii integra perfiles individuales con el estudio de eficiencia de alineaciones \cite{yamada2024offensivelineupanalysisbasketball}. En este proyecto se adoptará una hipótesis relacionada, pero distinta: las predicciones por pareja podrían añadir información útil a los antecedentes colectivos. Se comprobará mediante una comparación del modelo de fase 2 con y sin ese enriquecimiento, manteniendo las mismas particiones y condiciones de evaluación. Solo una mejora observada en validación permitirá sostener que contribuye a la predicción; su inclusión no garantizará de antemano una reducción del error.
 
-Una mejor variable objetivo sería el Net Rating ajustado por 100 posesiones:
-\[
-NetRtg=ORtg-DRtg
-\]
-donde:
-\[
-ORtg=100\frac{\text{puntos anotados}}{\text{posesiones}},
-\qquad DRtg=100\frac{\text{puntos recibidos}}{\text{posesiones}}.
-\]
-Después pueden convertirlo en clasificación:
-\[
-Y=\begin{cases}
-1&NetRtg_{\mathrm{ajustado}}>0\\
-0&NetRtg_{\mathrm{ajustado}}\leq0.
-\end{cases}
-\]
-El modelo respondería:
+\paragraph*{Predicción y selección de la alineación.}
+Se distinguirán dos operaciones. Primero, el modelo estimará el Net Rating de cada quinteto candidato frente al quinteto rival actual. Después, se seleccionará la alternativa con mayor valor predicho entre las que respeten disponibilidad, composición y límites de sustituciones establecidos. Si se permite un solo cambio, se compararán los quintetos resultantes de las sustitutas elegibles, incluyendo la posibilidad de conservar la alineación actual. Si se permite reorganizar el quinteto completo, se evaluarán las combinaciones factibles de cinco jugadoras, sin duplicar integrantes.
 
-¿Cuál es la probabilidad de que este quinteto tenga un diferencial positivo frente al quinteto rival?
+Cuando cambie una jugadora rival, se actualizará la composición contraria, se obtendrán las comparaciones individuales correspondientes y se volverán a evaluar las alternativas propias. Esta operación será una nueva consulta a los modelos guardados, no un reentrenamiento durante el partido. La recomendación se interpretará como la mejor alternativa según el modelo y las restricciones consideradas, sin atribuirle superioridad defensiva causal ni certeza de victoria.
 
-Esto será más estable y evaluable que predecir puntos exactos.
+\paragraph*{Continuidad con la preparación y evaluación.}
+Los resultados del intervalo que se pretende predecir servirán para calcular la respuesta observada, no para completar las entradas de esa misma predicción. Los antecedentes colectivos se calcularán con el pasado permitido de la temporada seleccionada. Asimismo, las salidas de fase 1 utilizadas para entrenar la fase 2 se generarán fuera de muestra y respetando el tiempo, evitando que un partido reciba predicciones obtenidas después de entrenar con sus propias respuestas o con resultados futuros \cite{sklearnCommonPitfallsPonderacion,cawley2010selection}.
 
-\subsubsection*{Métricas}
-\begin{longtable}{@{}p{3.3cm}p{9.4cm}@{}}
-\toprule\textbf{Métrica}&\textbf{Interpretación en el modelo}\\\midrule\endhead
-Accuracy&Puede engañar si predominan los quintetos positivos o negativos por lo cual se tendrán en cuenta variedad de métricas.\\
-Precision&De los quintetos recomendados como buenos, cuántos realmente fueron buenos.\\
-Recall&Cuántos quintetos buenos logró encontrar.\\
-F1-Score&Equilibrio entre Precision y Recall.\\
-ROC-AUC&Capacidad general para separar quintetos favorables y desfavorables.\\
-Brier Score o Log Loss&Calidad de las probabilidades predichas.\\
-Precision@K&Cuántos de los tres o cinco quintetos mejor recomendados tuvieron buen desempeño.\\
-NDCG o correlación de ranking&Qué tan bien ordenó los quintetos.\\
-\bottomrule
-\end{longtable}
-
-Consideraciones que se tendrán en la validación de los resultados:
-
-Se priorizarán las métricas Precision@3 + Brier Score + F1 porque interesa que los primeros quintetos recomendados sean realmente confiables.
-
-¿por qué?
-
-Precision@k (Precisión en el top k) es una métrica de evaluación utilizada en sistemas de recuperación de información, motores de recomendación y modelos de clasificación. Mide la proporción de elementos relevantes que se encuentran entre los primeros k resultados devueltos por el modelo o sistema.
-
-¿cómo funciona esta métrica?
-
-Orden de los resultados: A diferencia de la precisión tradicional, que evalúa un conjunto completo sin importar el orden, Precision@k penaliza si los elementos relevantes aparecen en posiciones más alejadas (por ejemplo, más atrás del puesto 3).
-
-El caso de k = 3: Significa que el sistema analiza únicamente los 3 primeros resultados que le muestra al usuario (o que predice el modelo) y cuenta cuántos de esos 3 son realmente útiles o correctos
-
-Además, se establecerán un mínimo de posesiones (por ejemplo, no evaluar un quinteto que sólo jugó dos posesiones) y reportar intervalos de confianza. Un quinteto con Net Rating = +50 en cuatro posesiones no necesariamente es mejor que uno con +8 en 200.
-
-El modelo producirá dos salidas:
-\begin{enumerate}
-\item Net Rating esperado ajustado.
-\item Probabilidad de rendimiento positivo.
-\end{enumerate}
-
-Así se podrá evaluar tanto la aproximación numérica con MAE/RMSE como la calidad de la recomendación con Precisión, F1 y calibración, lo cual enriquece más el entendimiento de los resultados que una accuracy superficialmente alta.
-
+En la secuencia de la metodología en cascada, esta sección delimita el propósito y las entradas de la fase colectiva antes de especificar sus estructuras de datos y modelos. El siguiente apartado, 6.2.1, desarrollará la construcción de su tabla maestra: unidad de registro, identificadores de ambos quintetos, estadísticas observadas, exposición, antecedentes disponibles y campos derivados de la fase 1. Esta separación permitirá distinguir posteriormente la tabla que conserva los registros de la tabla que alimentará al predictor.
