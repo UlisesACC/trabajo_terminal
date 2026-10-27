@@ -1,0 +1,169 @@
+\subsection{Comparación, selección y construcción del modelo predictivo}
+\label{subsec:construccion-modelo-fase1}
+\begingroup
+\emergencystretch=2em
+Una vez delimitadas las respuestas candidatas, se establecerá cómo se aprenderán las relaciones entre antecedentes y rendimiento, y cómo se organizarán sus predicciones. Se distinguirán tres decisiones: el alcance del entrenamiento, el algoritmo de regresión y la representación de las salidas. Un modelo global podrá generar tanto vectores por jugadora como matrices por macrorrol; estas representaciones no exigirán entrenar un modelo distinto por cada celda.
+
+\subsubsection*{Alcance del entrenamiento: global, por jugadora o por pareja}
+Se entenderá por modelo global un estimador ajustado con todas las filas elegibles de entrenamiento, correspondientes a diferentes jugadoras y encuentros. El modelo por jugadora utilizará únicamente las filas cuya focal sea una integrante determinada. El modelo por pareja restringirá además la identidad de la rival. La comparación se presenta en la Tabla~\ref{tab:alcance-modelos-616}.
+
+\begingroup
+\small
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{2.3cm}>{\raggedright\arraybackslash}p{3.55cm}>{\raggedright\arraybackslash}p{3.55cm}>{\raggedright\arraybackslash}p{3.55cm}@{}}
+\caption{Comparación del alcance de los modelos de la fase 1.}
+\label{tab:alcance-modelos-616}\\
+\toprule
+\textbf{Criterio} & \textbf{Global} & \textbf{Por jugadora} & \textbf{Por pareja}\\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Criterio} & \textbf{Global} & \textbf{Por jugadora} & \textbf{Por pareja}\\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+Datos utilizados & Todas las filas elegibles del pasado. & Filas de una focal frente a distintas rivales. & Filas de una focal frente a una rival específica.\\
+Cantidad de estimadores & Uno por respuesta y configuración seleccionada. & Hasta uno por focal. & Hasta uno por pareja dirigida elegible.\\
+Información compartida & Aprende relaciones comunes entre antecedentes y respuestas. & Comparte información entre rivales de la misma focal. & No comparte aprendizaje con otras parejas.\\
+Ventaja posible & Aprovecha observaciones de varias jugadoras y reduce la fragmentación del entrenamiento. & Permite una relación específica para cada focal. & Permite una relación específica del enfrentamiento observado.\\
+Reto principal & Puede representar insuficientemente particularidades individuales si faltan características o interacciones. & Menos partidos por ajuste; algunas focales carecerán de historial suficiente. & La repetición de enfrentamientos puede ser insuficiente para ajustar y validar.\\
+Pareja no observada & Puede predecirse mediante atributos e historial individual, con fiabilidad por comprobar. & Puede predecirse para una focal conocida si el modelo utiliza atributos de la rival. & No existe un estimador propio para esa pareja; requiere otra regla de respaldo.\\
+Manteni\-miento & Una cadena de preparación y predicción por versión. & Varias cadenas y controles de cobertura. & Mayor cantidad potencial de modelos y casos sin cobertura.\\
+Decisión inicial & Alternativa seleccionada. & Posible extensión futura; no prioritaria. & No se adoptará como configuración inicial.\\
+\end{longtable}
+\endgroup
+
+La distinción entre aprendizaje local y global se ha estudiado en predicción de grupos de series temporales \cite{montero2021global616}. Ese trabajo ofrece un antecedente para compartir aprendizaje, pero sus resultados teóricos no se trasladarán automáticamente al problema de regresión entre parejas de este proyecto. La elección global se fundamentará operativamente en utilizar un solo procedimiento y evitar dividir el historial en numerosos subconjuntos; su precisión se comprobará con validación temporal, sin afirmar superioridad universal.
+
+El carácter global no implicará asignar el mismo rendimiento a todas las jugadoras. Las características de focal y rival, sus antecedentes y las diferencias entre atributos permitirán distinguir las consultas. Los identificadores se conservarán para las uniones y la trazabilidad; inicialmente no se utilizarán como números de significado cuantitativo ni como sustitutos del historial. Tampoco se introducirán nombres como predictores.
+
+\subsubsection*{Preparación del modelo global}
+La entrada procederá de la tabla de la fase 1, no de todas las columnas de la tabla maestra. Se conservarán únicamente atributos y antecedentes disponibles al corte, como edad, estatura, experiencia, rol, contexto conocido y tasas históricas. Las etiquetas de clustering se codificarán como categorías cuando estén disponibles; su numeración no representará un orden de calidad. Se comparará su inclusión con una versión sin perfiles.
+
+Para representar dependencia entre ambas participantes se propondrán características explícitas: diferencias de estatura y experiencia, diferencias entre tasas históricas comparables e interacciones entre rol o perfil de la rival y estadísticas previas de la focal. Una interacción permitirá que, por ejemplo, la relación entre una tasa histórica de tiro y la respuesta cambie según el perfil rival. Esta preparación será especialmente necesaria para el primer algoritmo lineal: sin interacciones, un modelo meramente aditivo podría producir un orden de rivales casi igual para todas las focales. Las interacciones se limitarán y documentarán antes de comparar modelos, para evitar una expansión innecesaria de variables.
+
+Las estadísticas del encuentro que definen la respuesta quedarán fuera de los predictores. La imputación, la codificación, el escalamiento y los perfiles se ajustarán exclusivamente con el entrenamiento de cada corte \cite{sklearnCommonPitfallsPonderacion}. La ponderación temporal se aplicará a los antecedentes según el procedimiento previo, sin descontar de nuevo las respuestas observadas. Las filas repetidas por coincidencias no se tratarán como partidos independientes.
+
+\subsubsection*{Primer enfoque: vector de predicciones por jugadora}
+Para una focal $a$, una fecha de corte $t$ y un contexto conocido $c$, se generará una fila de consulta por cada rival comparable $b_j$. El modelo ya entrenado devolverá:
+\[
+\mathbf{v}^{(R)}_a(t,c)=
+[\widehat R_{a\mid b_1},\widehat R_{a\mid b_2},\ldots,\widehat R_{a\mid b_m}],
+\]
+o, en el experimento alternativo,
+\[
+\mathbf{v}^{(D)}_a(t,c)=
+[\widehat D_{ab_1},\widehat D_{ab_2},\ldots,\widehat D_{ab_m}].
+\]
+La letra $m$ representará la cantidad de rivales elegibles. Cada posición conservará su identificador; el contexto y la fecha acompañarán al vector. Las salidas podrán cambiar al modificar esas entradas, aunque los parámetros del modelo permanezcan congelados.
+
+En el enfoque basado en GmSc se utilizará principalmente su versión normalizada, denominada $R$ en el apartado anterior. El GmSc bruto se mantendrá como referencia: predecir su acumulación exigiría considerar la exposición futura, todavía desconocida, y dificultaría comparar candidatas con minutos diferentes. El ejemplo de la Tabla~\ref{tab:vector-ejemplo-616} utiliza nombres genéricos y valores inventados; no representa una evaluación de jugadoras reales.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Ejemplo de dos vectores alternativos para la focal A.}
+\label{tab:vector-ejemplo-616}
+\begin{tabularx}{\textwidth}{@{}lXXX@{}}
+\toprule
+\textbf{Salida / rival} & \textbf{Rival B} & \textbf{Rival C} & \textbf{Rival D}\\
+\midrule
+$\mathbf{v}^{(R)}_A$ & 18 & 14 & 16\\
+$\mathbf{v}^{(D)}_A$ & $+3$ & $-2$ & $+1$\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+El primer vector indicará la producción esperada de A por 100 posesiones de exposición común. El segundo indicará su ventaja relativa en esas unidades. Los valores de ambos renglones ilustran objetivos alternativos; no implican que un único modelo prediga simultáneamente las dos respuestas. Un diferencial positivo no demostrará que A haya contenido directamente a B.
+
+Para la fase 2, $R$ aportará una descripción de producción individual condicionada a la presencia rival; $D$ aportará una comparación de producción entre ambas. El diferencial puede ocultar si las dos producen mucho o poco; la tasa focal no describe por sí sola la producción rival. Ninguno sustituirá las variables colectivas ni se convertirá directamente en Net Rating.
+
+Si se consultan $m$ rivales, se requerirán $m$ evaluaciones de filas, que podrán ejecutarse juntas mediante una llamada a \texttt{predict}; no serán $m$ entrenamientos. Si el costo de predecir una fila es $C$, generar el vector requerirá aproximadamente $mC$ y almacenar sus valores crecerá proporcionalmente a $m$. Los retos serán la cobertura de parejas, la escasa exposición y la extrapolación a perfiles poco representados. El orden se calculará sobre las puntuaciones y conservará todas las candidatas para la fase 2.
+
+\subsubsection*{Segundo enfoque: matrices de comparaciones por macrorrol}
+Los vectores podrán agruparse en una matriz por cada macrorrol considerado: guard, wing o big. Cada fila corresponderá a una focal y cada columna a una rival; una celda contendrá la predicción de su pareja. Esta organización conservará la interacción entre identidades, a diferencia de un ranking general que asigna una sola puntuación a cada jugadora.
+
+Para un macrorrol $r$, con conjuntos de focales $A_r$ y rivales $B_r$, se definirá:
+\[
+M^{(r)}_{ij}(t,c)=\widehat y_{a_i b_j}(t,c),
+\]
+donde $\widehat y$ será $\widehat R$ o $\widehat D$, según el experimento. Las tres matrices serán vistas de las predicciones del modelo global, no tres modelos necesariamente separados. Las compatibilidades entre roles diferentes se definirán mediante una regla explícita; si una jugadora pertenece a más de un grupo, sus registros se identificarán sin contarlos varias veces en el resumen colectivo.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Ejemplo de matriz de diferenciales predichos para guards.}
+\label{tab:matriz-macrorrol-616}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+\textbf{Focal / rival} & \textbf{B} & \textbf{C} & \textbf{D}\\
+\midrule
+A & $+3$ & $-2$ & $+1$\\
+E & $+1$ & $+2$ & $-1$\\
+F & $-2$ & $0$ & $+2$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+En este ejemplo hipotético, ante B se ordenaría A, E y F de mayor a menor ventaja; ante C se ordenaría E, F y A. Se observaría así que el orden depende de la rival. Una matriz de tasas focales tendría los mismos encabezados, pero mostraría producción esperada, como el primer renglón de la Tabla~\ref{tab:vector-ejemplo-616}. Las matrices de wings y bigs seguirían la misma estructura. Una celda no elegible se marcará como no aplicable; no se sustituirá por cero, pues cero constituye un resultado posible del modelo.
+
+Construir una matriz completa de $p$ focales por $q$ rivales requerirá $pq$ predicciones y almacenamiento proporcional a ese producto. No será necesario calcular todas las parejas de la liga en cada recomendación: podrán consultarse solo las participantes de los quintetos candidatos y del quinteto rival. Si se fijan cuatro compañeras y se consideran cinco sustitutas, bastará generar las comparaciones pertinentes de esas alternativas.
+
+La consulta se realizará por identificadores mediante una tabla de parejas y operaciones de selección o unión en \texttt{pandas}; no requerirá implementar una búsqueda burbuja o binaria. Un cambio de rival seleccionará otra columna o generará nuevas predicciones si cambia el contexto. Una matriz almacenada solo será reutilizable para la fecha, el contexto y la versión del modelo con que fue producida.
+
+\subsubsection*{Transferencia de la información a la fase 2}
+Para cada quinteto candidato se seleccionará la parte de la matriz correspondiente a sus integrantes y al quinteto rival. La primera implementación entregará resúmenes numéricos de esas celdas: media, mínimo y máximo por macrorrol, cantidad de comparaciones elegibles e indicadores de disponibilidad de historial. La cantidad de celdas será importante para diferenciar una ausencia de comparaciones de un valor bajo. Estas variables se combinarán con antecedentes de alineaciones y contexto; constituyen una propuesta de representación por validar, no una agregación demostrada como óptima.
+
+Los resúmenes serán independientes del orden en que se enumeren las jugadoras, aunque perderán parte del detalle de las parejas. Se conservará la tabla completa para trazabilidad y posibles análisis posteriores. No se sumarán las celdas como contribuciones independientes: varias contienen a las mismas jugadoras y todas describen coincidencia, no asignaciones defensivas exclusivas. La importancia de representar interacciones colectivas, además de contribuciones individuales, se encuentra en los enfoques de alineaciones revisados \cite{josephs2025hypergraphadjustedplusminus,yamada2024offensivelineupanalysisbasketball}.
+
+La fase 2 podrá elegir una sustituta con menor puntuación individual si su quinteto presenta mejor rendimiento colectivo esperado. Para entrenarla, las predicciones de fase 1 se producirán con modelos ajustados únicamente al pasado de cada partido. Los resúmenes, sus reglas y cualquier selección de características se establecerán dentro de los datos de desarrollo. La prueba final permanecerá excluida de esas decisiones \cite{cawley2010selection}.
+
+\subsubsection*{Algoritmos candidatos y orden de evaluación}
+El alcance global podrá implementarse con distintos algoritmos. Se proponen regresión Ridge, bosque aleatorio y árboles con refuerzo por gradiente. Se trata de regresores porque la respuesta será numérica; el clustering tendrá una función separada de enriquecimiento.
+
+\begingroup
+\small
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{2.3cm}>{\raggedright\arraybackslash}p{3.55cm}>{\raggedright\arraybackslash}p{3.55cm}>{\raggedright\arraybackslash}p{3.55cm}@{}}
+\caption{Comparación de algoritmos candidatos para el modelo global.}
+\label{tab:algoritmos-fase1-616}\\
+\toprule
+\textbf{Criterio} & \textbf{Ridge} & \textbf{Bosque aleatorio} & \textbf{Refuerzo por gradiente}\\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Criterio} & \textbf{Ridge} & \textbf{Bosque aleatorio} & \textbf{Refuerzo por gradiente}\\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+Funciona\-miento & Combina variables mediante coeficientes y penaliza su magnitud. & Promedia predicciones de varios árboles entrenados con variación de datos y variables. & Añade árboles sucesivamente para reducir el error restante.\\
+Relaciones & Lineales en las características preparadas; interacciones explícitas. & No lineales e interacciones aprendidas mediante particiones. & No lineales e interacciones mediante árboles sucesivos.\\
+Ventaja & Referencia sencilla, regularizada y fácil de inspeccionar. & Explora patrones que una combinación lineal podría omitir. & Permite controlar de forma gradual la complejidad del conjunto.\\
+Limitación & Puede omitir relaciones no representadas en las entradas. & Puede memorizar subconjuntos pequeños y consumir memoria. & Más decisiones de ajuste y riesgo de sobreajuste si se agregan demasiados árboles.\\
+Preparación & Imputación, codificación de categorías y escalamiento numérico. & Imputación y codificación de categorías; no requiere escalamiento para las particiones. & Tratamiento de categorías según implementación; no requiere escalamiento numérico.\\
+Controles principales & Intensidad de penalización y lista limitada de interacciones. & Número de árboles, profundidad y mínimo de observaciones por hoja. & Tasa de aprendizaje, iteraciones, hojas y regularización.\\
+Costo previsto & Menor carga inicial para la configuración propuesta; se medirá. & Depende de árboles, profundidad y tamaño de datos. & Depende de iteraciones, hojas y tamaño de datos.\\
+Orden propuesto & Primer ensayo. & Segundo ensayo opcional. & Tercer ensayo opcional.\\
+\end{longtable}
+\endgroup
+
+Ridge se probará primero porque penaliza coeficientes grandes y permite establecer una referencia controlada ante características correlacionadas \cite{hoerl1970ridge}. No eliminará la necesidad de seleccionar variables ni resolverá por sí sola las interacciones entre focal y rival. La interpretación de sus coeficientes describirá asociaciones predictivas, no efectos causales.
+
+El bosque aleatorio será la segunda alternativa, por su capacidad para representar relaciones no lineales mediante un conjunto de árboles \cite{breiman2001randomforests}. El tercer algoritmo será el refuerzo por gradiente \cite{friedman2001greedy}, implementado inicialmente con \texttt{HistGradient}\allowbreak\texttt{BoostingRegressor}. Las herramientas previstas serán \texttt{Ridge}, \texttt{RandomForest}\allowbreak\texttt{Regressor} y \texttt{HistGradient}\allowbreak\texttt{BoostingRegressor} de \texttt{scikit-learn} \cite{sklearnRidge616,sklearnRF616,sklearnHGB616}. Las diferencias de costo de la tabla son expectativas operativas, no tiempos comprobados; se medirán tiempo de ajuste, predicción y memoria bajo las mismas condiciones.
+
+\subsubsection*{Implementación, selección y criterio para ampliar los ensayos}
+La construcción se programará en Python. Se prepararán las filas históricas, se separarán fechas y partidos, y se ajustará una cadena que reúna preparación y estimador. Para Ridge se explorará inicialmente una lista de penalizaciones $\{0.1,1,10,100\}$ mediante cortes temporales internos del entrenamiento; los valores son una propuesta de búsqueda, no parámetros ya validados. Los descuentos temporales se seleccionarán conforme al apartado previo, evitando trasladar hacia atrás resultados de periodos posteriores. Se fijarán las semillas aplicables, las versiones de bibliotecas y las variables utilizadas.
+
+El modelo entrenado y sus transformaciones se guardarán conjuntamente. Para construir vectores o matrices se prepararán las filas de consulta y se ejecutará \texttt{predict}; no se volverá a entrenar por cada rival. Se registrarán identificadores, corte temporal, contexto, objetivo y versión del modelo, además de la puntuación y cobertura.
+
+El avance se evaluará en dos niveles. Primero, la fase 1 deberá compararse con una referencia histórica sencilla bajo el mismo objetivo, exposición y cortes. Después, la fase 2 se comparará con una versión sin información de fase 1, conservando el resto de sus entradas y las mismas particiones. La utilidad no se decidirá por un error individual aislado, pues una mejora en ese error podría no aportar información colectiva adicional.
+
+Si el desempeño colectivo de desarrollo resulta insuficiente o no mejora al añadir fase 1, se revisarán primero calidad y exposición de datos, definición de respuesta, características, resúmenes de la matriz y especificación del modelo colectivo. Entre las alternativas de revisión podrá probarse el bosque aleatorio global, manteniendo el protocolo temporal. Si persisten limitaciones y existen datos y recursos suficientes, podrá ensayarse el refuerzo por gradiente. El segundo y el tercer algoritmo no serán entregables obligatorios ni se entrenarán únicamente para incrementar la cantidad de modelos.
+
+Esta ampliación se decidirá exclusivamente con validación de desarrollo. Un resultado desfavorable de la prueba final se reportará como limitación y no se utilizará para cambiar algoritmos y reutilizar la misma prueba como evaluación independiente \cite{cawley2010selection}. Se conservará la configuración más sencilla que aporte evidencia favorable dentro de las comparaciones realizadas. La secuencia respetará los entregables de la metodología en cascada: preparación verificada, especificación del modelo, entrenamiento y validación, construcción de salidas e integración colectiva.
+
+\endgroup
