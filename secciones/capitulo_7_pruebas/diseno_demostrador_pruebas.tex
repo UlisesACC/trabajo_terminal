@@ -1,0 +1,204 @@
+\begingroup
+\emergencystretch=3em
+El presente capítulo establece el diseño de una interfaz local de demostración y el plan de pruebas funcionales para ejecutar el procedimiento del capítulo 6. Su finalidad será comprobar que las entradas pueden prepararse, que los modelos guardados pueden consultarse y que la recomendación respeta las reglas del escenario. Las pruebas de precisión predictiva seguirán los protocolos temporales ya definidos; el funcionamiento correcto de un botón no demostrará por sí mismo la calidad del modelo.
+
+La interfaz constituye un apoyo acotado para los experimentos del proyecto y actualiza la previsión inicial de trabajar sin interfaz gráfica. No se plantea un sistema de seguimiento de partidos: se utilizarán archivos e historial disponibles al corte, sin recibir eventos en vivo, reentrenar en cada consulta ni incorporar estadísticas posteriores. El boceto y los resultados de ejemplo representan un diseño por implementar, no una aplicación ya construida ni pruebas ya aprobadas.
+
+\section{Diseño de la interfaz de demostración}
+\label{sec:interfaz-pruebas}
+La pantalla se organizará en cuatro bloques: escenario, participantes, ejecución y resultados. Se utilizarán etiquetas en español para la persona usuaria, conservando dentro del código los identificadores del diccionario. Una lista desplegable permitirá elegir una opción válida; una casilla de selección permitirá marcar varias integrantes disponibles. Los campos automáticos se mostrarán como información de consulta, no como cifras que deban escribirse manualmente.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[node distance=0.35cm,
+panel/.style={draw,rounded corners,align=left,text width=12cm,font=\small,inner sep=8pt}]
+\node[panel] (a) {\textbf{1. Escenario}\\
+Fecha: [seleccionar] \quad Equipo focal: [lista]\\
+Equipo rival: [lista] \quad Equipo local: [focal / rival]\\
+Descanso focal: [automático] \quad Descanso rival: [automático]\\
+\mbox{}[ ] Capturar descanso manualmente, si falta calendario};
+\node[panel,below=of a] (b) {\textbf{2. Participantes y restricciones}\\
+Disponibles focales: [casillas de la plantilla]\\
+Quinteto focal actual: [seleccionar cinco disponibles]\\
+Quinteto rival: [seleccionar cinco de su plantilla]\\
+Máximo de cambios: [1 / 2 / 3 / 4 / reorganización completa]};
+\node[panel,below=of b] (c) {\textbf{3. Acciones}\\
+\mbox{}[Recomendar quinteto] \quad [Restablecer escenario]\\
+Estado: [selección incompleta / calculando / completado / error]};
+\node[panel,below=of c] (d) {\textbf{4. Resultados de consulta}\\
+Quinteto recomendado: [cinco integrantes]\\
+Entran: [lista] \quad Salen: [lista]\\
+Net Rating predicho: [valor] \quad Diferencia frente al actual: [valor]\\
+Cobertura: [historial colectivo y comparaciones individuales]\\
+\mbox{}[Tabla de alternativas] \quad [Ver detalle] \quad [Exportar resultados]};
+\end{tikzpicture}
+\caption{Boceto funcional propuesto para la demostración local. Los corchetes representan controles, no valores reales.}
+\label{fig:boceto-interfaz}
+\end{figure}
+
+No se solicitarán por separado equipo local y visitante además de focal y rival. La selección de cuál equipo es local determinará el otro automáticamente. Esta regla evitará escenarios contradictorios. La fecha representará el día del escenario; en la versión estática se admitirán antecedentes estrictamente anteriores a ese día. No se incorporarán resultados de otros partidos del mismo día.
+
+\section{Controles de entrada y lógica de preparación}
+\label{sec:controles-pruebas}
+Las Tablas~\ref{tab:controles-escenario} y \ref{tab:controles-participantes} describen las entradas. Los controles se habilitarán en secuencia: las plantillas dependerán de fecha y equipos; los quintetos, de esas plantillas; y el cálculo, de una selección válida. Las propuestas son decisiones de diseño del demostrador, no requisitos reglamentarios del baloncesto.
+
+\begingroup\small\setstretch{1.0}\setlength{\tabcolsep}{4pt}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{3.0cm}>{\raggedright\arraybackslash}p{3.1cm}>{\raggedright\arraybackslash}p{8.5cm}@{}}
+\caption{Controles del escenario y su funcionamiento.}\label{tab:controles-escenario}\\
+\toprule\textbf{Componente}&\textbf{Qué se introduce}&\textbf{Lógica interna y justificación}\\\midrule\endfirsthead
+\toprule\textbf{Componente}&\textbf{Qué se introduce}&\textbf{Lógica interna y justificación}\\\midrule\endhead
+\bottomrule\endfoot
+Fecha del escenario & Fecha dentro del alcance disponible. & Fija corte de antecedentes y plantillas. Debe existir una versión de modelos y datos utilizable sin entrenar con ese partido o con su futuro. No se consultará retrospectivamente un modelo final para presentarlo como predicción histórica válida.\\
+Equipo focal & Una opción de la lista de equipos disponibles. & Vincula la consulta con su identificador y carga su plantilla. Si se cambia, se vacían disponibles y quinteto focal anterior.\\
+Equipo rival & Otro equipo de la lista. & Excluye al focal y carga la plantilla contraria. Si se cambia, se vacía el quinteto rival anterior.\\
+Equipo local & Equipo focal o rival. & Deriva local y visitante y el indicador de localía; no permite un tercer equipo. Si existe partido de calendario compatible, se propone su localía.\\
+Descanso de ambos equipos & Normalmente ninguno: cálculo automático. & Se recupera el último partido previo de cada equipo. Se adoptará como días completos sin partido la diferencia entre fechas menos uno; se verificará que coincida con la convención del entrenamiento. Un antecedente desconocido no equivale a cero días.\\
+Captura manual de descanso & Casilla por equipo y campo entero no negativo. & Se habilita cuando el calendario no permite calcularlo. Se registra origen manual y se indica que es un supuesto del escenario. No se permite introducir texto o días negativos.\\
+Estado de datos y modelo & Campo de solo lectura. & Muestra temporada, corte y versiones cargadas. Si no hay recursos compatibles se bloquea la ejecución; no se inventa un modelo válido.\\
+\end{longtable}\endgroup
+
+La primera fecha del calendario recopilado puede carecer del partido anterior necesario para calcular descanso; no se asumirá que el equipo no jugó antes. La captura manual se utilizará como dato del escenario y se conservará para reproducirlo. Si no existe ese dato, solo se aplicará imputación cuando la cadena entrenada admita explícitamente un descanso faltante y se informe esa condición.
+
+\begingroup\small\setstretch{1.0}\setlength{\tabcolsep}{4pt}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{3.0cm}>{\raggedright\arraybackslash}p{3.1cm}>{\raggedright\arraybackslash}p{8.5cm}@{}}
+\caption{Selección de participantes y restricciones.}\label{tab:controles-participantes}\\
+\toprule\textbf{Componente}&\textbf{Qué se selecciona}&\textbf{Lógica interna y justificación}\\\midrule\endfirsthead
+\toprule\textbf{Componente}&\textbf{Qué se selecciona}&\textbf{Lógica interna y justificación}\\\midrule\endhead
+\bottomrule\endfoot
+Disponibles focales & Casillas de integrantes que pueden participar. & Se limita la generación de candidatos a ese conjunto y se exige al menos cinco. Inicialmente no se afirmará disponibilidad clínica o reglamentaria: las casillas deberán revisarse como declaración del escenario.\\
+Quinteto focal actual & Cinco listas desplegables de disponibles. & Se excluyen duplicados. Permite comparar con mantener la alineación e identificar entradas y salidas. El orden visual no cambia su identidad canónica.\\
+Quinteto rival & Cinco listas desplegables de su plantilla. & Determina el rival fijo de todas las alternativas. Al seleccionar una integrante se retira de las otras listas. No se exigirá pertenencia a un quinteto observado previamente.\\
+Máximo de cambios & 1, 2, 3, 4 o reorganización completa. & Limita la diferencia respecto al actual. Reorganización completa admite hasta cinco sustituciones, pero no obliga a cambiar a las cinco.\\
+Composición permitida & Información de solo lectura. & Muestra las restricciones por rol de la configuración experimental. No se agregarán reglas diferentes silenciosamente desde la interfaz.\\
+Atributos y cobertura & Resumen automático de solo lectura. & Consulta edad, estatura, experiencia y roles; muestra ausencias. No se introducen manualmente para alterar el perfil y mejorar una recomendación.\\
+\end{longtable}\endgroup
+
+Si se desmarca como disponible una integrante del quinteto actual, se vaciará su selección y se solicitará corregir el escenario antes de continuar. Esta regla mantendrá la primera versión coherente con un quinteto actual elegible. Un caso de salida forzada por lesión o expulsión exigiría distinguir el estado actual del conjunto elegible y quedará fuera de ese flujo inicial.
+
+Al cambiar fecha, equipo o cualquier entrada relevante, el resultado previo se marcará como desactualizado y se deshabilitará su exportación hasta recalcular. La interfaz no mostrará una predicción antigua como si correspondiera al nuevo escenario.
+
+\section{Variables automáticas y tratamiento de información desconocida}
+\label{sec:variables-desconocidas-pruebas}
+Las variables necesarias no se rellenarán todas mediante captura. Se distinguirán atributos conocidos, antecedentes calculados, predicciones y resultados futuros. La prevención de fuga de información requiere mantener esa separación durante la preparación y la evaluación \cite{sklearnCommonPitfallsPonderacion}.
+
+\begin{table}[htbp]
+\centering\small
+\caption{Cómo se obtienen los datos sin introducir estadísticas futuras.}
+\label{tab:origen-variables-interfaz}
+\begin{tabularx}{\textwidth}{@{}p{3.0cm}XX@{}}
+\toprule
+\textbf{Tipo de información}&\textbf{Ejemplos}&\textbf{Tratamiento}\\\midrule
+Entrada del escenario & Equipos, fecha, localía, quintetos y disponibles. & Seleccionada por la persona usuaria y validada.\\
+Atributo conocido & Edad, estatura, experiencia y rol. & Recuperado de fichas y plantillas; edad calculada a la fecha. Se respetará la vigencia y procedencia.\\
+Antecedente & Eficiencias previas de quintetos y tasas individuales. & Calculado con partidos anteriores al corte, con la ventana y ponderación autorizadas.\\
+Perfil aprendido & Etiqueta de clustering. & Recuperada o asignada con el procedimiento guardado y antecedentes permitidos; no se reentrena al pulsar el botón.\\
+Salida de fase 1 & Score focal--rival. & Generada por el modelo individual guardado para parejas elegibles. No se copia el GmSc real del partido.\\
+Resultado futuro & Puntos, pérdidas, posesiones, minutos compartidos y Net Rating del encuentro consultado. & Permanece desconocido y fuera de las entradas anticipadas. La respuesta no se rellena con medias.\\
+Salida de fase 2 & Net Rating predicho. & Estimación del predictor colectivo; no se registra como resultado observado.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Por ejemplo, si se desea predecir el rendimiento del quinteto A frente al B, no se escribirán los puntos que anotarán ni las posesiones que jugarán. Se utilizarán sus antecedentes y contexto para obtener una estimación. Después del encuentro, si se dispone de registros verificables, se calculará el Net Rating observado en un proceso separado de evaluación y se comparará con la predicción almacenada. Eso no significará incorporar datos en vivo ni modificar la consulta original.
+
+La media o mediana de entrenamiento podrá utilizarse para imputar un predictor histórico faltante cuando así se haya definido en el modelo. No sustituirá estadísticas futuras ni respuestas desconocidas. Si una alineación nunca jugó junta, se conservará su indicador de ausencia, las características de sus integrantes y la regla de imputación autorizada. No se fabricará un historial de ese quinteto.
+
+La compatibilidad de roles, falta de historial y fallo al producir un score serán estados distintos. Tampoco se rellenarán identidades críticas o quintetos incompletos. Se bloqueará la consulta si no puede construirse una entrada válida según las reglas del modelo. Se registrará si una predicción utiliza imputación y qué cobertura tiene, sin presentar esa cobertura como certeza estadística.
+
+\section{Botones y operaciones internas}
+\label{sec:botones-pruebas}
+El programa separará la lógica de selección de datos de las funciones que consultan los modelos. Esta separación permitirá probar cálculos sin depender de la pantalla y facilitará localizar errores. Se prevén funciones para validar el escenario, construir candidatos, preparar características, predecir y presentar resultados, coherentes con el procedimiento del capítulo 6.
+
+\begingroup\small\setstretch{1.0}\setlength{\tabcolsep}{4pt}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{3.0cm}>{\raggedright\arraybackslash}p{3.1cm}>{\raggedright\arraybackslash}p{8.5cm}@{}}
+\caption{Botones del demostrador y operaciones asociadas.}\label{tab:botones-demostrador}\\
+\toprule\textbf{Botón}&\textbf{Cuándo se habilita}&\textbf{Qué ejecuta y qué devuelve}\\\midrule\endfirsthead
+\toprule\textbf{Botón}&\textbf{Cuándo se habilita}&\textbf{Qué ejecuta y qué devuelve}\\\midrule\endhead
+\bottomrule\endfoot
+Recomendar quinteto & Selecciones completas, recursos compatibles y restricciones válidas. & Revalida entradas; genera candidatos; consulta antecedentes; obtiene scores de fase 1; resume comparaciones; predice con fase 2 y ordena alternativas. Devuelve quinteto, cambios, Net Rating y cobertura. No entrena modelos.\\
+Restablecer escenario & En estado de edición o con resultados. & Limpia selecciones y resultados de la pantalla. Conserva archivos históricos y modelos. Devuelve el formulario a su estado inicial.\\
+Ver detalle & Existe un resultado vigente y una alternativa seleccionada. & Muestra integrantes, scores elegibles, antecedentes, imputaciones, cobertura y versiones del candidato. No recalcula ni modifica puntuaciones.\\
+Exportar resultados & Hay una consulta completada y vigente. & Guarda la tabla de candidatos en CSV y metadatos del escenario en JSON, mediante selección de destino. Incluye modelo, corte, restricciones y estado de cobertura; no inventa respuestas reales.\\
+\end{longtable}\endgroup
+
+Los datos y modelos se cargarán al iniciar el demostrador o al seleccionar una fecha que requiera una versión compatible. Si la carga falla, se mostrará el motivo y se impedirá ejecutar. No se añadirá un botón de entrenamiento en esta pantalla: el entrenamiento y la selección de configuraciones pertenecerán a los experimentos de desarrollo.
+
+Durante el cálculo, el botón de recomendación quedará deshabilitado para evitar ejecuciones duplicadas y se mostrará el estado calculando. Se impedirá modificar el escenario de esa ejecución; al terminar se habilitará de nuevo la edición. Si ocurre un error, se conservarán las selecciones para corregirlas y el resultado incompleto no se publicará como recomendación.
+
+En el código, la preparación de entradas de consulta utilizará las mismas transformaciones guardadas con el modelo: no se volverán a estimar escalas, imputaciones o categorías con las alternativas del formulario \cite{sklearnCommonPitfallsPonderacion}. Se comprobará que el esquema esperado coincida con el de los archivos cargados.
+
+\section{Flujo de uso y presentación de resultados}
+\label{sec:flujo-interfaz-pruebas}
+El orden recomendado comenzará por la fecha porque determina qué información puede utilizarse; después se establecerán equipos, localía y descanso. Solo entonces se seleccionarán participantes y restricciones. El flujo de la Figura~\ref{fig:flujo-interfaz-pruebas} describe una ejecución completa.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[node distance=0.28cm,
+box/.style={draw,rounded corners,align=center,text width=11.8cm,font=\small,inner sep=4pt},
+arr/.style={-{Stealth},thick}]
+\node[box] (a) {Abrir demostrador y seleccionar fecha};
+\node[box,below=of a] (b) {Seleccionar equipo focal, rival y cuál es local};
+\node[box,below=of b] (c) {Revisar descanso automático; completar dato manual si corresponde};
+\node[box,below=of c] (d) {Marcar disponibles y elegir quintetos actual y rival};
+\node[box,below=of d] (e) {Elegir máximo de cambios y revisar restricciones};
+\node[box,below=of e] (f) {Si falta una entrada o es inválida: corregir el campo indicado};
+\node[box,below=of f] (g) {Pulsar Recomendar quinteto con el formulario válido};
+\node[box,below=of g] (h) {Preparar candidatos y consultar modelos guardados};
+\node[box,below=of h] (i) {Revisar recomendación, alternativas y cobertura};
+\node[box,below=of i] (j) {Ver detalle o exportar; si cambia el escenario, recalcular};
+\draw[arr] (a)--(b);\draw[arr] (b)--(c);\draw[arr] (c)--(d);\draw[arr] (d)--(e);
+\draw[arr] (e)--(f);\draw[arr] (f)--(g);\draw[arr] (g)--(h);\draw[arr] (h)--(i);\draw[arr] (i)--(j);
+\end{tikzpicture}
+\caption{Orden recomendado de interacción con el demostrador.}
+\label{fig:flujo-interfaz-pruebas}
+\end{figure}
+
+El área de resultados mostrará el quinteto recomendado, entradas y salidas respecto al actual, puntuación y diferencia predicha. Si conservar la alineación es la mejor alternativa evaluable, se mostrará mantener quinteto. Se acompañará de las primeras alternativas y la referencia actual, conforme a 6.2.6.
+
+Si el quinteto actual no puede evaluarse pero existen otros candidatos válidos, se indicará que no hay comparación numérica disponible con el actual y su diferencia quedará vacía. Si no existe ninguna alternativa evaluable o ninguna satisface las restricciones, se informará ese estado sin devolver una combinación arbitraria.
+
+La salida distinguirá Net Rating predicho de observado. Una diferencia positiva será una mejora estimada por el modelo, no puntos garantizados en el marcador ni probabilidad de victoria. En particular, una recomendación con historial escaso se acompañará de su cobertura. La viabilidad predictiva se juzgará con los experimentos del capítulo 6, no con el aspecto visual de la pantalla.
+
+\section{Validaciones y casos de prueba funcionales}
+\label{sec:casos-prueba-demostrador}
+Una prueba funcional comprobará si una acción produce el comportamiento especificado. Se distinguirá de la validación del modelo, que estudia cercanía de predicciones y respuestas. La organización de entradas, resultados esperados y registro de incidencias permitirá comprobar el funcionamiento de forma reproducible \cite{sommerville2016software}.
+
+\begingroup\small\setstretch{1.0}\setlength{\tabcolsep}{4pt}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{1.1cm}>{\raggedright\arraybackslash}p{4.7cm}>{\raggedright\arraybackslash}p{8.8cm}@{}}
+\caption{Casos previstos de prueba del demostrador.}\label{tab:pruebas-demostrador}\\
+\toprule\textbf{ID}&\textbf{Acción o escenario}&\textbf{Resultado esperado}\\\midrule\endfirsthead
+\toprule\textbf{ID}&\textbf{Acción o escenario}&\textbf{Resultado esperado}\\\midrule\endhead
+\bottomrule\endfoot
+P01 & Elegir el mismo equipo en ambos lados. & La segunda lista lo impide o se informa que los equipos deben ser distintos; no se ejecuta.\\
+P02 & Cambiar equipo o fecha después de seleccionar jugadoras. & Se invalidan selecciones dependientes y resultados anteriores; no quedan integrantes de otra plantilla.\\
+P03 & Seleccionar la misma jugadora dos veces. & Se excluye de las demás listas; cada quinteto conserva cinco identidades distintas.\\
+P04 & Marcar menos de cinco disponibles. & Se muestra el mínimo requerido y Recomendar permanece deshabilitado.\\
+P05 & No completar uno de los quintetos. & Se identifica el campo pendiente y no se generan candidatos.\\
+P06 & Calendario sin antecedente para calcular descanso. & Se muestra no disponible y se solicita captura documentada o tratamiento de faltante autorizado, nunca cero automático.\\
+P07 & Introducir descanso negativo o texto. & El control rechaza el valor y señala la corrección requerida.\\
+P08 & Ejecutar con máximo de un cambio. & Todos los candidatos cumplen cinco integrantes distintas y como máximo una sustitución; se incluye el actual si es elegible.\\
+P09 & Seleccionar un quinteto sin historial exacto. & Se conserva su indicador de ausencia y se aplica el respaldo definido; no se crea Net Rating histórico ficticio.\\
+P10 & Parejas de roles incompatibles o desconocidos. & Se mantienen scores vacíos con estados diferentes y resúmenes coherentes; no se sustituyen por cero.\\
+P11 & Consultar un partido que ya tiene resultado en archivos. & La respuesta real permanece fuera de los predictores; se usan solo antecedentes y modelo temporalmente válidos.\\
+P12 & Archivo de modelo ausente o esquema incompatible. & Se informa el problema y se bloquea la predicción, sin devolver resultados parciales como válidos.\\
+P13 & Pulsar repetidamente durante cálculo. & Se ejecuta una sola consulta y se conserva su escenario sin cambios intermedios.\\
+P14 & Permutar el orden de las mismas cinco integrantes. & Se mantienen identificador de quinteto, características invariantes y predicción, salvo tolerancia numérica documentada.\\
+P15 & Quinteto actual con máxima puntuación. & Se recomienda mantenerlo y no se fuerza una sustitución.\\
+P16 & Ninguna alternativa factible o evaluable. & Se devuelve el motivo y cantidades excluidas; no se muestra un quinteto inventado.\\
+P17 & Modificar una selección tras obtener resultados. & Se marca resultado desactualizado y se impide exportarlo como consulta vigente.\\
+P18 & Exportar y revisar archivos. & CSV y JSON reproducen escenario, alternativas, versiones y coberturas mostradas, sin etiquetas futuras fabricadas.\\
+P19 & Restablecer después de una consulta. & Se limpia la pantalla y se conservan intactos datos y modelos de origen.\\
+\end{longtable}\endgroup
+
+También se comprobará que los totales de candidatos coincidan con la enumeración esperada antes y después de filtrar, que los empates sigan la regla definida y que errores de carga no alteren los datos originales. Las comprobaciones se realizarán con escenarios controlados y ejemplos históricos separados de la selección de hiperparámetros.
+
+\section{Registro de ejecución y criterio de aceptación}
+\label{sec:registro-pruebas-demostrador}
+Cada caso conservará identificador, fecha, versiones de datos y modelos, entradas, resultado esperado, resultado obtenido, estado y evidencia. Los estados serán pendiente, aprobado, fallido o bloqueado. Al redactar este diseño, todos los casos permanecerán pendientes hasta su ejecución; no se declarará aprobado un comportamiento únicamente por haberlo descrito.
+
+Se considerará funcionalmente aceptable la versión cuando los casos aplicables cumplan lo esperado, no existan errores pendientes que produzcan escenarios inválidos o resultados engañosos, y las exportaciones permitan reproducir las consultas. Los tiempos de carga, preparación y predicción se registrarán en el equipo de prueba; no se prometerá respuesta inmediata sin medirla.
+
+Los hallazgos se clasificarán según correspondan a interfaz, reconstrucción de datos, preparación de características o modelo. Un fallo de precisión con controles correctos se reportará en la evaluación predictiva; una selección duplicada o una exportación incorrecta se tratará como fallo funcional. Las correcciones que modifiquen el modelo respetarán la separación entre desarrollo y prueba final \cite{cawley2010selection}.
+
+La prueba del demostrador permitirá comprobar la ejecución del procedimiento estático y su trazabilidad. La conclusión sobre viabilidad deberá integrar esa evidencia con cobertura, error y limitaciones de la evaluación temporal; no se extenderá automáticamente a predicción en vivo ni a eficacia causal de sustituciones.
+\endgroup
