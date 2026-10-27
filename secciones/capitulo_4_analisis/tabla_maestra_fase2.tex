@@ -1,0 +1,221 @@
+La tabla maestra de la fase 2 integrará los enfrentamientos entre quintetos, sus estadísticas observadas, los antecedentes disponibles y el enriquecimiento predictivo de la fase 1. No se utilizará íntegramente como entrada de un algoritmo. Su unidad de observación será partido por quinteto focal por quinteto rival; se agregarán los intervalos disjuntos con las mismas diez integrantes. La clave compuesta será \texttt{game\_id}, \texttt{focal\_lineup\_id} y \texttt{rival\_lineup\_id}. La perspectiva inversa, si se conserva, permanecerá en la misma partición y no será independiente.
+
+Las Tablas~\ref{tab:fase2-identificacion}--\ref{tab:fase2-predicciones} presentan el diseño preliminar. Durante la recopilación, exploración y validación de las fuentes, su estructura podrá modificarse para reflejar disponibilidad, calidad y reglas de reconstrucción. Cada cambio se documentará en una versión del diccionario antes del entrenamiento. Los nombres son campos derivados propuestos, no una afirmación de que existan con idéntica nomenclatura en el origen.
+
+Los eventos, el calendario y las plantillas se integrarán a partir de las fuentes descritas previamente \cite{repositorioDatosTT,datosTTPbp,datosTTRosters}. Los quintetos y sus estadísticas se reconstruirán y verificarán; no se asignarán cifras manuales de rendimiento para completar vacíos. Los atributos o roles ambiguos podrán recuperarse mediante consulta manual documentada de fichas oficiales, sin inferirlos del resultado.
+\begingroup
+\small
+\setstretch{1.0}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{5.0cm}>{\raggedright\arraybackslash}p{1.9cm}>{\raggedright\arraybackslash}p{7.7cm}@{}}
+\caption{Tabla maestra de fase 2: identificación, composición y exposición.}\label{tab:fase2-identificacion}\\
+\toprule\textbf{Variable}&\textbf{Tipo}&\textbf{Descripción}\\\midrule\endfirsthead
+\multicolumn{3}{l}{\small Continuación de la Tabla~\ref{tab:fase2-identificacion}}\\
+\toprule\textbf{Variable}&\textbf{Tipo}&\textbf{Descripción}\\\midrule\endhead
+\midrule\multicolumn{3}{r}{\small Continúa en la siguiente página}\\\endfoot
+\bottomrule\endlastfoot
+\texttt{game\_\allowbreak id} & Texto (ID) & Identificador del partido, conservado desde calendario y eventos; agrupa todas sus filas al separar datos.\\
+\texttt{date} & Fecha & Fecha efectiva del encuentro; ordena cronológicamente los registros.\\
+\texttt{season} & Entero & Única temporada seleccionada para las estadísticas colectivas. Su año se documentará antes de construir la tabla.\\
+\texttt{feature\_\allowbreak cutoff} & Fecha y hora & Corte previo al partido en la versión estática. Ningún predictor utilizará información posterior.\\
+\texttt{focal\_\allowbreak team\_\allowbreak id} & Texto (ID) & Equipo cuyo rendimiento se describe.\\
+\texttt{rival\_\allowbreak team\_\allowbreak id} & Texto (ID) & Equipo contrario.\\
+\texttt{focal\_\allowbreak lineup\_\allowbreak id} & Texto (ID) & Clave derivada del equipo y los cinco identificadores ordenados canónicamente; no cambia por permutar nombres.\\
+\texttt{rival\_\allowbreak lineup\_\allowbreak id} & Texto (ID) & Clave equivalente para el quinteto rival.\\
+\texttt{focal\_\allowbreak is\_\allowbreak home} & Binario & Localía conocida; se contrasta con el calendario.\\
+\texttt{focal\_\allowbreak rest\_\allowbreak days} & Entero, nullable & Días de descanso del equipo focal obtenidos del calendario anterior.\\
+\texttt{rival\_\allowbreak rest\_\allowbreak days} & Entero, nullable & Días de descanso del rival bajo la misma regla.\\
+\texttt{shared\_\allowbreak minutes} & Decimal & Duración acumulada de los intervalos con ambos quintetos exactos; observada después del encuentro.\\
+\texttt{shared\_\allowbreak stints} & Entero & Cantidad de intervalos disjuntos agregados en la fila; no constituye cantidad de partidos.\\
+\texttt{focal\_\allowbreak off\_\allowbreak poss} & Entero, nullable & Posesiones ofensivas focales elegibles durante la coincidencia, según reglas de atribución verificadas.\\
+\texttt{rival\_\allowbreak off\_\allowbreak poss} & Entero, nullable & Posesiones ofensivas rivales en los mismos intervalos; exposición defensiva focal.\\
+\texttt{lineup\_\allowbreak quality\_\allowbreak status} & Categoría & Resultado del control de reconstrucción: válido, ambiguo o incompleto. Los registros no válidos no generarán respuestas de entrenamiento.\\
+\texttt{source\_\allowbreak version} & Texto & Versión o fecha de extracción de eventos, calendario y reglas de procesamiento, para reproducibilidad.\\
+\texttt{focal\_\allowbreak player1\_\allowbreak id} & Texto (ID) & Jugadora 1 del quinteto focal, siguiendo el orden canónico del identificador, sin significado posicional.\\
+\texttt{focal\_\allowbreak player1\_\allowbreak role} & Categoría, nullable & Macrorrol Guard, Wing o Big, derivado de posición mediante la regla documentada. Un rol desconocido no se asignará usando el resultado.\\
+\texttt{focal\_\allowbreak player2\_\allowbreak id} & Texto (ID) & Jugadora 2 del quinteto focal, siguiendo el orden canónico del identificador, sin significado posicional.\\
+\texttt{focal\_\allowbreak player2\_\allowbreak role} & Categoría, nullable & Macrorrol Guard, Wing o Big, derivado de posición mediante la regla documentada. Un rol desconocido no se asignará usando el resultado.\\
+\texttt{focal\_\allowbreak player3\_\allowbreak id} & Texto (ID) & Jugadora 3 del quinteto focal, siguiendo el orden canónico del identificador, sin significado posicional.\\
+\texttt{focal\_\allowbreak player3\_\allowbreak role} & Categoría, nullable & Macrorrol Guard, Wing o Big, derivado de posición mediante la regla documentada. Un rol desconocido no se asignará usando el resultado.\\
+\texttt{focal\_\allowbreak player4\_\allowbreak id} & Texto (ID) & Jugadora 4 del quinteto focal, siguiendo el orden canónico del identificador, sin significado posicional.\\
+\texttt{focal\_\allowbreak player4\_\allowbreak role} & Categoría, nullable & Macrorrol Guard, Wing o Big, derivado de posición mediante la regla documentada. Un rol desconocido no se asignará usando el resultado.\\
+\texttt{focal\_\allowbreak player5\_\allowbreak id} & Texto (ID) & Jugadora 5 del quinteto focal, siguiendo el orden canónico del identificador, sin significado posicional.\\
+\texttt{focal\_\allowbreak player5\_\allowbreak role} & Categoría, nullable & Macrorrol Guard, Wing o Big, derivado de posición mediante la regla documentada. Un rol desconocido no se asignará usando el resultado.\\
+\texttt{rival\_\allowbreak player1\_\allowbreak id} & Texto (ID) & Jugadora 1 del quinteto rival, siguiendo el orden canónico del identificador, sin significado posicional.\\
+\texttt{rival\_\allowbreak player1\_\allowbreak role} & Categoría, nullable & Macrorrol Guard, Wing o Big, derivado de posición mediante la regla documentada. Un rol desconocido no se asignará usando el resultado.\\
+\texttt{rival\_\allowbreak player2\_\allowbreak id} & Texto (ID) & Jugadora 2 del quinteto rival, siguiendo el orden canónico del identificador, sin significado posicional.\\
+\texttt{rival\_\allowbreak player2\_\allowbreak role} & Categoría, nullable & Macrorrol Guard, Wing o Big, derivado de posición mediante la regla documentada. Un rol desconocido no se asignará usando el resultado.\\
+\texttt{rival\_\allowbreak player3\_\allowbreak id} & Texto (ID) & Jugadora 3 del quinteto rival, siguiendo el orden canónico del identificador, sin significado posicional.\\
+\texttt{rival\_\allowbreak player3\_\allowbreak role} & Categoría, nullable & Macrorrol Guard, Wing o Big, derivado de posición mediante la regla documentada. Un rol desconocido no se asignará usando el resultado.\\
+\texttt{rival\_\allowbreak player4\_\allowbreak id} & Texto (ID) & Jugadora 4 del quinteto rival, siguiendo el orden canónico del identificador, sin significado posicional.\\
+\texttt{rival\_\allowbreak player4\_\allowbreak role} & Categoría, nullable & Macrorrol Guard, Wing o Big, derivado de posición mediante la regla documentada. Un rol desconocido no se asignará usando el resultado.\\
+\texttt{rival\_\allowbreak player5\_\allowbreak id} & Texto (ID) & Jugadora 5 del quinteto rival, siguiendo el orden canónico del identificador, sin significado posicional.\\
+\texttt{rival\_\allowbreak player5\_\allowbreak role} & Categoría, nullable & Macrorrol Guard, Wing o Big, derivado de posición mediante la regla documentada. Un rol desconocido no se asignará usando el resultado.\\
+\end{longtable}
+\endgroup
+\begingroup
+\small
+\setstretch{1.0}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{5.0cm}>{\raggedright\arraybackslash}p{1.9cm}>{\raggedright\arraybackslash}p{7.7cm}@{}}
+\caption{Tabla maestra de fase 2: resultados observados y respuesta.}\label{tab:fase2-observados}\\
+\toprule\textbf{Variable}&\textbf{Tipo}&\textbf{Descripción}\\\midrule\endfirsthead
+\multicolumn{3}{l}{\small Continuación de la Tabla~\ref{tab:fase2-observados}}\\
+\toprule\textbf{Variable}&\textbf{Tipo}&\textbf{Descripción}\\\midrule\endhead
+\midrule\multicolumn{3}{r}{\small Continúa en la siguiente página}\\\endfoot
+\bottomrule\endlastfoot
+\texttt{focal\_\allowbreak pts} & Entero, nullable & Puntos anotados del equipo focal en la coincidencia exacta. Se agregan eventos una sola vez; un dato ausente no equivale a cero.\\
+\texttt{focal\_\allowbreak fgm} & Entero, nullable & Tiros de campo acertados, incluidos triples del equipo focal en la coincidencia exacta. Se agregan eventos una sola vez; un dato ausente no equivale a cero.\\
+\texttt{focal\_\allowbreak fga} & Entero, nullable & Tiros de campo intentados, incluidos triples del equipo focal en la coincidencia exacta. Se agregan eventos una sola vez; un dato ausente no equivale a cero.\\
+\texttt{focal\_\allowbreak 3pm} & Entero, nullable & Triples acertados del equipo focal en la coincidencia exacta. Se agregan eventos una sola vez; un dato ausente no equivale a cero.\\
+\texttt{focal\_\allowbreak 3pa} & Entero, nullable & Triples intentados del equipo focal en la coincidencia exacta. Se agregan eventos una sola vez; un dato ausente no equivale a cero.\\
+\texttt{focal\_\allowbreak ftm} & Entero, nullable & Tiros libres acertados del equipo focal en la coincidencia exacta. Se agregan eventos una sola vez; un dato ausente no equivale a cero.\\
+\texttt{focal\_\allowbreak fta} & Entero, nullable & Tiros libres intentados del equipo focal en la coincidencia exacta. Se agregan eventos una sola vez; un dato ausente no equivale a cero.\\
+\texttt{focal\_\allowbreak ast} & Entero, nullable & Asistencias del equipo focal en la coincidencia exacta. Se agregan eventos una sola vez; un dato ausente no equivale a cero.\\
+\texttt{focal\_\allowbreak tov} & Entero, nullable & Pérdidas, incluidas las de equipo cuando sean identificables del equipo focal en la coincidencia exacta. Se agregan eventos una sola vez; un dato ausente no equivale a cero.\\
+\texttt{focal\_\allowbreak oreb} & Entero, nullable & Rebotes ofensivos individuales y de equipo identificables del equipo focal en la coincidencia exacta. Se agregan eventos una sola vez; un dato ausente no equivale a cero.\\
+\texttt{focal\_\allowbreak dreb} & Entero, nullable & Rebotes defensivos individuales y de equipo identificables del equipo focal en la coincidencia exacta. Se agregan eventos una sola vez; un dato ausente no equivale a cero.\\
+\texttt{focal\_\allowbreak stl} & Entero, nullable & Robos del equipo focal en la coincidencia exacta. Se agregan eventos una sola vez; un dato ausente no equivale a cero.\\
+\texttt{focal\_\allowbreak blk} & Entero, nullable & Bloqueos del equipo focal en la coincidencia exacta. Se agregan eventos una sola vez; un dato ausente no equivale a cero.\\
+\texttt{focal\_\allowbreak pf} & Entero, nullable & Faltas personales del equipo focal en la coincidencia exacta. Se agregan eventos una sola vez; un dato ausente no equivale a cero.\\
+\texttt{rival\_\allowbreak pts} & Entero, nullable & Puntos anotados del equipo rival en la coincidencia exacta. Se agregan eventos una sola vez; un dato ausente no equivale a cero.\\
+\texttt{rival\_\allowbreak fgm} & Entero, nullable & Tiros de campo acertados, incluidos triples del equipo rival en la coincidencia exacta. Se agregan eventos una sola vez; un dato ausente no equivale a cero.\\
+\texttt{rival\_\allowbreak fga} & Entero, nullable & Tiros de campo intentados, incluidos triples del equipo rival en la coincidencia exacta. Se agregan eventos una sola vez; un dato ausente no equivale a cero.\\
+\texttt{rival\_\allowbreak 3pm} & Entero, nullable & Triples acertados del equipo rival en la coincidencia exacta. Se agregan eventos una sola vez; un dato ausente no equivale a cero.\\
+\texttt{rival\_\allowbreak 3pa} & Entero, nullable & Triples intentados del equipo rival en la coincidencia exacta. Se agregan eventos una sola vez; un dato ausente no equivale a cero.\\
+\texttt{rival\_\allowbreak ftm} & Entero, nullable & Tiros libres acertados del equipo rival en la coincidencia exacta. Se agregan eventos una sola vez; un dato ausente no equivale a cero.\\
+\texttt{rival\_\allowbreak fta} & Entero, nullable & Tiros libres intentados del equipo rival en la coincidencia exacta. Se agregan eventos una sola vez; un dato ausente no equivale a cero.\\
+\texttt{rival\_\allowbreak ast} & Entero, nullable & Asistencias del equipo rival en la coincidencia exacta. Se agregan eventos una sola vez; un dato ausente no equivale a cero.\\
+\texttt{rival\_\allowbreak tov} & Entero, nullable & Pérdidas, incluidas las de equipo cuando sean identificables del equipo rival en la coincidencia exacta. Se agregan eventos una sola vez; un dato ausente no equivale a cero.\\
+\texttt{rival\_\allowbreak oreb} & Entero, nullable & Rebotes ofensivos individuales y de equipo identificables del equipo rival en la coincidencia exacta. Se agregan eventos una sola vez; un dato ausente no equivale a cero.\\
+\texttt{rival\_\allowbreak dreb} & Entero, nullable & Rebotes defensivos individuales y de equipo identificables del equipo rival en la coincidencia exacta. Se agregan eventos una sola vez; un dato ausente no equivale a cero.\\
+\texttt{rival\_\allowbreak stl} & Entero, nullable & Robos del equipo rival en la coincidencia exacta. Se agregan eventos una sola vez; un dato ausente no equivale a cero.\\
+\texttt{rival\_\allowbreak blk} & Entero, nullable & Bloqueos del equipo rival en la coincidencia exacta. Se agregan eventos una sola vez; un dato ausente no equivale a cero.\\
+\texttt{rival\_\allowbreak pf} & Entero, nullable & Faltas personales del equipo rival en la coincidencia exacta. Se agregan eventos una sola vez; un dato ausente no equivale a cero.\\
+\texttt{focal\_\allowbreak 3p\_\allowbreak pct} & Decimal, nullable & Triples acertados / intentados. Proporción en escala 0--1; denominador cero produce un faltante.\\
+\texttt{focal\_\allowbreak efg\_\allowbreak pct} & Decimal, nullable & (Tiros de campo acertados + 0.5 por triples acertados) / intentos de campo. Proporción en escala 0--1; denominador cero produce un faltante.\\
+\texttt{focal\_\allowbreak ts\_\allowbreak pct} & Decimal, nullable & Puntos / [2 por (intentos de campo + 0.44 por intentos libres)]; aproximación convencional, no conteo real de posesiones. Proporción en escala 0--1; denominador cero produce un faltante.\\
+\texttt{rival\_\allowbreak 3p\_\allowbreak pct} & Decimal, nullable & Triples acertados / intentados. Proporción en escala 0--1; denominador cero produce un faltante.\\
+\texttt{rival\_\allowbreak efg\_\allowbreak pct} & Decimal, nullable & (Tiros de campo acertados + 0.5 por triples acertados) / intentos de campo. Proporción en escala 0--1; denominador cero produce un faltante.\\
+\texttt{rival\_\allowbreak ts\_\allowbreak pct} & Decimal, nullable & Puntos / [2 por (intentos de campo + 0.44 por intentos libres)]; aproximación convencional, no conteo real de posesiones. Proporción en escala 0--1; denominador cero produce un faltante.\\
+\texttt{focal\_\allowbreak off\_\allowbreak rating} & Decimal, nullable & 100 por puntos focales / posesiones ofensivas focales; observado, no predictor del mismo partido.\\
+\texttt{focal\_\allowbreak def\_\allowbreak rating} & Decimal, nullable & 100 por puntos rivales / posesiones ofensivas rivales; observado.\\
+\texttt{target\_\allowbreak net\_\allowbreak rating} & Decimal, nullable & Respuesta: eficiencia ofensiva focal menos defensiva focal sobre los mismos intervalos. Vacía en consultas futuras; indefinida si alguna exposición es inválida.\\
+\end{longtable}
+\endgroup
+\begingroup
+\small
+\setstretch{1.0}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{5.0cm}>{\raggedright\arraybackslash}p{1.9cm}>{\raggedright\arraybackslash}p{7.7cm}@{}}
+\caption{Tabla maestra de fase 2: antecedentes y composición previa.}\label{tab:fase2-historial}\\
+\toprule\textbf{Variable}&\textbf{Tipo}&\textbf{Descripción}\\\midrule\endfirsthead
+\multicolumn{3}{l}{\small Continuación de la Tabla~\ref{tab:fase2-historial}}\\
+\toprule\textbf{Variable}&\textbf{Tipo}&\textbf{Descripción}\\\midrule\endhead
+\midrule\multicolumn{3}{r}{\small Continúa en la siguiente página}\\\endfoot
+\bottomrule\endlastfoot
+\texttt{hist\_\allowbreak focal\_\allowbreak lineup\_\allowbreak games} & Entero & Número de partidos anteriores en los que participó este quinteto, sin multiplicarlo por quintetos rivales. Se calcula solo antes del corte, dentro de la temporada colectiva seleccionada.\\
+\texttt{hist\_\allowbreak focal\_\allowbreak lineup\_\allowbreak off\_\allowbreak poss} & Decimal, nullable & Posesiones ofensivas anteriores elegibles del quinteto frente al conjunto de rivales. Se calcula solo antes del corte, dentro de la temporada colectiva seleccionada.\\
+\texttt{hist\_\allowbreak focal\_\allowbreak lineup\_\allowbreak def\_\allowbreak poss} & Decimal, nullable & Posesiones defensivas anteriores elegibles. Se calcula solo antes del corte, dentro de la temporada colectiva seleccionada.\\
+\texttt{hist\_\allowbreak focal\_\allowbreak lineup\_\allowbreak off\_\allowbreak rating} & Decimal, nullable & 100 por puntos históricos a favor / posesiones ofensivas históricas. Se calcula solo antes del corte, dentro de la temporada colectiva seleccionada.\\
+\texttt{hist\_\allowbreak focal\_\allowbreak lineup\_\allowbreak def\_\allowbreak rating} & Decimal, nullable & 100 por puntos históricos recibidos / posesiones defensivas históricas. Se calcula solo antes del corte, dentro de la temporada colectiva seleccionada.\\
+\texttt{hist\_\allowbreak focal\_\allowbreak lineup\_\allowbreak net\_\allowbreak rating} & Decimal, nullable & Diferencia entre sus eficiencias históricas ofensiva y defensiva. Se calcula solo antes del corte, dentro de la temporada colectiva seleccionada.\\
+\texttt{hist\_\allowbreak focal\_\allowbreak lineup\_\allowbreak 3pa\_\allowbreak per\_\allowbreak poss} & Decimal, nullable & Intentos de triple históricos / posesiones ofensivas históricas. Se calcula solo antes del corte, dentro de la temporada colectiva seleccionada.\\
+\texttt{hist\_\allowbreak focal\_\allowbreak lineup\_\allowbreak tov\_\allowbreak per\_\allowbreak poss} & Decimal, nullable & Pérdidas históricas / posesiones ofensivas históricas. Se calcula solo antes del corte, dentro de la temporada colectiva seleccionada.\\
+\texttt{hist\_\allowbreak focal\_\allowbreak lineup\_\allowbreak efg\_\allowbreak pct} & Decimal, nullable & Eficiencia histórica de tiro calculada con conteos acumulados. Se calcula solo antes del corte, dentro de la temporada colectiva seleccionada.\\
+\texttt{focal\_\allowbreak lineup\_\allowbreak history\_\allowbreak available} & Binario & 1 si existe historial colectivo elegible anterior; 0 si no. No implica exposición suficiente.\\
+\texttt{hist\_\allowbreak rival\_\allowbreak lineup\_\allowbreak games} & Entero & Número de partidos anteriores en los que participó este quinteto, sin multiplicarlo por quintetos rivales. Se calcula solo antes del corte, dentro de la temporada colectiva seleccionada.\\
+\texttt{hist\_\allowbreak rival\_\allowbreak lineup\_\allowbreak off\_\allowbreak poss} & Decimal, nullable & Posesiones ofensivas anteriores elegibles del quinteto frente al conjunto de rivales. Se calcula solo antes del corte, dentro de la temporada colectiva seleccionada.\\
+\texttt{hist\_\allowbreak rival\_\allowbreak lineup\_\allowbreak def\_\allowbreak poss} & Decimal, nullable & Posesiones defensivas anteriores elegibles. Se calcula solo antes del corte, dentro de la temporada colectiva seleccionada.\\
+\texttt{hist\_\allowbreak rival\_\allowbreak lineup\_\allowbreak off\_\allowbreak rating} & Decimal, nullable & 100 por puntos históricos a favor / posesiones ofensivas históricas. Se calcula solo antes del corte, dentro de la temporada colectiva seleccionada.\\
+\texttt{hist\_\allowbreak rival\_\allowbreak lineup\_\allowbreak def\_\allowbreak rating} & Decimal, nullable & 100 por puntos históricos recibidos / posesiones defensivas históricas. Se calcula solo antes del corte, dentro de la temporada colectiva seleccionada.\\
+\texttt{hist\_\allowbreak rival\_\allowbreak lineup\_\allowbreak net\_\allowbreak rating} & Decimal, nullable & Diferencia entre sus eficiencias históricas ofensiva y defensiva. Se calcula solo antes del corte, dentro de la temporada colectiva seleccionada.\\
+\texttt{hist\_\allowbreak rival\_\allowbreak lineup\_\allowbreak 3pa\_\allowbreak per\_\allowbreak poss} & Decimal, nullable & Intentos de triple históricos / posesiones ofensivas históricas. Se calcula solo antes del corte, dentro de la temporada colectiva seleccionada.\\
+\texttt{hist\_\allowbreak rival\_\allowbreak lineup\_\allowbreak tov\_\allowbreak per\_\allowbreak poss} & Decimal, nullable & Pérdidas históricas / posesiones ofensivas históricas. Se calcula solo antes del corte, dentro de la temporada colectiva seleccionada.\\
+\texttt{hist\_\allowbreak rival\_\allowbreak lineup\_\allowbreak efg\_\allowbreak pct} & Decimal, nullable & Eficiencia histórica de tiro calculada con conteos acumulados. Se calcula solo antes del corte, dentro de la temporada colectiva seleccionada.\\
+\texttt{rival\_\allowbreak lineup\_\allowbreak history\_\allowbreak available} & Binario & 1 si existe historial colectivo elegible anterior; 0 si no. No implica exposición suficiente.\\
+\texttt{hist\_\allowbreak lineup\_\allowbreak pair\_\allowbreak games} & Entero & Partidos previos con coincidencia de los dos quintetos exactos.\\
+\texttt{hist\_\allowbreak lineup\_\allowbreak pair\_\allowbreak focal\_\allowbreak off\_\allowbreak poss} & Entero & Exposición ofensiva focal previa de esta pareja de quintetos.\\
+\texttt{hist\_\allowbreak lineup\_\allowbreak pair\_\allowbreak rival\_\allowbreak off\_\allowbreak poss} & Entero & Exposición ofensiva rival previa de esta pareja.\\
+\texttt{hist\_\allowbreak lineup\_\allowbreak pair\_\allowbreak net\_\allowbreak rating} & Decimal, nullable & Balance focal previo frente a este quinteto rival, calculado con puntos y posesiones acumulados, no como promedio simple de tasas.\\
+\texttt{lineup\_\allowbreak pair\_\allowbreak history\_\allowbreak available} & Binario & Indica coincidencias anteriores; una pareja nueva tendrá 0 y tasas no disponibles.\\
+\texttt{hist\_\allowbreak focal\_\allowbreak players\_\allowbreak mean\_\allowbreak pts\_\allowbreak per\_\allowbreak poss} & Decimal, nullable & Media de antecedentes individuales de las cinco integrantes calculados al corte con el historial permitido de fase 1. Se documenta cobertura; no sustituye una sinergia observada.\\
+\texttt{hist\_\allowbreak focal\_\allowbreak players\_\allowbreak mean\_\allowbreak ts\_\allowbreak pct} & Decimal, nullable & Media de antecedentes individuales de las cinco integrantes calculados al corte con el historial permitido de fase 1. Se documenta cobertura; no sustituye una sinergia observada.\\
+\texttt{hist\_\allowbreak focal\_\allowbreak players\_\allowbreak mean\_\allowbreak ast\_\allowbreak per\_\allowbreak poss} & Decimal, nullable & Media de antecedentes individuales de las cinco integrantes calculados al corte con el historial permitido de fase 1. Se documenta cobertura; no sustituye una sinergia observada.\\
+\texttt{hist\_\allowbreak focal\_\allowbreak players\_\allowbreak mean\_\allowbreak tov\_\allowbreak per\_\allowbreak poss} & Decimal, nullable & Media de antecedentes individuales de las cinco integrantes calculados al corte con el historial permitido de fase 1. Se documenta cobertura; no sustituye una sinergia observada.\\
+\texttt{hist\_\allowbreak rival\_\allowbreak players\_\allowbreak mean\_\allowbreak pts\_\allowbreak per\_\allowbreak poss} & Decimal, nullable & Media de antecedentes individuales de las cinco integrantes calculados al corte con el historial permitido de fase 1. Se documenta cobertura; no sustituye una sinergia observada.\\
+\texttt{hist\_\allowbreak rival\_\allowbreak players\_\allowbreak mean\_\allowbreak ts\_\allowbreak pct} & Decimal, nullable & Media de antecedentes individuales de las cinco integrantes calculados al corte con el historial permitido de fase 1. Se documenta cobertura; no sustituye una sinergia observada.\\
+\texttt{hist\_\allowbreak rival\_\allowbreak players\_\allowbreak mean\_\allowbreak ast\_\allowbreak per\_\allowbreak poss} & Decimal, nullable & Media de antecedentes individuales de las cinco integrantes calculados al corte con el historial permitido de fase 1. Se documenta cobertura; no sustituye una sinergia observada.\\
+\texttt{hist\_\allowbreak rival\_\allowbreak players\_\allowbreak mean\_\allowbreak tov\_\allowbreak per\_\allowbreak poss} & Decimal, nullable & Media de antecedentes individuales de las cinco integrantes calculados al corte con el historial permitido de fase 1. Se documenta cobertura; no sustituye una sinergia observada.\\
+\texttt{hist\_\allowbreak focal\_\allowbreak players\_\allowbreak valid\_\allowbreak n} & Entero & Cantidad de integrantes con antecedentes suficientes para el bloque individual, entre 0 y 5; se exige la misma regla de disponibilidad para las cuatro tasas resumidas.\\
+\texttt{focal\_\allowbreak guard\_\allowbreak count} & Entero, nullable & Número de integrantes de ese macrorrol. Si hay roles desconocidos se conservará su indicador y no se asumirá que el conteo es completo.\\
+\texttt{focal\_\allowbreak wing\_\allowbreak count} & Entero, nullable & Número de integrantes de ese macrorrol. Si hay roles desconocidos se conservará su indicador y no se asumirá que el conteo es completo.\\
+\texttt{focal\_\allowbreak big\_\allowbreak count} & Entero, nullable & Número de integrantes de ese macrorrol. Si hay roles desconocidos se conservará su indicador y no se asumirá que el conteo es completo.\\
+\texttt{focal\_\allowbreak unknown\_\allowbreak role\_\allowbreak count} & Entero & Número de integrantes con rol pendiente o ambiguo.\\
+\texttt{hist\_\allowbreak rival\_\allowbreak players\_\allowbreak valid\_\allowbreak n} & Entero & Cantidad de integrantes con antecedentes suficientes para el bloque individual, entre 0 y 5; se exige la misma regla de disponibilidad para las cuatro tasas resumidas.\\
+\texttt{rival\_\allowbreak guard\_\allowbreak count} & Entero, nullable & Número de integrantes de ese macrorrol. Si hay roles desconocidos se conservará su indicador y no se asumirá que el conteo es completo.\\
+\texttt{rival\_\allowbreak wing\_\allowbreak count} & Entero, nullable & Número de integrantes de ese macrorrol. Si hay roles desconocidos se conservará su indicador y no se asumirá que el conteo es completo.\\
+\texttt{rival\_\allowbreak big\_\allowbreak count} & Entero, nullable & Número de integrantes de ese macrorrol. Si hay roles desconocidos se conservará su indicador y no se asumirá que el conteo es completo.\\
+\texttt{rival\_\allowbreak unknown\_\allowbreak role\_\allowbreak count} & Entero & Número de integrantes con rol pendiente o ambiguo.\\
+\end{longtable}
+\endgroup
+\begingroup
+\small
+\setstretch{1.0}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{5.0cm}>{\raggedright\arraybackslash}p{1.9cm}>{\raggedright\arraybackslash}p{7.7cm}@{}}
+\caption{Tabla maestra de fase 2: predicciones individuales y cobertura.}\label{tab:fase2-predicciones}\\
+\toprule\textbf{Variable}&\textbf{Tipo}&\textbf{Descripción}\\\midrule\endfirsthead
+\multicolumn{3}{l}{\small Continuación de la Tabla~\ref{tab:fase2-predicciones}}\\
+\toprule\textbf{Variable}&\textbf{Tipo}&\textbf{Descripción}\\\midrule\endhead
+\midrule\multicolumn{3}{r}{\small Continúa en la siguiente página}\\\endfoot
+\bottomrule\endlastfoot
+\texttt{phase1\_\allowbreak target} & Categoría & Objetivo de las puntuaciones: tasa focal o diferencial ajustado. Cada experimento usa una única definición y escala.\\
+\texttt{phase1\_\allowbreak model\_\allowbreak version} & Texto & Versión del predictor y sus transformaciones.\\
+\texttt{phase1\_\allowbreak prediction\_\allowbreak cutoff} & Fecha y hora & Corte del historial permitido para producir puntuaciones; no posterior al corte de fase 2.\\
+\texttt{role\_\allowbreak rule\_\allowbreak version} & Texto & Versión de la regla de compatibilidad entre macrorroles.\\
+\texttt{focal1\_\allowbreak rival1\_\allowbreak score} & Decimal, nullable & Predicción de fase 1 para las jugadoras de posiciones canónicas 1 y 1. Se obtiene por identificadores y contexto; no es GmSc observado del partido.\\
+\texttt{focal1\_\allowbreak rival2\_\allowbreak score} & Decimal, nullable & Predicción de fase 1 para las jugadoras de posiciones canónicas 1 y 2. Se obtiene por identificadores y contexto; no es GmSc observado del partido.\\
+\texttt{focal1\_\allowbreak rival3\_\allowbreak score} & Decimal, nullable & Predicción de fase 1 para las jugadoras de posiciones canónicas 1 y 3. Se obtiene por identificadores y contexto; no es GmSc observado del partido.\\
+\texttt{focal1\_\allowbreak rival4\_\allowbreak score} & Decimal, nullable & Predicción de fase 1 para las jugadoras de posiciones canónicas 1 y 4. Se obtiene por identificadores y contexto; no es GmSc observado del partido.\\
+\texttt{focal1\_\allowbreak rival5\_\allowbreak score} & Decimal, nullable & Predicción de fase 1 para las jugadoras de posiciones canónicas 1 y 5. Se obtiene por identificadores y contexto; no es GmSc observado del partido.\\
+\texttt{focal2\_\allowbreak rival1\_\allowbreak score} & Decimal, nullable & Predicción de fase 1 para las jugadoras de posiciones canónicas 2 y 1. Se obtiene por identificadores y contexto; no es GmSc observado del partido.\\
+\texttt{focal2\_\allowbreak rival2\_\allowbreak score} & Decimal, nullable & Predicción de fase 1 para las jugadoras de posiciones canónicas 2 y 2. Se obtiene por identificadores y contexto; no es GmSc observado del partido.\\
+\texttt{focal2\_\allowbreak rival3\_\allowbreak score} & Decimal, nullable & Predicción de fase 1 para las jugadoras de posiciones canónicas 2 y 3. Se obtiene por identificadores y contexto; no es GmSc observado del partido.\\
+\texttt{focal2\_\allowbreak rival4\_\allowbreak score} & Decimal, nullable & Predicción de fase 1 para las jugadoras de posiciones canónicas 2 y 4. Se obtiene por identificadores y contexto; no es GmSc observado del partido.\\
+\texttt{focal2\_\allowbreak rival5\_\allowbreak score} & Decimal, nullable & Predicción de fase 1 para las jugadoras de posiciones canónicas 2 y 5. Se obtiene por identificadores y contexto; no es GmSc observado del partido.\\
+\texttt{focal3\_\allowbreak rival1\_\allowbreak score} & Decimal, nullable & Predicción de fase 1 para las jugadoras de posiciones canónicas 3 y 1. Se obtiene por identificadores y contexto; no es GmSc observado del partido.\\
+\texttt{focal3\_\allowbreak rival2\_\allowbreak score} & Decimal, nullable & Predicción de fase 1 para las jugadoras de posiciones canónicas 3 y 2. Se obtiene por identificadores y contexto; no es GmSc observado del partido.\\
+\texttt{focal3\_\allowbreak rival3\_\allowbreak score} & Decimal, nullable & Predicción de fase 1 para las jugadoras de posiciones canónicas 3 y 3. Se obtiene por identificadores y contexto; no es GmSc observado del partido.\\
+\texttt{focal3\_\allowbreak rival4\_\allowbreak score} & Decimal, nullable & Predicción de fase 1 para las jugadoras de posiciones canónicas 3 y 4. Se obtiene por identificadores y contexto; no es GmSc observado del partido.\\
+\texttt{focal3\_\allowbreak rival5\_\allowbreak score} & Decimal, nullable & Predicción de fase 1 para las jugadoras de posiciones canónicas 3 y 5. Se obtiene por identificadores y contexto; no es GmSc observado del partido.\\
+\texttt{focal4\_\allowbreak rival1\_\allowbreak score} & Decimal, nullable & Predicción de fase 1 para las jugadoras de posiciones canónicas 4 y 1. Se obtiene por identificadores y contexto; no es GmSc observado del partido.\\
+\texttt{focal4\_\allowbreak rival2\_\allowbreak score} & Decimal, nullable & Predicción de fase 1 para las jugadoras de posiciones canónicas 4 y 2. Se obtiene por identificadores y contexto; no es GmSc observado del partido.\\
+\texttt{focal4\_\allowbreak rival3\_\allowbreak score} & Decimal, nullable & Predicción de fase 1 para las jugadoras de posiciones canónicas 4 y 3. Se obtiene por identificadores y contexto; no es GmSc observado del partido.\\
+\texttt{focal4\_\allowbreak rival4\_\allowbreak score} & Decimal, nullable & Predicción de fase 1 para las jugadoras de posiciones canónicas 4 y 4. Se obtiene por identificadores y contexto; no es GmSc observado del partido.\\
+\texttt{focal4\_\allowbreak rival5\_\allowbreak score} & Decimal, nullable & Predicción de fase 1 para las jugadoras de posiciones canónicas 4 y 5. Se obtiene por identificadores y contexto; no es GmSc observado del partido.\\
+\texttt{focal5\_\allowbreak rival1\_\allowbreak score} & Decimal, nullable & Predicción de fase 1 para las jugadoras de posiciones canónicas 5 y 1. Se obtiene por identificadores y contexto; no es GmSc observado del partido.\\
+\texttt{focal5\_\allowbreak rival2\_\allowbreak score} & Decimal, nullable & Predicción de fase 1 para las jugadoras de posiciones canónicas 5 y 2. Se obtiene por identificadores y contexto; no es GmSc observado del partido.\\
+\texttt{focal5\_\allowbreak rival3\_\allowbreak score} & Decimal, nullable & Predicción de fase 1 para las jugadoras de posiciones canónicas 5 y 3. Se obtiene por identificadores y contexto; no es GmSc observado del partido.\\
+\texttt{focal5\_\allowbreak rival4\_\allowbreak score} & Decimal, nullable & Predicción de fase 1 para las jugadoras de posiciones canónicas 5 y 4. Se obtiene por identificadores y contexto; no es GmSc observado del partido.\\
+\texttt{focal5\_\allowbreak rival5\_\allowbreak score} & Decimal, nullable & Predicción de fase 1 para las jugadoras de posiciones canónicas 5 y 5. Se obtiene por identificadores y contexto; no es GmSc observado del partido.\\
+\texttt{focal{i}\_\allowbreak rival{j}\_\allowbreak status} & Categoría & Familia de 25 columnas, una por i,j de 1 a 5: válida, no comparable, rol desconocido o predicción no disponible. Distingue la causa de cada celda vacía.\\
+\texttt{focal{i}\_\allowbreak rival{j}\_\allowbreak history\_\allowbreak available} & Binario, nullable & Familia de 25 indicadores de historial directo de pareja. Ausencia de historial no impide necesariamente la predicción global.\\
+\texttt{focal{i}\_\allowbreak rival{j}\_\allowbreak hist\_\allowbreak poss} & Decimal, nullable & Familia de 25 exposiciones históricas de pareja, obtenidas al corte según fase 1. Un cero documentado indica ausencia de exposición; no equivale a una puntuación cero.\\
+\texttt{phase1\_\allowbreak {role}\_\allowbreak mean} & Decimal, nullable & Tres columnas para guard, wing y big: media de puntuaciones válidas de comparaciones elegibles agrupadas por rol focal.\\
+\texttt{phase1\_\allowbreak {role}\_\allowbreak min} & Decimal, nullable & Mínimo de ese conjunto; vacío si no hay puntuaciones válidas.\\
+\texttt{phase1\_\allowbreak {role}\_\allowbreak max} & Decimal, nullable & Máximo de ese conjunto; no representa una contribución independiente.\\
+\texttt{phase1\_\allowbreak {role}\_\allowbreak eligible\_\allowbreak n} & Entero & Número de comparaciones con roles conocidos y compatibles, aunque la predicción no esté disponible.\\
+\texttt{phase1\_\allowbreak {role}\_\allowbreak valid\_\allowbreak n} & Entero & Número de puntuaciones efectivamente disponibles en ese grupo; distingue cobertura de rendimiento.\\
+\end{longtable}
+\endgroup
+
+Las familias con índices entre llaves representan columnas separadas: i y j recorren 1--5 y role toma guard, wing o big. No se almacenará literalmente una única columna con esos índices. Los 25 scores quedan enumerados; sus estados y coberturas siguen la misma correspondencia. Se agrupa por rol focal para contar cada celda una sola vez, aun si se autorizan comparaciones entre roles distintos.
+
+Las estadísticas observadas permiten auditar y calcular el Net Rating \cite{nbaGlosarioFase2}; no alimentarán la predicción de ese mismo resultado. No se añadirá un diferencial entre Net Rating focal y rival: bajo convenciones simétricas el rival es el negativo del focal y la resta duplicaría el indicador. Los porcentajes se obtendrán con conteos acumulados y sus convenciones se verificarán contra el glosario estadístico \cite{basketballReferenceGameScore}.
+
+Las entradas históricas y resúmenes son características candidatas, no obligación de incorporarlas todas. Se controlará redundancia, especialmente entre eficiencias y su diferencia. La incorporación de fase 1 exigirá predicciones temporales fuera de muestra; ni las transformaciones ni la imputación se ajustarán con resultados futuros \cite{sklearnCommonPitfallsPonderacion}. No comparable, desconocido, cero observado y falta de historial se conservarán como situaciones distintas.
