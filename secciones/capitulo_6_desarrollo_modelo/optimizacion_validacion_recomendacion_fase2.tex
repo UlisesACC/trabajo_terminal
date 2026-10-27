@@ -1,0 +1,219 @@
+\begingroup
+\emergencystretch=3em
+\subsection{Optimización y selección del quinteto frente a la alineación rival}
+\label{subsec:optimizacion-fase2}
+Una vez definido el predictor, se establecerá cómo utilizarlo para elegir una alineación. Optimizar significará comparar alternativas permitidas y seleccionar la de mayor Net Rating predicho, manteniendo fijo el quinteto rival. El problema será combinatorio porque las decisiones consisten en seleccionar integrantes de un conjunto finito; cambiar el orden de los mismos cinco nombres no generará otro quinteto.
+
+\paragraph*{Objetivo y restricciones.}
+Se conservará la formulación del apartado anterior, $\max_{Q\in\mathcal F}\widehat N(Q,R,c)$. Las restricciones definirán el conjunto factible $\mathcal F$, es decir, las alineaciones que pueden evaluarse y recomendarse. Se distinguirán reglas del escenario y restricciones de composición propuestas para el experimento. No se presentará una distribución particular de macrorroles como obligación reglamentaria.
+
+\begin{table}[htbp]
+\centering\small
+\caption{Reglas para generar quintetos candidatos.}
+\label{tab:restricciones-fase2}
+\begin{tabularx}{\textwidth}{@{}p{3.2cm}XX@{}}
+\toprule
+\textbf{Regla}&\textbf{Aplicación}&\textbf{Consideración}\\\midrule
+Cinco integrantes distintas & Seleccionar exactamente cinco jugadoras del equipo focal. & Ninguna jugadora podrá aparecer dos veces.\\
+Disponibilidad & Excluir integrantes no elegibles según información conocida en el escenario. & Si esa información no existe en las fuentes, se proporcionará como dato del escenario y se documentará su origen.\\
+Máximo de cambios & Comparar solo quintetos con hasta $h$ sustituciones respecto al actual. & $h=1$ representará un cambio; $h=5$, reorganización completa.\\
+Composición & Aplicar, si se adopta, una regla explícita de cobertura por macrorrol. & Será una decisión experimental; roles desconocidos se identificarán antes de aplicarla.\\
+Mantener el quinteto & Incluir la alineación actual si continúa siendo elegible. & Una sustitución rival no obligará a recomendar un cambio propio.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Si $Q_0$ es el quinteto actual, el número de sustituciones será $5-|Q\cap Q_0|$: cinco menos la cantidad de integrantes que permanecen. Los empates exactos de puntuación se resolverán prefiriendo menos cambios y después el identificador canónico, como regla reproducible sin significado deportivo. No se fijará un margen mínimo de mejora sin validarlo; si se propone posteriormente, se seleccionará solo en desarrollo.
+
+\paragraph*{Consulta de antecedentes y generación exhaustiva.}
+La idea de filtrar enfrentamientos se incorporará como consulta de evidencia. Para cada candidato $Q$ y rival $R$ se recuperarán sus registros anteriores al corte:
+\begin{lstlisting}[style=sqlstyle]
+SELECT *
+FROM enfrentamientos_quintetos
+WHERE focal_lineup_id = :quinteto_candidato
+  AND rival_lineup_id = :quinteto_rival
+  AND date < :fecha_corte;
+\end{lstlisting}
+Los nombres precedidos por dos puntos representan parámetros del escenario, no valores literales. La consulta aportará antecedentes de esa pareja exacta; no entrenará un modelo nuevo ni seleccionará automáticamente una alineación. Si no devuelve filas, se utilizarán los indicadores de ausencia y las características de composición definidos en 6.2.1. No se descartará un candidato solo por carecer de enfrentamientos directos si sus entradas pueden construirse bajo las reglas del modelo.
+
+Se comenzará con enumeración exhaustiva: generar todas las combinaciones permitidas y evaluar cada una. En Python se utilizará \texttt{itertools.combinations}, que genera combinaciones sin repetir integrantes ni considerar distintos los órdenes de los mismos elementos \cite{pythonCombinationsFase2}. Con 12 disponibles existen 792 combinaciones antes de filtrar; con un cambio como máximo existen, antes de otras restricciones, el quinteto actual y $5(12-5)=35$ sustituciones, es decir, 36 alternativas. Si se fija una única jugadora saliente, el conjunto será menor.
+
+Las filas de consulta se prepararán y predecirán por lotes. La enumeración garantiza encontrar el máximo de la función predicha sobre el conjunto efectivamente evaluado, siempre que todas sus alternativas válidas tengan puntuación; no garantiza el máximo rendimiento real. Si faltan predicciones se informará cuántos candidatos quedaron sin evaluar y por qué. El tiempo de construcción de características y predicción se medirá antes de justificar búsquedas aproximadas.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[node distance=0.40cm,
+box/.style={draw,rounded corners,align=center,text width=11.6cm,font=\small,inner sep=5pt},
+arr/.style={-{Stealth},thick}]
+\node[box] (a) {Fijar rival, contexto, quinteto actual y disponibles};
+\node[box,below=of a] (b) {Generar combinaciones y aplicar restricciones};
+\node[box,below=of b] (c) {Consultar historial anterior al corte para cada candidato};
+\node[box,below=of c] (d) {Añadir composición, cobertura y predicciones de fase 1};
+\node[box,below=of d] (e) {Predecir Net Rating con el modelo guardado};
+\node[box,below=of e] (f) {Comparar puntuaciones e incluir la opción de no cambiar};
+\node[box,below=of f] (g) {Devolver mejor alternativa evaluable y sus limitaciones};
+\draw[arr] (a)--(b);\draw[arr] (b)--(c);\draw[arr] (c)--(d);
+\draw[arr] (d)--(e);\draw[arr] (e)--(f);\draw[arr] (f)--(g);
+\end{tikzpicture}
+\caption{Flujo de selección del quinteto condicionado al rival.}
+\label{fig:seleccion-quinteto}
+\end{figure}
+
+\subsection{Validación temporal y evaluación del modelo colectivo}
+\label{subsec:validacion-fase2}
+La evaluación distinguirá precisión del Net Rating, concordancia del orden y funcionamiento de la selección. No se confundirá un buen ajuste sobre registros conocidos con evidencia de que una sustitución hipotética habría mejorado el partido. La separación cronológica permitirá examinar predicciones de encuentros posteriores al entrenamiento \cite{sklearnTemporal613}.
+
+\paragraph*{Particiones y reconstrucción temporal.}
+Las fechas elegibles de la única temporada colectiva se dividirán inicialmente en 60\% para entrenamiento, dos bloques consecutivos de 10\% para validación y 20\% para prueba final. En el segundo corte se incorporará el primer bloque de validación al pasado de entrenamiento. Los porcentajes serán una propuesta operativa sujeta a cobertura, con fechas completas y límites registrados antes de comparar modelos. Todas las filas de un partido, incluidas perspectivas inversas, permanecerán juntas. La fase 2 no incorporará registros colectivos de otras temporadas para completar estos tramos.
+
+\begin{table}[htbp]
+\centering\small
+\caption{Secuencia temporal de evaluación colectiva.}
+\begin{tabularx}{\textwidth}{@{}p{2.1cm}XX@{}}
+\toprule
+\textbf{Etapa}&\textbf{Entrenamiento}&\textbf{Predicción evaluada}\\\midrule
+Corte 1 & Primer 60\% de fechas. & Siguiente 10\%.\\
+Corte 2 & Primer 70\%, incluido el bloque anterior. & Siguiente 10\%.\\
+Prueba final & Primer 80\%, con decisiones cerradas. & Último 20\%, reservado.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Cada fila histórica de entrenamiento tendrá antecedentes anteriores a su propio partido. En cada bloque posterior, modelos y antecedentes de consulta permanecerán congelados al inicio, siguiendo el protocolo estático definido para fase 1. Los resultados del bloque no actualizarán sus propias entradas durante la evaluación. Toda imputación, escala, perfil, estructura relacional y elección de hiperparámetros se limitará al entrenamiento permitido.
+
+El enriquecimiento requerirá además predicciones temporales fuera de muestra de fase 1. Fuera de muestra significará que el modelo que produce una puntuación no se entrenó con la respuesta de esa fila. También sus decisiones de descuento y configuración deberán haberse tomado con pasado disponible, no con resultados posteriores. Si no existe historial previo suficiente para generar esas salidas, se registrará la ausencia; no se rellenará con una predicción retrospectiva del modelo final \cite{sklearnCommonPitfallsPonderacion,cawley2010selection}.
+
+\paragraph*{Métricas y referencias.}
+Se utilizará MAE como criterio principal, RMSE para examinar errores grandes y $R^2$ como referencia relativa a la variabilidad de la respuesta \cite{sklearnMetricas6161}. Se aplicarán las definiciones y el promedio equilibrado por partido de 6.1.6.1: cada encuentro tendrá el mismo peso total, distribuido entre sus filas elegibles. Los indicadores de exposición servirán para analizar cobertura; no se confundirán con esos pesos de evaluación.
+
+\begin{table}[htbp]
+\centering\small
+\caption{Lectura de las medidas de evaluación de fase 2.}
+\begin{tabularx}{\textwidth}{@{}p{2.0cm}XX@{}}
+\toprule
+\textbf{Medida}&\textbf{Pregunta}&\textbf{Interpretación}\\\midrule
+MAE & ¿Cuánto se aleja normalmente la puntuación? & Menor es mejor. MAE de 4 significa una desviación absoluta media de 4 unidades de Net Rating, no 4\% de error.\\
+RMSE & ¿Existen errores grandes con peso importante? & Menor es mejor; conserva las unidades del Net Rating y da mayor influencia a desviaciones grandes.\\
+$R^2$ & ¿Cómo se compara el error cuadrático con una referencia constante? & 1 indica ajuste perfecto; 0 equivale a la media ponderada del bloque; valores negativos son peores que esa referencia. No es exactitud de clasificación.\\
+Spearman & ¿Se conserva el orden de quintetos observados? & Cercano a 1 indica concordancia; cercano a $-1$, inversión. No mide por sí solo precisión numérica.\\
+Cobertura & ¿Qué parte del escenario pudo evaluarse? & Informar partidos, exposición, candidatos con predicción y disponibilidad de historial; no es una medida de acierto.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+MAE y RMSE se expresarán en puntos por 100 posesiones en el balance de eficiencias definido para la respuesta. $R^2$ se reportará no definido si la respuesta es constante. Spearman se calculará por partido, equipo focal y quinteto rival fijo, entre al menos tres quintetos propios observados elegibles; se emplearán rangos promedio en empates y se excluirán grupos constantes, indicando su cantidad \cite{scipySpearman6161}. Se promediarán primero los grupos dentro del partido y después los partidos. Su cobertura puede ser reducida y no se garantizará que existan suficientes grupos.
+
+Como referencias se utilizarán la mediana de respuestas del entrenamiento y el Net Rating histórico del quinteto focal; este último tendrá respaldo poblacional de entrenamiento si no está disponible. También podrá evaluarse el historial de la pareja exacta como regla de comparación, informando su cobertura y respaldo. Todas las referencias utilizarán el mismo corte y filas que el predictor.
+
+No se adoptarán inicialmente F1, AUC o Brier como métricas principales, pues se estima una respuesta continua, no clases ni probabilidades. Convertir el resultado en clasificación o producir probabilidades requeriría un objetivo y validación adicionales. Se evitarán errores porcentuales respecto a un Net Rating real que puede ser cero o negativo.
+
+\paragraph*{Alcance de la validación de recomendaciones.}
+Las puntuaciones observadas solo existen para quintetos que jugaron. El orden retrospectivo compara actuaciones en distintos intervalos y contextos, y no observa lo que habría ocurrido con una alternativa no utilizada. Por ello, no se reportará una tasa de elecciones óptimas sobre todas las combinaciones posibles ni una ganancia real de sustitución basándose únicamente en sus predicciones.
+
+Se verificará que la selección respete restricciones, no duplique jugadoras, conserve la opción actual y no cambie por permutar el orden de nombres. Se informarán resultados por exposición, historial de quinteto y de pareja, además de tiempo de consulta y número de candidatos evaluados. Un Net Rating extremo con pocas posesiones se señalará como resultado con escaso respaldo. Los umbrales de elegibilidad se fijarán dentro de desarrollo y sus exclusiones se documentarán.
+
+La elección entre métodos se basará en el MAE de validación y sus diagnósticos, sobre las mismas filas y respuesta. La prueba final se utilizará una sola vez después de cerrar la configuración; un resultado desfavorable no autorizará reutilizarla para seleccionar otro modelo \cite{cawley2010selection}.
+
+\subsection{Evaluación de la aportación de la fase 1}
+\label{subsec:aportacion-fase1}
+Se comprobará si las puntuaciones individuales añaden información útil al modelo colectivo. Para ello se realizará una comparación controlada: retirar o añadir el bloque de características de fase 1 y observar cómo cambian las predicciones. Esta operación se denomina estudio de ablación; en este proyecto permitirá distinguir aportación predictiva de simple aumento en la cantidad de columnas.
+
+\begin{table}[htbp]
+\centering\small
+\caption{Configuraciones para estudiar el enriquecimiento individual.}
+\label{tab:ablacion-fase2}
+\begin{tabularx}{\textwidth}{@{}p{2.2cm}XX@{}}
+\toprule
+\textbf{Versión}&\textbf{Entradas}&\textbf{Finalidad}\\\midrule
+Base & Contexto, composición, antecedentes colectivos y resúmenes históricos individuales de respaldo definidos en 6.2.1. & Establecer el rendimiento sin scores de fase 1 ni su bloque de cobertura específico.\\
+Enriquecida & Mismas entradas y resúmenes de scores, elegibilidad y disponibilidad de fase 1. & Medir la aportación del bloque completo.\\
+Control opcional & Entradas base y solo indicadores de cobertura del bloque adicional. & Explorar si la mejora se relaciona con disponibilidad de historial más que con puntuaciones.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Se mantendrán respuesta, fechas, elegibilidad, filas, estimador y presupuesto de ajuste comparables. Cada versión podrá seleccionar su penalización dentro de los mismos cortes internos; no se reutilizará una configuración favorable elegida sobre la prueba. Una fila sin scores no se eliminará solo de la versión enriquecida: se conservarán sus ausencias según el procedimiento definido para que la comparación use los mismos casos.
+
+Se calculará la diferencia entre MAE de la versión base y enriquecida:
+\[
+ \Delta MAE=MAE_{\mathrm{base}}-MAE_{\mathrm{enriquecida}}.
+\]
+Un valor positivo favorecerá al enriquecimiento; uno negativo indicará mayor error con él. Por ejemplo, pasar de 10 a 9 produciría una reducción de una unidad de Net Rating en MAE. También se compararán RMSE, concordancia del orden, cobertura y costo. Las diferencias se presentarán por corte y por partido, evitando que una mejora concentrada en pocos casos se describa como universal.
+
+Si se cuantifica incertidumbre mediante remuestreo, se seleccionarán partidos completos, conservando todas sus filas. El remuestreo consiste en repetir el cálculo con muestras obtenidas del conjunto evaluado; no convierte parejas o quintetos del mismo partido en observaciones independientes. La posible dependencia entre fechas y equipos se declarará como límite, y una diferencia pequeña no se presentará como evidencia concluyente solo por su signo.
+
+El uso del clustering se examinará mediante una comparación adicional cuando la cobertura lo permita: scores producidos por fase 1 con y sin perfiles, manteniendo las mismas condiciones temporales. Ese ensayo requerirá reconstruir la cadena de fase 1, no borrar retrospectivamente una etiqueta de las entradas de fase 2 y atribuirle todo el cambio.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[node distance=0.55cm,
+box/.style={draw,rounded corners,align=center,text width=5.0cm,font=\small,inner sep=5pt},
+arr/.style={-{Stealth},thick}]
+\node[box,text width=11.3cm] (a) {Mismos partidos, cortes, respuesta y reglas de preparación};
+\node[box,below=0.7cm of a,xshift=-3cm] (b) {Modelo base\\Sin bloque de scores de fase 1};
+\node[box,below=0.7cm of a,xshift=3cm] (c) {Modelo enriquecido\\Con bloque de fase 1};
+\node[box,text width=11.3cm,below=3.1cm of a] (d) {Comparar error, ranking, cobertura y costo en validación};
+\node[box,text width=11.3cm,below=of d] (e) {Cerrar la decisión y evaluar la configuración en prueba final};
+\draw[arr] (a.south)--(b.north);\draw[arr] (a.south)--(c.north);
+\draw[arr] (b.south)--(d.north);\draw[arr] (c.south)--(d.north);\draw[arr] (d)--(e);
+\end{tikzpicture}
+\caption{Comparación de la aportación predictiva de fase 1.}
+\end{figure}
+
+La decisión de conservar el enriquecimiento se tomará con validación de desarrollo, considerando consistencia de la mejora y carga adicional. Si no existe evidencia favorable, se conservará el modelo base como alternativa y se reportará la limitación. Las pruebas finales no servirán para reiniciar la selección \cite{cawley2010selection}. Una mejora predictiva tampoco demostrará que la fase 1 identifique marcajes causales o que toda recomendación produzca una mejora real.
+
+\subsection{Procedimiento de recomendación y presentación de resultados}
+\label{subsec:recomendacion-fase2}
+La recomendación integrará los procedimientos anteriores en una consulta reproducible, sin requerir una interfaz gráfica ni aprendizaje durante el partido. La versión inicial utilizará modelos guardados e historial congelado en el corte previsto. Cambiar el quinteto rival actualizará el escenario de consulta, pero no incorporará automáticamente las estadísticas que ocurran después del corte.
+
+\paragraph*{Datos del escenario y secuencia de consulta.}
+Se proporcionarán equipo focal, quinteto actual, quinteto rival, disponibles, contexto y máximo de cambios. La disponibilidad que no pueda obtenerse de una fuente verificable se documentará como entrada manual del escenario. No se supondrá que todas las integrantes de la plantilla pueden ingresar.
+
+Se comprobarán identidades y elegibilidad, se generarán candidatos según 6.2.3 y se construirán sus características temporales. Se consultará fase 1 para las parejas elegibles y se utilizará fase 2 para obtener un Net Rating predicho por alternativa. Las predicciones no definidas se identificarán; si ninguna alternativa es evaluable, se devolverá ese estado sin inventar una recomendación.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[node distance=0.4cm,
+box/.style={draw,rounded corners,align=center,text width=11.3cm,font=\small,inner sep=5pt},
+arr/.style={-{Stealth},thick}]
+\node[box] (a) {Sustitución rival o nueva consulta de escenario};
+\node[box,below=of a] (b) {Verificar participantes, disponibilidad y restricciones};
+\node[box,below=of b] (c) {Construir candidatos y recuperar antecedentes al corte};
+\node[box,below=of c] (d) {Obtener scores individuales y predicciones colectivas};
+\node[box,below=of d] (e) {Ordenar alternativas y compararlas con el quinteto actual};
+\node[box,below=of e] (f) {Presentar quinteto elegido, cambios, cobertura y versión};
+\draw[arr] (a)--(b);\draw[arr] (b)--(c);\draw[arr] (c)--(d);
+\draw[arr] (d)--(e);\draw[arr] (e)--(f);
+\end{tikzpicture}
+\caption{Consulta de recomendación con modelos ya entrenados.}
+\end{figure}
+
+\paragraph*{Salida e interpretación.}
+Se presentará una tabla ordenada, con el quinteto recomendado y hasta tres alternativas adicionales evaluables, incluyendo la referencia del quinteto actual aunque no esté entre las primeras posiciones. Se conservarán identificadores de integrantes, Net Rating predicho, diferencia respecto al actual, cambios necesarios, exposición histórica y estados de cobertura. Los identificadores de modelo y fecha de corte permitirán reproducir la consulta.
+
+\begin{table}[htbp]
+\centering\small
+\caption{Ejemplo hipotético de salida ante un mismo quinteto rival.}
+\label{tab:ejemplo-recomendacion-final}
+\begin{tabularx}{\textwidth}{@{}lXrrl@{}}
+\toprule
+\textbf{Opción}&\textbf{Integrantes}&\textbf{NetRtg}&\textbf{Diferencia}&\textbf{Cambios}\\\midrule
+Recomendada & A, B, C, D, F & $+5$ & $+3$ & E sale; F entra\\
+Alternativa & A, B, C, D, G & $+4$ & $+2$ & E sale; G entra\\
+Actual & A, B, C, D, E & $+2$ & $0$ & Ninguno\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Los números ilustran la salida, no resultados empíricos. La diferencia de $+3$ expresa un incremento predicho del balance de eficiencias frente al mismo rival y contexto; no significa tres puntos adicionales garantizados en el marcador. Un Net Rating positivo tampoco representa una probabilidad de victoria.
+
+La cobertura se mostrará por separado: historial del quinteto, historial de la pareja exacta y proporción de comparaciones individuales disponibles. Una combinación sin historial podrá evaluarse si las reglas del modelo lo permiten, pero se identificará como tal. No se asignará una confianza numérica ni un intervalo sin un método específico de estimación y validación.
+
+Si el quinteto actual obtiene la mayor puntuación, se recomendará mantenerlo. Si una mejora es pequeña, se presentará su magnitud sin afirmar que sea significativa. No se atribuirá el resultado exclusivamente a una jugadora o a su defensa sobre una rival; las entradas combinan antecedentes y asociaciones colectivas.
+
+\paragraph*{Registro y alcance del resultado.}
+Cada consulta conservará escenario, reglas, candidatos evaluados y excluidos, motivo de exclusión, versiones y tiempo de ejecución. Esto permitirá distinguir cambios debidos al rival de cambios en datos o modelos. Los resultados se entregarán como tablas de análisis, manteniendo el alcance del proyecto centrado en modelado.
+
+En conjunto, las secciones anteriores especifican cómo preparar evidencia, estimar rendimiento, seleccionar una alternativa y evaluar sus límites. La salida será apoyo cuantitativo para comparar quintetos; la evaluación retrospectiva no observará todos los resultados posibles de decisiones no tomadas. Los experimentos y sus resultados se documentarán una vez ejecutados, sin presentar este diseño como validación ya realizada.
+
+\endgroup
