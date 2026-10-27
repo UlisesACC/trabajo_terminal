@@ -1,0 +1,94 @@
+\begin{figure}[htbp]
+\centering
+\begingroup
+\setlength{\fboxsep}{6pt}
+\renewcommand{\arraystretch}{1.15}
+
+\begin{minipage}{0.95\textwidth}
+\centering
+
+\fcolorbox{guindaipn}{white}{%
+    \begin{minipage}{0.87\linewidth}
+    \centering
+    \textbf{Entradas principales}\\[-2pt]
+    {\small
+    Datos históricos de la WNBA, registros \textit{play-by-play}, alineaciones, posesiones,
+    estadísticas individuales y disponibilidad de jugadoras.}
+    \end{minipage}
+}
+
+\\[4pt]
+{\color{guindaipn}\Large$\Downarrow$}
+\\[4pt]
+
+\fcolorbox{guindaipn}{white}{%
+    \begin{minipage}{0.87\linewidth}
+    \centering
+    \textbf{Preprocesamiento y validación de la información}\\[-2pt]
+    {\small
+    Limpieza, integración de fuentes,  identificadores, reconstrucción
+    de quintetos y verificación de consistencia temporal.}
+    \end{minipage}
+}
+
+\\[4pt]
+{\color{guindaipn}\Large$\Downarrow$}
+\\[4pt]
+
+\fcolorbox{guindaipn}{white}{%
+    \begin{minipage}{0.87\linewidth}
+    \centering
+    \textbf{Fase 1: caracterización de jugadoras}\\[-2pt]
+    {\small
+    Selección de variables, análisis de estadísticas históricas, construcción de perfiles
+    funcionales y comparación entre jugadoras rivales.}
+    \end{minipage}
+}
+
+\\[4pt]
+{\color{guindaipn}\Large$\Downarrow$}
+\\[4pt]
+
+\fcolorbox{guindaipn}{white}{%
+    \begin{minipage}{0.87\linewidth}
+    \centering
+    \textbf{Fase 2: evaluación de quintetos candidatos}\\[-2pt]
+    {\small
+    Identificación del quinteto rival, generación de alineaciones factibles del equipo propio
+    y estimación preliminar del rendimiento esperado de cada combinación.}
+    \end{minipage}
+}
+
+\\[4pt]
+{\color{guindaipn}\Large$\Downarrow$}
+\\[4pt]
+
+\fcolorbox{guindaipn}{white}{%
+    \begin{minipage}{0.87\linewidth}
+    \centering
+    \textbf{Optimización de la alineación}\\[-2pt]
+    {\small
+    Comparación de quintetos factibles mediante una función objetivo sujeta a restricciones,
+    como número de jugadoras, disponibilidad y condiciones de sustitución.}
+    \end{minipage}
+}
+
+\\[4pt]
+{\color{guindaipn}\Large$\Downarrow$}
+\\[4pt]
+
+\fcolorbox{guindaipn}{white}{%
+    \begin{minipage}{0.87\linewidth}
+    \centering
+    \textbf{Salidas del modelo}\\[-2pt]
+    {\small
+    Quinteto recomendado, ordenamiento de alternativas, estimación de rendimiento esperado
+    y medidas de evaluación para el análisis posterior.}
+    \end{minipage}
+}
+
+\end{minipage}
+\endgroup
+\caption{Resumen del procedimiento preliminar propuesto para el desarrollo del modelo de optimización de alineaciones.}
+\label{fig:procedimiento_preliminar_modelo}
+\end{figure}
