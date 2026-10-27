@@ -1,0 +1,65 @@
+Los modelos estadísticos y de aprendizaje automático permiten estudiar relaciones entre variables y obtener estimaciones a partir de observaciones históricas. De acuerdo con la naturaleza de la tarea, se distinguen métodos no supervisados, empleados para identificar estructuras en los datos, y métodos supervisados, utilizados para estimar una variable de respuesta conocida durante el entrenamiento. La selección de un procedimiento requiere considerar la cantidad de observaciones, el tipo de variable y la capacidad de generalización del modelo \cite{bishop2006pattern,hastie2009elements}.
+
+\subsubsection{Agrupamiento mediante K-means}
+El algoritmo K-means pertenece a los métodos de aprendizaje no supervisado. Su finalidad es dividir $n$ observaciones en $K$ grupos, de manera que las observaciones pertenecientes a un mismo grupo se encuentren próximas a un centroide de acuerdo con una medida de distancia. Una formulación de su objetivo es:
+\begin{equation}
+\underset{C_1,\ldots,C_K}{\operatorname{min}}
+\sum_{k=1}^{K}\sum_{\mathbf{x}_i\in C_k}
+\|\mathbf{x}_i-\boldsymbol{\mu}_k\|_2^2,
+\end{equation}
+donde $C_k$ representa el conjunto de observaciones asignadas al grupo $k$ y $\boldsymbol{\mu}_k$ su centroide. El método depende de la selección de $K$, de la escala de las variables y de la inicialización de los centroides. El procedimiento K-means++ propone una inicialización orientada a mejorar la calidad de los centros iniciales \cite{hastie2009elements,arthur2007kmeanspp}.
+
+\subsubsection{Agrupamiento jerárquico}
+El agrupamiento jerárquico permite obtener una estructura de grupos anidados. En su variante aglomerativa, las observaciones comienzan como grupos individuales y se combinan progresivamente siguiendo un criterio de proximidad. La estructura obtenida puede representarse mediante un dendrograma, cuyo corte determina el nivel de agrupamiento analizado. Las agrupaciones pueden variar según la distancia y el criterio de enlace empleados \cite{hastie2009elements}.
+
+\subsubsection{Modelos de mezcla gaussiana}
+Los modelos de mezcla gaussiana o \textit{Gaussian Mixture Models} (GMM) representan la distribución de las observaciones mediante una combinación ponderada de distribuciones normales. Su densidad se expresa como:
+\begin{equation}
+p(\mathbf{x})=\sum_{k=1}^{K}\pi_k
+\mathcal{N}(\mathbf{x}\mid\boldsymbol{\mu}_k,\boldsymbol{\Sigma}_k),
+\qquad \sum_{k=1}^{K}\pi_k=1,
+\end{equation}
+donde $\pi_k$ es el peso de la componente $k$, $\boldsymbol{\mu}_k$ su media y $\boldsymbol{\Sigma}_k$ su matriz de covarianza. A diferencia de una asignación exclusivamente rígida, el modelo permite estimar la pertenencia probabilística de cada observación a las componentes. Su estimación depende de supuestos distribucionales y de la elección del número de componentes \cite{bishop2006pattern}.
+
+\subsubsection{Análisis de componentes principales}
+El análisis de componentes principales o \textit{Principal Component Analysis} (PCA) transforma un conjunto de variables numéricas en combinaciones lineales ortogonales, ordenadas según la variación explicada. Si $\mathbf{x}$ representa una observación centrada, su proyección sobre una dirección $\mathbf{w}$ puede expresarse como:
+\begin{equation}
+z=\mathbf{w}^{\mathsf{T}}\mathbf{x}.
+\end{equation}
+Las direcciones principales se obtienen a partir de la estructura de covarianza de los datos. PCA resulta útil para explorar relaciones y disminuir la dimensionalidad, aunque una mayor varianza explicada no garantiza necesariamente una mayor capacidad predictiva \cite{hastie2009elements,bishop2006pattern}.
+
+\subsubsection{Regresión lineal regularizada}
+La regresión lineal relaciona una respuesta cuantitativa con un conjunto de características mediante una combinación de sus coeficientes. Cuando existe una elevada dependencia entre variables o un número considerable de predictores, pueden incorporarse penalizaciones que limiten la magnitud de los coeficientes. En regresión Ridge se utiliza:
+\begin{equation}
+\hat{\boldsymbol{\beta}}=
+\underset{\boldsymbol{\beta}}{\operatorname{arg\,min}}
+\left\{
+\sum_{i=1}^{n}(y_i-\beta_0-\mathbf{x}_i^{\mathsf T}\boldsymbol{\beta})^2+
+\lambda\|\boldsymbol{\beta}\|_2^2
+\right\},
+\end{equation}
+donde $\lambda\geq 0$ controla la regularización y el intercepto $\beta_0$ no se penaliza en esta formulación. Su utilidad consiste en estabilizar la estimación de los parámetros, aunque puede introducir sesgo en sus valores \cite{hoerl1970ridge,hastie2009elements}.
+
+\subsubsection{Regresión logística}
+La regresión logística permite estimar la probabilidad de una respuesta binaria a partir de variables explicativas. Si $\mathbf{x}_i$ representa las características de una observación, la probabilidad del resultado positivo se representa mediante:
+\begin{equation}
+\hat p_i=\frac{1}{1+\exp[-(\beta_0+\mathbf{x}_i^{\mathsf T}\boldsymbol{\beta})]}.
+\end{equation}
+Su salida es una probabilidad, que puede transformarse en categoría al elegir un umbral de clasificación. La estimación del modelo puede combinarse con penalizaciones sobre sus parámetros para controlar la complejidad \cite{bishop2006pattern,hastie2009elements}.
+
+\subsubsection{Bosques aleatorios}
+Los bosques aleatorios o \textit{Random Forests} combinan múltiples árboles de decisión construidos mediante mecanismos de aleatorización, como el muestreo de observaciones y de variables candidatas para las divisiones. En regresión, las predicciones de los árboles pueden promediarse:
+\begin{equation}
+\hat f(\mathbf{x})=\frac{1}{B}\sum_{b=1}^{B}T_b(\mathbf{x}),
+\end{equation}
+donde $T_b$ representa la predicción del árbol $b$ y $B$ es el número de árboles. Esta combinación permite representar relaciones no lineales entre características, aunque su comportamiento depende de la configuración de los árboles y de la información disponible durante el entrenamiento \cite{breiman2001randomforests,hastie2009elements}.
+
+\subsubsection{Gradient Boosting}
+El método \textit{Gradient Boosting} construye un modelo aditivo de forma sucesiva, incorporando nuevos predictores orientados a disminuir una función de pérdida. Su actualización general puede expresarse como:
+\begin{equation}
+F_m(\mathbf{x})=F_{m-1}(\mathbf{x})+\nu\,h_m(\mathbf{x}),
+\end{equation}
+donde $F_{m-1}$ representa el modelo de la iteración anterior, $h_m$ la función incorporada y $\nu$ controla el tamaño de la actualización. El procedimiento puede utilizarse en regresión y clasificación según la pérdida seleccionada, pero requiere controlar la complejidad para evitar el sobreajuste \cite{friedman2001greedy,hastie2009elements}.
+
+\subsubsection{Comparación de modelos}
+Los algoritmos descritos presentan distintas características: los métodos de agrupamiento identifican patrones sin requerir una variable objetivo; PCA obtiene representaciones de menor dimensión; la regresión regularizada proporciona un modelo paramétrico; y los métodos basados en árboles permiten representar relaciones no lineales. Estas diferencias justifican comparar varias alternativas antes de seleccionar un modelo definitivo, utilizando datos separados cronológicamente y métricas acordes con el tipo de salida \cite{hastie2009elements,cawley2010selection}.

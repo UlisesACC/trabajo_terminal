@@ -1,0 +1,89 @@
+El rendimiento de un modelo predictivo se evalúa al comparar sus estimaciones con valores observados que no fueron utilizados para ajustar sus parámetros. Las medidas de evaluación dependen del tipo de respuesta: una magnitud numérica, una categoría, una probabilidad o un ordenamiento de alternativas. Para expresar estas medidas se consideran $n$ observaciones, con valores reales $y_i$, predicciones numéricas $\hat y_i$, probabilidades estimadas $\hat p_i$ y, cuando corresponda, una clasificación binaria $y_i\in\{0,1\}$ \cite{hastie2009elements}.
+
+\subsubsection{Error absoluto medio}
+El error absoluto medio o \textit{Mean Absolute Error} (MAE) representa el promedio de las diferencias absolutas entre los valores observados y las estimaciones. Su expresión es:
+\begin{equation}
+\mathrm{MAE}=\frac{1}{n}\sum_{i=1}^{n}|y_i-\hat y_i|.
+\end{equation}
+Esta medida conserva las unidades de la variable evaluada y permite interpretar la magnitud típica de los errores. Debido al uso del valor absoluto, no penaliza de forma cuadrática las diferencias grandes \cite{hastie2009elements}.
+
+\subsubsection{Error cuadrático medio}
+El error cuadrático medio o \textit{Mean Squared Error} (MSE) calcula el promedio de los cuadrados de los errores de predicción:
+\begin{equation}
+\mathrm{MSE}=\frac{1}{n}\sum_{i=1}^{n}(y_i-\hat y_i)^2.
+\end{equation}
+Al elevar cada diferencia al cuadrado, la contribución de los errores de mayor magnitud aumenta con respecto a la de los errores pequeños. Por ello puede resultar sensible a observaciones extremas \cite{hastie2009elements}.
+
+\subsubsection{Raíz del error cuadrático medio}
+La raíz del error cuadrático medio o \textit{Root Mean Squared Error} (RMSE) se obtiene al aplicar la raíz cuadrada al MSE:
+\begin{equation}
+\mathrm{RMSE}=\sqrt{\frac{1}{n}\sum_{i=1}^{n}(y_i-\hat y_i)^2}.
+\end{equation}
+Su resultado se expresa en las mismas unidades de la variable de respuesta. Tanto el MAE como el RMSE pueden utilizarse para evaluar la estimación de indicadores continuos de rendimiento, siempre que se definan previamente la unidad de observación y el valor real de referencia \cite{hastie2009elements}.
+
+\subsubsection{Matriz de confusión y exactitud}
+Para evaluar una clasificación binaria se distinguen los verdaderos positivos ($VP$), falsos positivos ($FP$), verdaderos negativos ($VN$) y falsos negativos ($FN$). Estas cantidades permiten identificar los aciertos y errores de cada clase \cite{fawcett2006roc}. La exactitud o \textit{Accuracy} se define como:
+\begin{equation}
+\mathrm{Accuracy}=\frac{VP+VN}{VP+VN+FP+FN}.
+\end{equation}
+La exactitud expresa la proporción total de clasificaciones correctas. Sin embargo, puede ofrecer una interpretación incompleta cuando la cantidad de observaciones de una clase es considerablemente mayor que la de la otra \cite{saito2015precisionrecall}.
+
+\subsubsection{Precisión, sensibilidad y medida F1}
+La precisión o \textit{Precision} mide qué proporción de observaciones clasificadas como positivas pertenece realmente a dicha clase:
+\begin{equation}
+\mathrm{Precision}=\frac{VP}{VP+FP}.
+\end{equation}
+La sensibilidad o \textit{Recall} expresa la proporción de observaciones positivas que fueron identificadas correctamente:
+\begin{equation}
+\mathrm{Recall}=\frac{VP}{VP+FN}.
+\end{equation}
+La medida F1 se obtiene como la media armónica de precisión y sensibilidad:
+\begin{equation}
+\mathrm{F1}=2\frac{\mathrm{Precision}\cdot\mathrm{Recall}}
+{\mathrm{Precision}+\mathrm{Recall}}.
+\end{equation}
+Las tres medidas permiten examinar el comportamiento de la clasificación positiva desde perspectivas diferentes. Cuando algún denominador es cero, el criterio de tratamiento debe establecerse antes de realizar la evaluación \cite{saito2015precisionrecall,hastie2009elements}.
+
+\subsubsection{Área bajo la curva ROC}
+La curva ROC (\textit{Receiver Operating Characteristic}) representa la relación entre la tasa de verdaderos positivos y la tasa de falsos positivos cuando se modifica el umbral de clasificación. Se consideran:
+\begin{equation}
+\mathrm{TPR}=\frac{VP}{VP+FN},
+\qquad
+\mathrm{FPR}=\frac{FP}{FP+VN}.
+\end{equation}
+El área bajo esta curva, conocida como ROC-AUC, resume la capacidad discriminativa de un modelo a través de los diferentes umbrales. Un valor cercano a uno refleja una mayor capacidad para ordenar los casos positivos por encima de los negativos; no representa por sí mismo una medida de calibración de probabilidades \cite{fawcett2006roc}. En conjuntos desbalanceados resulta conveniente examinar también las relaciones entre precisión y sensibilidad \cite{saito2015precisionrecall}.
+
+\subsubsection{Brier Score}
+El \textit{Brier Score} evalúa predicciones probabilísticas a partir de la diferencia cuadrática entre la probabilidad estimada y el resultado observado. En su forma binaria se expresa como:
+\begin{equation}
+\mathrm{BS}=\frac{1}{n}\sum_{i=1}^{n}(\hat p_i-y_i)^2,
+\quad 0\leq \hat p_i\leq 1.
+\end{equation}
+Un valor menor indica un mejor ajuste de las probabilidades a los resultados observados. Su cálculo binario corresponde a una forma particular de la evaluación de pronósticos probabilísticos presentada por Brier \cite{brier1950verification}. Esta medida no debe confundirse con la exactitud obtenida al aplicar un umbral fijo.
+
+\subsubsection{Pérdida logarítmica}
+La pérdida logarítmica o \textit{Log Loss} evalúa las probabilidades asignadas por un modelo de clasificación binaria mediante:
+\begin{equation}
+\mathrm{LogLoss}=-\frac{1}{n}\sum_{i=1}^{n}
+\left[y_i\ln(\hat p_i)+(1-y_i)\ln(1-\hat p_i)\right].
+\end{equation}
+La función penaliza especialmente las probabilidades muy seguras que contradicen el resultado observado. Para evitar valores indefinidos en la implementación, las probabilidades deben tratarse numéricamente cuando alcanzan cero o uno. Una pérdida menor indica mejores predicciones probabilísticas \cite{bishop2006pattern,hastie2009elements}.
+
+\subsubsection{Precisión en los primeros $k$ resultados}
+La métrica \textit{Precision@$k$} estudia cuántos elementos relevantes aparecen entre las primeras $k$ posiciones de una lista ordenada. Si $\mathrm{rel}_j$ vale uno cuando el elemento ubicado en la posición $j$ es relevante, y cero en otro caso, se calcula como:
+\begin{equation}
+\mathrm{Precision}@k=\frac{1}{k}\sum_{j=1}^{k}\mathrm{rel}_j.
+\end{equation}
+La medida requiere definir previamente un criterio verificable de relevancia. Además, no distingue entre dos ordenamientos que contienen la misma cantidad de elementos relevantes dentro de los primeros $k$ lugares, aunque sus posiciones sean distintas \cite{manning2008information}.
+
+\subsubsection{Ganancia acumulada descontada normalizada}
+La \textit{Normalized Discounted Cumulative Gain} (NDCG) permite valorar listas ordenadas considerando la relevancia de cada elemento y su posición. Para los primeros $k$ lugares se utiliza:
+\begin{equation}
+\mathrm{DCG}@k=\sum_{j=1}^{k}\frac{2^{r_j}-1}{\log_2(j+1)},
+\qquad
+\mathrm{NDCG}@k=\frac{\mathrm{DCG}@k}{\mathrm{IDCG}@k},
+\end{equation}
+donde $r_j$ es el grado de relevancia del elemento situado en la posición $j$ e $\mathrm{IDCG}@k$ es el valor obtenido por el ordenamiento ideal. La normalización permite comparar listas con distintas distribuciones de relevancia, siempre que exista una referencia externa consistente. Cuando la ganancia ideal es cero, debe establecerse una convención de evaluación \cite{jarvelin2002cumulated,manning2008information}.
+
+\subsubsection{Validación temporal de los modelos}
+En datos ordenados cronológicamente, la evaluación debe evitar que observaciones posteriores contribuyan al ajuste de modelos destinados a predecir periodos anteriores. Una estrategia consiste en ajustar los parámetros con temporadas previas y reservar temporadas posteriores para la evaluación. La selección de hiperparámetros debe efectuarse dentro de la información disponible en cada partición de entrenamiento, para evitar una estimación optimista del desempeño \cite{hastie2009elements,cawley2010selection}. Las métricas anteriores describen aspectos distintos y su aplicación debe depender de la salida del modelo y de la disponibilidad de valores observados independientes.
