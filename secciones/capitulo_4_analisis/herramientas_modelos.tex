@@ -1,12 +1,56 @@
-El proyecto se centra en el diseño, entrenamiento y evaluación de un modelo de recomendación de intercambio de jugadoras de basquetbol; no contempla desarrollar una aplicación informática para usuarios finales. Las herramientas se seleccionan por su utilidad para preparar datos, comparar métodos y reproducir los experimentos.
+El desarrollo del proyecto requiere herramientas que permitan consultar y preparar información histórica de la WNBA, construir variables, comparar modelos estadísticos y verificar los resultados obtenidos. Debido a que el trabajo se centra en un modelo de recomendación y optimización de alineaciones, las tecnologías se consideran recursos para el análisis computacional y no componentes de una aplicación destinada a usuarios finales.
 
-\begin{itemize}
- \item  \textbf{Visual Studio Code - insiders:} propuesto para visualizar atravez de las extensiones los datos que están en formato parquet; como las extensiones para hacer estadísticas sobre ellos entre ellas incluyen: data wrangler, parquet visualizer.
- \item \textbf{Python:} lenguaje propuesto para integrar conjuntos tabulares y ejecutar los experimentos.
- \item \textbf{Pandas y PyArrow:} bibliotecas para consultar, transformar y almacenar archivos Parquet.
- \item \textbf{Scikit-learn:} biblioteca candidata para normalización, agrupamiento, modelos de referencia y evaluación.
- \item \textbf{Herramientas estadísticas:} técnicas de regularización y estimación de efectos de jugadoras o quintetos, cuya implementación específica se decidirá tras la exploración de datos.
- \item \textbf{Optimización combinatoria:} búsqueda y comparación de quintetos factibles mediante una función de desempeño estimado.
-\end{itemize}
-*Nota: Se podrían agregar mas tecnologías a las presentes en el documento, para mejorar la calidad de la investigación y evitar las limitaciones que hay en cada tecnología.
-Se compararán métodos de agrupamiento para perfiles \textit{Guard}, \textit{Wing} y \textit{Big}, modelos predictivos del rendimiento colectivo y un optimizador que seleccione las cinco jugadoras disponibles. No se considera ninguno de estos métodos como implementado o validado en esta etapa. La fuente principal propuesta para las estadísticas es wehoop \cite{wehoopRepositorio}, cuya estructura y limitaciones se describen en el modelo de datos.
+La selección de herramientas se relaciona con las etapas de la metodología en cascada descritas anteriormente: durante el análisis y el diseño se revisarán las fuentes y las variables disponibles; en la implementación se prepararán los datos y se desarrollarán los modelos; posteriormente se efectuarán las pruebas, la evaluación y la documentación de los procedimientos. La incorporación definitiva de bibliotecas y algoritmos dependerá de su compatibilidad con los datos y de los resultados de los experimentos.
+
+\subsection{Herramientas de desarrollo y procesamiento}
+
+\textbf{Visual Studio Code.} Es un entorno de edición de código que permite trabajar con archivos Python, administrar proyectos y ejecutar o depurar programas mediante extensiones. En el proyecto se contempla su uso para organizar los procedimientos de lectura, transformación y análisis de datos. Las extensiones orientadas a la exploración tabular y visualización de archivos Parquet podrán utilizarse como apoyo durante la revisión inicial de los conjuntos de datos \cite{vscodePythonOficial}.
+
+\textbf{Python.} Se propone como lenguaje principal de programación para desarrollar los procedimientos de preprocesamiento, el cálculo de variables, la comparación de modelos y los experimentos de recomendación. Su disponibilidad de bibliotecas científicas permite integrar estas actividades en un mismo flujo de trabajo \cite{pythonDocsOficial,numpyDocsOficial}.
+
+\textbf{DuckDB.} Es un sistema de procesamiento analítico que permite ejecutar consultas SQL directamente sobre archivos Parquet. Entre sus funcionalidades se encuentra la lectura de varios archivos mediante patrones de nombres, lo que resulta pertinente para integrar registros \textit{play-by-play} almacenados por temporada y conservar información sobre su archivo de procedencia \cite{duckdbParquetOficial,duckdbMultipleFilesOficial}.
+
+\textbf{Git y GitHub.} Git permite registrar cambios y recuperar versiones anteriores de los archivos; GitHub proporciona un repositorio para almacenar el código y colaborar en su mantenimiento. Ambos recursos apoyarán el control de versiones del proyecto y la trazabilidad de las modificaciones realizadas durante las distintas etapas \cite{gitLibroOficial,githubReposOficial}.
+
+\textbf{Docker.} Se considera para empaquetar las dependencias y la configuración necesarias para ejecutar los procedimientos en un entorno reproducible. Su uso será especialmente pertinente cuando se establezcan las versiones definitivas de las bibliotecas y los comandos de ejecución de los experimentos \cite{dockerDocsOficial}.
+
+\subsection{Bibliotecas de análisis y modelado}
+
+Las bibliotecas de Python consideradas para las diferentes actividades se resumen en la Tabla~\ref{tab:bibliotecas_tt}. Sus funciones se presentan de manera descriptiva, debido a que la selección definitiva de métodos corresponde a las etapas de implementación y evaluación.
+
+\begin{longtable}{@{}p{2.45cm}p{4.0cm}p{5.95cm}@{}}
+\caption{Bibliotecas propuestas para el procesamiento y modelado de los datos de la WNBA.}
+\label{tab:bibliotecas_tt}\\
+\toprule
+\textbf{Biblioteca} & \textbf{Funcionalidad principal} & \textbf{Aplicación prevista en el proyecto}\\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Biblioteca} & \textbf{Funcionalidad principal} & \textbf{Aplicación prevista en el proyecto}\\
+\midrule
+\endhead
+Pandas & Manejo de estructuras tabulares y operaciones de selección, agrupación y combinación. & Revisión de registros, limpieza e integración de estadísticas por partido, jugadora y temporada \cite{pandasDocsOficial}.\\
+\addlinespace
+NumPy & Operaciones numéricas con arreglos multidimensionales y funciones matemáticas. & Cálculo de variables, operaciones matriciales y preparación de entradas numéricas para los modelos \cite{numpyDocsOficial}.\\
+\addlinespace
+PyArrow & Lectura, escritura e intercambio de datos columnares, incluidos archivos Parquet. & Consulta y conservación de conjuntos de datos procesados sin alterar los archivos originales \cite{pyarrowDocsOficial}.\\
+\addlinespace
+DuckDB (Python) & Consultas SQL y lectura conjunta de archivos analíticos. & Integración de archivos Parquet de varias temporadas y generación de consultas de validación \cite{duckdbParquetOficial}.\\
+\addlinespace
+Matplotlib & Elaboración de representaciones gráficas estáticas e interactivas. & Visualización de distribuciones, tendencias y resultados del análisis exploratorio \cite{matplotlibDocsOficial}.\\
+\addlinespace
+SciPy & Procedimientos estadísticos y de optimización numérica. & Análisis de distribuciones, contrastes estadísticos y exploración de métodos de optimización compatibles con el problema \cite{scipyStatsOficial,scipyOptimizeOficial}.\\
+\addlinespace
+Scikit-learn & Herramientas de agrupamiento, regresión, clasificación, preprocesamiento y evaluación. & Comparación de perfiles de jugadoras, modelos predictivos, métricas y particiones temporales \cite{sklearnGuiaOficial}.\\
+\addlinespace
+OR-Tools & Solucionadores para problemas con variables de decisión, restricciones y funciones objetivo. & Alternativa para seleccionar quintetos factibles bajo restricciones de disponibilidad y composición \cite{ortoolsDocsOficial}.\\
+\bottomrule
+\end{longtable}
+
+\subsection{Relación con los modelos propuestos}
+
+En la primera fase se contempla la caracterización de jugadoras mediante estadísticas históricas y técnicas de aprendizaje no supervisado. Para ello, Scikit-learn permite comparar métodos de agrupamiento, como K-means, agrupamiento jerárquico y mezclas gaussianas, además de procedimientos de reducción de dimensionalidad. Las operaciones de preparación y estandarización de variables podrán apoyarse en Pandas y NumPy \cite{sklearnGuiaOficial,pandasDocsOficial}.
+
+En la segunda fase se prevé estimar el rendimiento de quintetos frente a alineaciones rivales. Los métodos candidatos comprenden regresión regularizada y modelos basados en árboles, cuya implementación y evaluación pueden realizarse con Scikit-learn. La selección de quintetos podrá comenzar con una enumeración de combinaciones factibles y, si las restricciones o el tamaño del problema lo requieren, compararse con un solucionador de optimización como OR-Tools. Esta biblioteca no sustituye al modelo predictivo, sino que permitiría buscar una combinación de jugadoras a partir de una función objetivo previamente definida \cite{sklearnGuiaOficial,ortoolsDocsOficial}.
+
+Finalmente, los procedimientos de evaluación utilizarán métricas acordes con el tipo de salida, entre ellas MAE y RMSE para estimaciones numéricas, Brier Score para probabilidades y medidas de ordenamiento cuando se disponga de un criterio de relevancia verificable. Las herramientas mencionadas constituyen alternativas técnicas previstas; su inclusión en esta sección no implica que todos los algoritmos hayan sido implementados o validados en la etapa correspondiente a TT1.
