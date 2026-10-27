@@ -1,0 +1,94 @@
+\subsection{Propuesta y selección de métodos para predecir y comparar quintetos}
+\label{subsec:algoritmos-fase2}
+\begingroup
+\emergencystretch=2em
+A partir de la tabla derivada descrita en el apartado~\ref{subsec:construccion-tablas-fase2}, se compararán métodos capaces de estimar el Net Rating de un quinteto focal frente a uno rival. Se considerarán tres alternativas: regresión Ridge, árboles con refuerzo por gradiente y regresión regularizada enriquecida con características de un hipergrafo. La tercera será una alternativa de representación relacional y estimación, no un algoritmo denominado simplemente grafo.
+
+Se mantendrán separadas la predicción y la selección. El predictor asignará una puntuación numérica a cada enfrentamiento; un procedimiento posterior comparará los quintetos factibles y elegirá el de mayor puntuación. Ninguno de los métodos propuestos garantizará que el quinteto elegido sea realmente el mejor en el partido: la recomendación dependerá del error del modelo y de las alternativas permitidas.
+
+\paragraph*{Alternativa 1: regresión Ridge.}
+Una regresión relaciona características de entrada con una respuesta numérica. Ridge utiliza una suma de características multiplicadas por coeficientes y añade una penalización que limita su magnitud, con el propósito de estabilizar el ajuste ante variables relacionadas \cite{hoerl1970ridge,sklearnRidge616}. En este caso, las entradas incluirán antecedentes de ambos quintetos, composición, contexto y resúmenes de fase 1; la respuesta será el Net Rating observado.
+
+Su función será aprender cómo se relacionan esas entradas con el rendimiento colectivo y producir una puntuación para cada quinteto candidato. Por ejemplo, podrá combinar la eficiencia ofensiva histórica focal, la eficiencia defensiva rival y las comparaciones individuales disponibles. No se fijarán manualmente pesos para sumar las puntuaciones de fase 1: sus coeficientes se estimarán durante el entrenamiento.
+
+Se incorporará una lista limitada de interacciones definidas en desarrollo. Una interacción será una característica que combina dos entradas, por ejemplo el antecedente ofensivo focal y el defensivo rival. Será relevante porque un modelo puramente aditivo podría asignar casi el mismo orden a los quintetos propios ante rivales distintos: si el término rival es idéntico para todas las candidatas, no cambia ese orden. Las comparaciones de fase 1 y las interacciones explícitas permitirán representar dependencia entre ambas composiciones, sin asegurar que la información sea suficiente.
+
+Se imputarán predictores permitidos y se escalarán características numéricas con parámetros aprendidos únicamente en entrenamiento. La intensidad de penalización se seleccionará mediante validación temporal. Se evitará incluir simultáneamente todas las tasas y sus derivados sin revisar redundancia; Ridge no convierte variables irrelevantes en información útil. Los coeficientes describirán asociaciones, no efectos causales de realizar una sustitución.
+
+\paragraph*{Alternativa 2: árboles con refuerzo por gradiente.}
+Un árbol de regresión divide los registros mediante condiciones sobre sus características y asigna una predicción a cada grupo resultante. El refuerzo por gradiente combina árboles de manera sucesiva para reducir el error que permanece en la predicción \cite{friedman2001greedy}. Se propone su implementación mediante \texttt{HistGradient}\allowbreak\texttt{BoostingRegressor} de \texttt{scikit-learn} \cite{sklearnHGB616}.
+
+Esta alternativa permitirá explorar relaciones no lineales e interacciones sin especificar cada producto de variables. Podría aprender, por ejemplo, que un antecedente ofensivo favorable tiene distinta asociación con el Net Rating según la composición rival y la cobertura de las puntuaciones individuales. Esta posibilidad es una capacidad del método; no demuestra que esos patrones existan o puedan estimarse con la temporada disponible.
+
+Al igual que Ridge, devolverá un Net Rating esperado para cada pareja de quintetos. La búsqueda comparará esas predicciones bajo las mismas restricciones. Se mantendrán la misma respuesta, filas elegibles y cortes temporales para que la comparación no confunda cambios de algoritmo con cambios de datos.
+
+Se controlarán número de iteraciones, tasa de aprendizaje, tamaño de los árboles, mínimo de observaciones por hoja y regularización. Si se utiliza una regla para detener el entrenamiento, su evaluación deberá respetar el tiempo; no se adoptará sin revisión una partición aleatoria interna. La capacidad de tratar ciertos valores faltantes no justificará mezclar ausencia de historial con incompatibilidad de roles. Las categorías se prepararán de acuerdo con la implementación y no se tratarán identificadores arbitrarios como cantidades ordenadas.
+
+\paragraph*{Alternativa 3: regresión con características de un hipergrafo.}
+Un grafo representa entidades mediante nodos y relaciones mediante conexiones entre pares. En este problema, las jugadoras podrán ser nodos y las conexiones indicar participación conjunta. Un hipergrafo amplía esa idea: una sola relación, denominada hiperarista, puede vincular a más de dos nodos y representar un quinteto completo \cite{bretto2013hypergraph}. El trabajo sobre Hypergraph adjusted plus-minus estudia contribuciones individuales y de grupos dentro de una representación colectiva \cite{josephs2025hypergraphadjustedplusminus}.
+
+Como alternativa concreta y acotada se propone construir características relacionales a partir del historial y utilizarlas en una regresión regularizada. No se afirmará que esta construcción reproduzca HAPM ni se la denominará red neuronal de grafos. Su estimador podrá seguir siendo Ridge; la diferencia principal frente a la primera alternativa será la información de grupos que se incorpora y el procesamiento necesario para obtenerla.
+
+Se construirán nodos identificados por jugadora y por su pertenencia al equipo en la temporada. Los quintetos observados formarán hiperaristas, con exposición acumulada previa al corte. Los subconjuntos de parejas y tríos se derivarán cuando exista cobertura, conservando cuántos partidos y posesiones compartieron. Las conexiones entre compañeras no se interpretarán como marcajes frente a rivales.
+
+Para cada quinteto candidato se podrán obtener resúmenes del historial de sus diez parejas y diez tríos internos: exposición compartida, fracción de grupos previamente observados y antecedentes de balance colectivo durante su participación conjunta. Estos últimos se calcularán con resultados de intervalos anteriores; no atribuirán el balance exclusivamente a ese subconjunto. Los grupos no observados conservarán su indicador de ausencia. La selección exacta de características y los límites de exposición se fijarán en desarrollo antes de comparar resultados.
+
+Se construirán características equivalentes del quinteto rival y se conservarán las interacciones de enfrentamiento y las salidas de fase 1. Un hipergrafo de compañeras por sí solo describiría cooperación histórica, pero no distinguiría de manera suficiente el oponente actual. La misma alineación propia debe poder recibir distinta valoración frente a composiciones contrarias diferentes.
+
+Esta representación podría aportar antecedentes parciales cuando un quinteto completo sea nuevo, pero algunas de sus parejas o tríos ya hayan participado juntas. La ventaja se comprobará empíricamente: esas relaciones pueden ser escasas, redundantes o estar condicionadas por otras integrantes. El grafo se reconstruirá únicamente con el pasado de cada corte; ni siquiera su estructura incorporará conexiones futuras, aunque sus resultados no se utilicen como atributos.
+
+\paragraph*{Por qué un grafo no selecciona por sí solo el mejor quinteto.}
+La estructura de nodos y relaciones permite organizar información, pero no define automáticamente qué alineación es mejor. Se necesita especificar cómo sus características producen una estimación del rendimiento y cómo se comparan las combinaciones factibles. Medidas como cantidad de conexiones o centralidad no equivalen, por definición, al Net Rating contra un quinteto rival. Una jugadora con muchas conexiones podría simplemente haber participado más.
+
+Por ello, la tercera alternativa seguirá el mismo procedimiento general: representación del historial, construcción de características, estimación del Net Rating y comparación de candidatos. El antecedente HAPM respalda estudiar contribuciones de grupos; no constituye evidencia de que cualquier grafo resuelva la selección condicionada al rival \cite{josephs2025hypergraphadjustedplusminus}. El problema de selección se expresará:
+\[
+ Q^* \in \underset{Q\in\mathcal{F}}{\operatorname{arg\,max}}\;
+ \widehat N(Q,R,c).
+\]
+Aquí, $Q$ es un quinteto propio candidato; $R$, el quinteto rival; $c$, el contexto conocido; $\widehat N$, el Net Rating predicho; y $\mathcal{F}$, el conjunto de alineaciones permitidas. La expresión devuelve una alternativa que alcanza el mayor valor predicho, no el valor verdadero de una sustitución no observada.
+
+Si existen 12 jugadoras disponibles, seleccionar cinco produce $\binom{12}{5}=792$ combinaciones antes de aplicar restricciones. Este cálculo sugiere comenzar evaluando exhaustivamente las alternativas factibles, en lugar de incorporar un algoritmo de búsqueda complejo sin medir su necesidad. Con un solo cambio permitido, el conjunto será aún menor. Se medirá el costo real de generar características y predicciones; la forma de representar los datos no obliga a utilizar recorridos de grafos para enumerar quintetos.
+
+\paragraph*{Comparación de las alternativas.}
+La Tabla~\ref{tab:algoritmos-fase2} sintetiza sus diferencias. El costo indicado es una expectativa de implementación que deberá medirse, no un resultado experimental ni una garantía de precisión.
+
+\begingroup
+\small
+\setstretch{1.0}
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{2.3cm}>{\raggedright\arraybackslash}p{3.55cm}>{\raggedright\arraybackslash}p{3.55cm}>{\raggedright\arraybackslash}p{3.55cm}@{}}
+\caption{Métodos candidatos para estimar el Net Rating de enfrentamientos entre quintetos.}
+\label{tab:algoritmos-fase2}\\
+\toprule
+\textbf{Criterio}&\textbf{Ridge tabular}&\textbf{Refuerzo por gradiente}&\textbf{Regresión con hipergrafo}\\
+\midrule\endfirsthead
+\toprule
+\textbf{Criterio}&\textbf{Ridge tabular}&\textbf{Refuerzo por gradiente}&\textbf{Regresión con hipergrafo}\\
+\midrule\endhead
+\bottomrule\endfoot
+Representa\-ción & Antecedentes colectivos, composición y resúmenes de fase 1. & La misma vista tabular para comparar el estimador. & Vista tabular enriquecida con características de grupos previos.\\
+Relación aprendida & Combinación lineal de entradas e interacciones preparadas. & Relaciones no lineales mediante árboles sucesivos. & Relación regularizada entre antecedentes relacionales y rendimiento.\\
+Información rival & Atributos rivales y características de interacción explícitas. & Entradas rivales y combinaciones aprendidas por los árboles. & Representación de ambos equipos y sus interacciones; no solo compañeras.\\
+Ventaja posible & Referencia regularizada, inspeccionable y con pocos componentes iniciales. & Explora patrones que la formulación lineal puede omitir. & Aprovecha historial de parejas y tríos cuando falta el del quinteto completo.\\
+Limitación & Dependencia de las interacciones definidas. & Sobreajuste y más configuraciones que controlar. & Relaciones escasas, confusión contextual y mayor preparación.\\
+Datos faltantes & Imputación de predictores permitidos con indicadores. & Tratamiento según implementación y causa de ausencia. & Distinguir grupo no observado, exposición insuficiente e información inválida.\\
+Carga prevista & Menor preparación adicional sobre la vista ya definida. & Mayor búsqueda de configuraciones; costo por medir. & Mayor construcción y auditoría de estructuras y atributos.\\
+Salida & Net Rating esperado por enfrentamiento. & Net Rating esperado por enfrentamiento. & Net Rating esperado por enfrentamiento.\\
+Selección del quinteto & Comparación posterior de candidatos válidos. & Mismo procedimiento de comparación. & Mismo procedimiento; el hipergrafo no reemplaza la búsqueda.\\
+Prioridad & Primer experimento. & Segundo experimento opcional. & Tercero exploratorio, condicionado a cobertura y recursos.\\
+\end{longtable}
+\endgroup
+
+\paragraph*{Elección inicial, salida esperada y ampliación.}
+Se comenzará con Ridge tabular, porque permite evaluar la tabla derivada y la aportación de fase 1 con una referencia regularizada antes de añadir árboles o estructuras relacionales. La elección se apoya en las propiedades de penalización del método \cite{hoerl1970ridge}; su aplicación inicial al proyecto constituye una decisión experimental, no una afirmación de que obtendrá el menor error. La intensidad de penalización y las interacciones se elegirán con datos de desarrollo y cortes temporales.
+
+Se evaluarán una versión con antecedentes colectivos y composición, y otra que añada los resúmenes de fase 1. Los conjuntos de partidos y la respuesta serán los mismos. Si el rendimiento de desarrollo resulta insuficiente, se revisarán primero calidad de datos, exposición, cobertura, definición de características y error de fase 1. Entre las alternativas posteriores se podrá ensayar refuerzo por gradiente. La regresión con hipergrafo quedará para un tercer ensayo si existe historial suficiente de grupos y se justifica la carga adicional. Ninguna de las dos ampliaciones será obligatoria.
+
+La salida será una tabla de quintetos candidatos con sus identificadores, rival, fecha de corte, Net Rating predicho y cobertura histórica. Por ejemplo, ante un rival fijo, un quinteto con candidata A podría recibir $+3$ y otro con candidata B, $+5$ puntos por 100 posesiones en el balance de eficiencias definido. Se preferiría el segundo entre esas opciones, aunque A hubiera encabezado el ranking individual. Los valores son ilustrativos y no representan resultados reales.
+
+También se conservará la predicción del quinteto actual y la diferencia respecto a cada alternativa. Esa diferencia será una mejora predicha por el modelo, no el efecto causal demostrado del cambio. La cobertura no se denominará intervalo de confianza: estimar incertidumbre requerirá un procedimiento adicional.
+
+La configuración se cerrará mediante validación temporal de desarrollo; la prueba final no se utilizará para decidir probar otro algoritmo \cite{cawley2010selection}. Se compararán error de predicción, estabilidad del orden, cobertura y costo bajo condiciones comunes. La precisión de quintetos observados no garantizará aciertos en todas las combinaciones nunca utilizadas. Este procedimiento mantendrá la continuidad de la metodología en cascada: datos verificados, especificación de alternativas, entrenamiento, evaluación e integración con la selección combinatoria.
+
+\endgroup
